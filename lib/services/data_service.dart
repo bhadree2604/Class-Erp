@@ -31,101 +31,11 @@ class DataService {
   Future<SharedPreferences> get _store async =>
       _prefs ??= await SharedPreferences.getInstance();
 
-  Future<void> initialize() async {
-    final prefs = await _store;
-    if (prefs.getBool(_seededKey) ?? false) return;
-
-    // Default profile (mirrors DataSync.getDefaultStudentData)
-    await saveStudentData(
-      defaultStudentId,
-      _defaultProfile().toJson(),
-    );
-
-    // A couple of demo assignments / events so the app isn't empty.
-    final now = DateTime.now();
-    await addAssignment(Assignment(
-      id: 1,
-      subject: 'Data Structures',
-      title: 'Binary Tree Implementation',
-      description: 'Implement binary search tree with insert, delete and traverse.',
-      dueDate: now.add(const Duration(days: 7)).toIso8601String(),
-      maxMarks: '20',
-      status: 'Active',
-      createdBy: 'Mentor',
-      createdAt: now.toIso8601String(),
-    ));
-    await addAssignment(Assignment(
-      id: 2,
-      subject: 'Database Management',
-      title: 'ER Diagram Assignment',
-      description: 'Design an ER diagram for a college management system.',
-      dueDate: now.add(const Duration(days: 10)).toIso8601String(),
-      maxMarks: '15',
-      status: 'Active',
-      createdBy: 'Mentor',
-      createdAt: now.toIso8601String(),
-    ));
-    await addAssignment(Assignment(
-      id: 3,
-      subject: 'Web Development Lab',
-      title: 'Responsive Portfolio',
-      description: 'Build a responsive personal portfolio using HTML/CSS.',
-      dueDate: now.add(const Duration(days: 3)).toIso8601String(),
-      maxMarks: '25',
-      status: 'Active',
-      createdBy: 'Mentor',
-      createdAt: now.toIso8601String(),
-    ));
-    await addEvent(Event(
-      id: 1,
-      title: 'Technical Symposium',
-      type: 'Technical',
-      description: 'Annual inter-college technical symposium with coding contests.',
-      date: now.add(const Duration(days: 15)).toIso8601String(),
-      time: '9:00 AM',
-      venue: 'Main Auditorium',
-      createdBy: 'Mentor',
-      createdAt: now.toIso8601String(),
-    ));
-    await addEvent(Event(
-      id: 2,
-      title: 'Cultural Fest',
-      type: 'Cultural',
-      description: 'Annual cultural festival with music and drama events.',
-      date: now.add(const Duration(days: 30)).toIso8601String(),
-      time: '10:00 AM',
-      venue: 'Open Air Theatre',
-      createdBy: 'Mentor',
-      createdAt: now.toIso8601String(),
-    ));
-
-    await prefs.setBool(_seededKey, true);
-  }
+  Future<void> initialize() async { final prefs = await _store; if (prefs.getBool(_seededKey) ?? false) return; await prefs.setBool(_seededKey, true); }
 
   static const defaultStudentId = 'RIT2024CS001';
 
-  static StudentProfile _defaultProfile() {
-    return const StudentProfile(
-      userId: defaultStudentId,
-      username: 'bhadree',
-      email: 'bhadree@student.rit.edu',
-      fullName: 'Bhadree',
-      phone: '+91 98765 43210',
-      department: 'Computer Science',
-      semester: '6',
-      batch: '2022-2026',
-      section: 'A',
-      cgpa: 8.5,
-      gpa: 8.7,
-      arrears: 0,
-      attendance: 85,
-      currentAddress: 'Hostel Block A, Room 205',
-      permanentAddress: '123 Main Street, City, State - 123456',
-      activities: [],
-      certificates: [],
-      parentReportMessages: [],
-    );
-  }
+  static StudentProfile _defaultProfile() { return const StudentProfile( userId: '', username: '', email: '', fullName: '', phone: '', department: '', semester: '', batch: '', section: '', cgpa: 0.0, gpa: 0.0, arrears: 0, attendance: 0, profilePicture: null, currentAddress: '', permanentAddress: '', activities: const [], certificates: const [], parentReportMessages: const [], ); }
 
   // ---------- Student profile ----------
 
@@ -422,3 +332,5 @@ class DataService {
     return double.parse((total / grades.length).toStringAsFixed(2));
   }
 }
+
+
