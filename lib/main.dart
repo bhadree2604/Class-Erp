@@ -1,0 +1,95 @@
+import 'package:flutter/material.dart';
+
+import 'app_routes.dart';
+import 'screens/landing_screen.dart';
+import 'screens/login_screen.dart';
+import 'screens/mentor/mentor_assignments.dart';
+import 'screens/mentor/mentor_attendance.dart';
+import 'screens/mentor/mentor_certificates.dart';
+import 'screens/mentor/mentor_courses.dart';
+import 'screens/mentor/mentor_create_account.dart';
+import 'screens/mentor/mentor_dashboard.dart';
+import 'screens/mentor/mentor_events.dart';
+import 'screens/mentor/mentor_forgot_password.dart';
+import 'screens/mentor/mentor_meetings.dart';
+import 'screens/mentor/mentor_parent_report.dart';
+import 'screens/mentor/mentor_performance.dart';
+import 'screens/mentor/mentor_profile.dart';
+import 'screens/mentor/mentor_profile_edit.dart';
+import 'screens/mentor/mentor_reports.dart';
+import 'screens/mentor/mentor_settings.dart';
+import 'screens/mentor/mentor_students.dart';
+import 'screens/student/student_assignments.dart';
+import 'screens/student/student_attendance.dart';
+import 'screens/student/student_certificates.dart';
+import 'screens/student/student_courses.dart';
+import 'screens/student/student_create_account.dart';
+import 'screens/student/student_dashboard.dart';
+import 'screens/student/student_events.dart';
+import 'screens/student/student_feedback.dart';
+import 'screens/student/student_forgot_password.dart';
+import 'screens/student/student_grades.dart';
+import 'screens/student/student_parent_report.dart';
+import 'screens/student/student_profile.dart';
+import 'screens/student/student_profile_edit.dart';
+import 'screens/student/student_settings.dart';
+import 'services/auth_service.dart';
+import 'services/data_service.dart';
+import 'theme.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  AuthService.instance.initialize();
+  DataService.instance.initialize();
+  runApp(const MyClassApp());
+}
+
+class MyClassApp extends StatelessWidget {
+  const MyClassApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'RIT College ERP',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.light,
+      initialRoute: AppRoutes.landing,
+      routes: {
+        AppRoutes.landing: (_) => const LandingScreen(),
+        AppRoutes.login: (_) => const LoginScreen(),
+        // Student portal
+        AppRoutes.studentDashboard: (_) => const StudentDashboardScreen(),
+        AppRoutes.studentAttendance: (_) => const StudentAttendanceScreen(),
+        AppRoutes.studentGrades: (_) => const StudentGradesScreen(),
+        AppRoutes.studentCourses: (_) => const StudentCoursesScreen(),
+        AppRoutes.studentAssignments: (_) => const StudentAssignmentsScreen(),
+        AppRoutes.studentEvents: (_) => const StudentEventsScreen(),
+        AppRoutes.studentCertificates: (_) => const StudentCertificatesScreen(),
+        AppRoutes.studentParentReport: (_) => const StudentParentReportScreen(),
+        AppRoutes.studentProfile: (_) => const StudentProfileScreen(),
+        AppRoutes.studentProfileEdit: (_) => const StudentProfileEditScreen(),
+        AppRoutes.studentFeedback: (_) => const StudentFeedbackScreen(),
+        AppRoutes.studentSettings: (_) => const StudentSettingsScreen(),
+        AppRoutes.studentForgotPassword: (_) => const StudentForgotPasswordScreen(),
+        AppRoutes.studentCreateAccount: (_) => const StudentCreateAccountScreen(),
+        // Mentor portal
+        AppRoutes.mentorDashboard: (_) => const MentorDashboardScreen(),
+        AppRoutes.mentorStudents: (_) => const MentorStudentsScreen(),
+        AppRoutes.mentorCourses: (_) => const MentorCoursesScreen(),
+        AppRoutes.mentorAttendance: (_) => const MentorAttendanceScreen(),
+        AppRoutes.mentorAssignments: (_) => const MentorAssignmentsScreen(),
+        AppRoutes.mentorEvents: (_) => const MentorEventsScreen(),
+        AppRoutes.mentorCertificates: (_) => const MentorCertificatesScreen(),
+        AppRoutes.mentorReports: (_) => const MentorReportsScreen(),
+        AppRoutes.mentorMeetings: (_) => const MentorMeetingsScreen(),
+        AppRoutes.mentorPerformance: (_) => const MentorPerformanceScreen(),
+        AppRoutes.mentorParentReport: (_) => const MentorParentReportScreen(),
+        AppRoutes.mentorProfile: (_) => const MentorProfileScreen(),
+        AppRoutes.mentorProfileEdit: (_) => const MentorProfileEditScreen(),
+        AppRoutes.mentorSettings: (_) => const MentorSettingsScreen(),
+        AppRoutes.mentorForgotPassword: (_) => const MentorForgotPasswordScreen(),
+        AppRoutes.mentorCreateAccount: (_) => const MentorCreateAccountScreen(),
+      },
+    );
+  }
+}
