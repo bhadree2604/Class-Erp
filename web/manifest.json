@@ -1,11 +1,11 @@
 {
-    "name": "my_class",
-    "short_name": "my_class",
+    \"name\": \"RIT ERP\",
+    \"short_name\": \"RIT ERP\",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    \"description\": \"RIT ERP - Student and Mentor Portal\",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
