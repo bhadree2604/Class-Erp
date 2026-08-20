@@ -25,21 +25,9 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
   int _pendingAssignments = 0;
   bool _loading = true;
 
-  static const _announcements = [
-    ('Internal Exams',
-        'Internal exams from March 28 to April 5. Hall tickets can be collected from the exam cell.'),
-    ('CS Lab Update',
-        'OS and DBMS lab sessions are swapped this week. Check the updated timetable on the notice board.'),
-    ('Holiday',
-        'College closed March 29 (Good Friday). Classes resume April 1 as normal.'),
-  ];
+  static const _announcements = [];
 
-  static const _schedule = [
-    ('9:00 AM', 'Data Structures'),
-    ('11:00 AM', 'Database Management'),
-    ('2:00 PM', 'Web Development Lab'),
-    ('4:00 PM', 'Software Engineering'),
-  ];
+  static const _schedule = [];
 
   @override
   void initState() {
@@ -374,3 +362,5 @@ class _BodyCell extends StatelessWidget {
     );
   }
 }
+
+

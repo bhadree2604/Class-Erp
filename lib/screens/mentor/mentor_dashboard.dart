@@ -38,33 +38,11 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
         'Schedule meetings with students', AppRoutes.mentorMeetings),
   ];
 
-  static const _schedule = [
-    ('Data Structures', 'Room 301, CS Block', '9:00 AM', AppColors.primary),
-    ('Student Meeting', "Mentor's Office", '11:00 AM', AppColors.accent),
-    ('Lab Session', 'Computer Lab 2', '2:00 PM', AppColors.success),
-    ('Faculty Meeting', 'Conference Room', '4:00 PM', AppColors.info),
-  ];
+  static const _schedule = [];
 
-  static const _activity = [
-    ('Attendance Marked', 'Data Structures - 23/25 students present',
-        '2 hours ago', AppColors.primary),
-    ('Assignment Created', 'Binary Tree Implementation - Due: April 5',
-        '5 hours ago', AppColors.accent),
-    ('Event Published', 'Tech Fest 2026 - April 10, 2026', '1 day ago',
-        AppColors.success),
-    ('Meeting Scheduled', 'Parent-Teacher Meeting - April 5, 2026',
-        '2 days ago', AppColors.info),
-  ];
+  static const _activity = [];
 
-  static const _deadlines = [
-    ('Assignment Grading', 'Web Development Project', 'Due: March 30, 2026',
-        Color(0xFFFFC107), Color(0xFFFFF3CD), Color(0xFF856404)),
-    ('Report Submission', 'Monthly Performance Report',
-        'Due: March 31, 2026', Color(0xFFDC3545), Color(0xFFF8D7DA),
-        Color(0xFF721C24)),
-    ('Parent Meeting', 'Semester Review Meeting', 'Due: April 5, 2026',
-        Color(0xFF17A2B8), Color(0xFFD1ECF1), Color(0xFF0C5460)),
-  ];
+  static const _deadlines = [];
 
   @override
   void initState() {
@@ -645,3 +623,6 @@ class _PerformanceChartPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
+
+
+
