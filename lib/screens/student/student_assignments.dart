@@ -78,70 +78,78 @@ class _StudentAssignmentsScreenState extends State<StudentAssignmentsScreen> {
                   const SizedBox(height: 16),
                   AppCard(
                     heading: 'All Assignments',
-                    child: _assignments.isEmpty
-                        ? Padding(
+                    child: FutureBuilder<List<Assignment>>(
+                      key: ValueKey('assignments_$_assignmentsVersion'),
+                      future: DataService.instance.getAssignments(),
+                      builder: (context, snapshot) {
+                        final assignments = snapshot.data ?? const [];
+                        if (assignments.isEmpty) {
+                          return Padding(
                             padding: EdgeInsets.symmetric(vertical: 16),
                             child: Text(
                               'No assignments available',
                               style: TextStyle(color: AppColorsExtension.of(context).textSecondary),
                             ),
-                          )
-                        : Table(
-                            columnWidths: const {
-                              0: FlexColumnWidth(1.2),
-                              1: FlexColumnWidth(1.4),
-                              2: FlexColumnWidth(2),
-                              3: FlexColumnWidth(1),
-                              4: FlexColumnWidth(0.8),
-                              5: FlexColumnWidth(0.8),
-                            },
-                            defaultVerticalAlignment:
-                                TableCellVerticalAlignment.middle,
-                            children: [
-                              const TableRow(
+                          );
+                        }
+                        return Table(
+                          columnWidths: const {
+                            0: FlexColumnWidth(1.2),
+                            1: FlexColumnWidth(1.4),
+                            2: FlexColumnWidth(2),
+                            3: FlexColumnWidth(1),
+                            4: FlexColumnWidth(0.8),
+                            5: FlexColumnWidth(0.8),
+                          },
+                          defaultVerticalAlignment:
+                              TableCellVerticalAlignment.middle,
+                          children: [
+                            const TableRow(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    AppColors.primary,
+                                    AppColors.primaryDark,
+                                  ],
+                                ),
+                              ),
+                              children: [
+                                _HeaderCell('Subject'),
+                                _HeaderCell('Title'),
+                                _HeaderCell('Description'),
+                                _HeaderCell('Due Date'),
+                                _HeaderCell('Max Marks'),
+                                _HeaderCell('Status'),
+                              ],
+                            ),
+                            for (final a in assignments)
+                              TableRow(
                                 decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      AppColors.primary,
-                                      AppColors.primaryDark,
-                                    ],
+                                  border: Border(
+                                    bottom: BorderSide(
+                                        color: AppColorsExtension.of(context).bgTertiary),
                                   ),
                                 ),
                                 children: [
-                                  _HeaderCell('Subject'),
-                                  _HeaderCell('Title'),
-                                  _HeaderCell('Description'),
-                                  _HeaderCell('Due Date'),
-                                  _HeaderCell('Max Marks'),
-                                  _HeaderCell('Status'),
-                                ],
-                              ),
-                              for (final a in _assignments)
-                                TableRow(
-                                  decoration: BoxDecoration(
-                                    border: Border(
-                                      bottom: BorderSide(
-                                          color: AppColorsExtension.of(context).bgTertiary),
+                                  _BodyCell(a.subject),
+                                  _BodyCell(a.title),
+                                  _BodyCell(a.description),
+                                  _BodyCell(_formatDate(a.dueDate)),
+                                  _BodyCell(a.maxMarks),
+                                  Padding(
+                                    padding: const EdgeInsets.all(12),
+                                    child: StatusBadge(
+                                      status: _isOverdue(a)
+                                          ? 'Overdue'
+                                          : 'Pending',
                                     ),
                                   ),
-                                  children: [
-                                    _BodyCell(a.subject),
-                                    _BodyCell(a.title),
-                                    _BodyCell(a.description),
-                                    _BodyCell(_formatDate(a.dueDate)),
-                                    _BodyCell(a.maxMarks),
-                                    Padding(
-                                      padding: const EdgeInsets.all(12),
-                                      child: StatusBadge(
-                                        status: _isOverdue(a)
-                                            ? 'Overdue'
-                                            : 'Pending',
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                            ],
-                          ),
+                                ],
+                              ),
+                          ],
+                        );
+                      },
+                    ),
                   ),
                 ],
               ),

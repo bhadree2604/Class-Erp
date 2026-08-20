@@ -114,7 +114,6 @@ class _MentorAttendanceScreenState extends State<MentorAttendanceScreen> {
 
     int savedCount = 0;
     final now = DateTime.now();
-    final today = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
 
     for (final student in _students) {
       for (int d = 1; d <= _daysInMonth; d++) {
