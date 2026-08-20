@@ -108,7 +108,7 @@ class _MentorCertificatesScreenState extends State<MentorCertificatesScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Issue certificates to students', style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+                        Text('Issue certificates to students', style: TextStyle(color: AppColorsExtension.of(context).textSecondary, fontSize: 14)),
                         const SizedBox(height: 16),
                         ElevatedButton.icon(onPressed: () => setState(() => _showForm = !_showForm), icon: Icon(_showForm ? Icons.close : Icons.add), label: Text(_showForm ? 'Cancel' : 'Issue Certificate')),
                       ],
@@ -160,7 +160,7 @@ class _MentorCertificatesScreenState extends State<MentorCertificatesScreen> {
                     heading: 'Recently Issued Certificates',
                     padding: const EdgeInsets.all(24),
                     child: _certificates.isEmpty
-                        ? const Text('No certificates issued yet', style: TextStyle(color: AppColors.textSecondary))
+                        ? Text('No certificates issued yet', style: TextStyle(color: AppColorsExtension.of(context).textSecondary))
                         : Table(
                             columnWidths: const {0: FlexColumnWidth(1.5), 1: FlexColumnWidth(2.5), 2: FlexColumnWidth(2), 3: FlexColumnWidth(1.5)},
                             children: [
@@ -170,7 +170,7 @@ class _MentorCertificatesScreenState extends State<MentorCertificatesScreen> {
                               ),
                               for (final c in _certificates)
                                 TableRow(
-                                  decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.bgTertiary))),
+                                  decoration: BoxDecoration(border: Border(bottom: BorderSide(color: AppColorsExtension.of(context).bgTertiary))),
                                   children: [_B(c.issuedBy), _B(c.title), _B(c.category), _B(c.date)],
                                 ),
                             ],
@@ -182,7 +182,7 @@ class _MentorCertificatesScreenState extends State<MentorCertificatesScreen> {
     );
   }
 
-  Widget _label(String t) => Padding(padding: const EdgeInsets.only(bottom: 6), child: Text(t, style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary, fontSize: 14)));
+  Widget _label(String t) => Padding(padding: const EdgeInsets.only(bottom: 6), child: Text(t, style: TextStyle(fontWeight: FontWeight.w600, color: AppColorsExtension.of(context).textPrimary, fontSize: 14)));
 }
 
 class _H extends StatelessWidget {
@@ -196,5 +196,5 @@ class _B extends StatelessWidget {
   final String t;
   const _B(this.t);
   @override
-  Widget build(BuildContext context) => Padding(padding: const EdgeInsets.all(12), child: Text(t, style: const TextStyle(color: AppColors.textPrimary)));
+  Widget build(BuildContext context) => Padding(padding: const EdgeInsets.all(12), child: Text(t, style: TextStyle(color: Theme.of(context).colorScheme.onSurface)));
 }

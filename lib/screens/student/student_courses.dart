@@ -70,18 +70,18 @@ class _StudentCoursesScreenState extends State<StudentCoursesScreen> {
                     padding: const EdgeInsets.all(24),
                     child: Text(
                       _semesterInfo,
-                      style: const TextStyle(
-                        color: AppColors.textSecondary,
+                      style: TextStyle(
+                        color: AppColorsExtension.of(context).textSecondary,
                         fontSize: 14,
                       ),
                     ),
                   ),
                   if (_courses.isEmpty)
-                    const AppCard(
+                    AppCard(
                       heading: 'No courses',
                       child: Text(
                         'No courses assigned yet. Please contact your mentor.',
-                        style: TextStyle(color: AppColors.textSecondary),
+                        style: TextStyle(color: AppColorsExtension.of(context).textSecondary),
                       ),
                     )
                   else ...[
@@ -183,14 +183,14 @@ class _StudentCoursesScreenState extends State<StudentCoursesScreen> {
         children: [
           Text(
             '$label: ',
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+              color: AppColorsExtension.of(context).textPrimary,
             ),
           ),
           Text(
             value,
-            style: const TextStyle(color: AppColors.textSecondary),
+            style: TextStyle(color: AppColorsExtension.of(context).textSecondary),
           ),
         ],
       ),

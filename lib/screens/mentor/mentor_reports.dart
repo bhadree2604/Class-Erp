@@ -56,7 +56,7 @@ class _MentorReportsScreenState extends State<MentorReportsScreen> {
                   AppCard(
                     heading: 'Generate Reports',
                     padding: const EdgeInsets.all(24),
-                    child: const Text('Create and download various reports for your students', style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+                    child: Text('Create and download various reports for your students', style: TextStyle(color: AppColorsExtension.of(context).textSecondary, fontSize: 14)),
                   ),
                   const SizedBox(height: 24),
                   LayoutBuilder(
@@ -86,7 +86,7 @@ class _MentorReportsScreenState extends State<MentorReportsScreen> {
                         ),
                         for (final r in _recentReports)
                           TableRow(
-                            decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.bgTertiary))),
+                            decoration: BoxDecoration(border: Border(bottom: BorderSide(color: AppColorsExtension.of(context).bgTertiary))),
                             children: [
                               _B(r.$1),
                               _B(r.$2),
@@ -115,5 +115,5 @@ class _B extends StatelessWidget {
   final String t;
   const _B(this.t);
   @override
-  Widget build(BuildContext context) => Padding(padding: const EdgeInsets.all(12), child: Text(t, style: const TextStyle(color: AppColors.textPrimary)));
+  Widget build(BuildContext context) => Padding(padding: const EdgeInsets.all(12), child: Text(t, style: TextStyle(color: Theme.of(context).colorScheme.onSurface)));
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app_routes.dart';
+import '../../main.dart';
 import '../../services/auth_service.dart';
 import '../../theme.dart';
 import '../../widgets/app_card.dart';
@@ -63,6 +64,9 @@ class _MentorSettingsScreenState extends State<MentorSettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    final currentMode = brightness == Brightness.dark ? ThemeMode.dark : ThemeMode.light;
+
     return PortalScaffold(
       role: 'mentor',
       title: 'Settings',
@@ -78,7 +82,19 @@ class _MentorSettingsScreenState extends State<MentorSettingsScreen> {
                   AppCard(
                     heading: 'Settings',
                     padding: const EdgeInsets.all(24),
-                    child: const Text('Manage your account settings and preferences', style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+                    child: Text('Manage your account settings and preferences', style: TextStyle(color: AppColorsExtension.of(context).textSecondary, fontSize: 14)),
+                  ),
+                  const SizedBox(height: 24),
+                  AppCard(
+                    heading: 'Appearance',
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      children: [
+                        _themeOption('Light', ThemeMode.light, currentMode),
+                        _themeOption('Dark', ThemeMode.dark, currentMode),
+                        _themeOption('System', ThemeMode.system, currentMode),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 24),
                   AppCard(
@@ -88,8 +104,8 @@ class _MentorSettingsScreenState extends State<MentorSettingsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         _infoRow('Mentor ID', 'M2024001'),
-                        _infoRow('Name', 'Dr. Rajesh Kumar'),
-                        _infoRow('Email', 'rajesh.kumar@rit.edu'),
+                        _infoRow('Name', 'Dr. Maha'),
+                        _infoRow('Email', 'Maha@rit.edu'),
                         _infoRow('Phone', '+91 98765 43210'),
                         _infoRow('Department', 'Computer Science'),
                         _infoRow('Office', 'Room 305, CS Block'),
@@ -142,12 +158,26 @@ class _MentorSettingsScreenState extends State<MentorSettingsScreen> {
     );
   }
 
+  Widget _themeOption(String label, ThemeMode mode, ThemeMode currentMode) {
+    return RadioListTile<ThemeMode>(
+      title: Text(label),
+      value: mode,
+      groupValue: currentMode,
+      onChanged: (value) {
+        if (value != null) {
+          MyClassApp.setThemeMode(value);
+        }
+      },
+      activeColor: AppColors.primary,
+    );
+  }
+
   Widget _infoRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(children: [
-        SizedBox(width: 160, child: Text('$label:', style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary))),
-        Expanded(child: Text(value, style: const TextStyle(color: AppColors.textSecondary))),
+        SizedBox(width: 160, child: Text('$label:', style: TextStyle(fontWeight: FontWeight.w600, color: AppColorsExtension.of(context).textPrimary))),
+        Expanded(child: Text(value, style: TextStyle(color: AppColorsExtension.of(context).textSecondary))),
       ]),
     );
   }
@@ -156,11 +186,11 @@ class _MentorSettingsScreenState extends State<MentorSettingsScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Expanded(child: Text(label, style: const TextStyle(color: AppColors.textPrimary))),
+        Expanded(child: Text(label, style: TextStyle(color: AppColorsExtension.of(context).textPrimary))),
         Switch(value: value, onChanged: onChanged, activeThumbColor: AppColors.primary),
       ]),
     );
   }
 
-  Widget _label(String t) => Padding(padding: const EdgeInsets.only(bottom: 6), child: Text(t, style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary)));
+  Widget _label(String t) => Padding(padding: const EdgeInsets.only(bottom: 6), child: Text(t, style: TextStyle(fontWeight: FontWeight.w600, color: AppColorsExtension.of(context).textPrimary)));
 }

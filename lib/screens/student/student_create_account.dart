@@ -118,9 +118,9 @@ class _StudentCreateAccountScreenState extends State<StudentCreateAccountScreen>
                   children: [
                     Image.asset('assets/rit_logo.jpg', height: 80, width: 80, fit: BoxFit.contain),
                     const SizedBox(height: 24),
-                    const Text('Create Student Account', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+                    Text('Create Student Account', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w700, color: AppColorsExtension.of(context).textPrimary)),
                     const SizedBox(height: 8),
-                    const Text('Fill in your details to create a new account', style: TextStyle(color: AppColors.textSecondary)),
+                    Text('Fill in your details to create a new account', style: TextStyle(color: AppColorsExtension.of(context).textSecondary)),
                     const SizedBox(height: 32),
                     _twoCol(
                       left: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -165,7 +165,7 @@ class _StudentCreateAccountScreenState extends State<StudentCreateAccountScreen>
                       decoration: InputDecoration(
                         hintText: _generatedId.isEmpty ? 'Will be auto-generated' : _generatedId,
                         filled: true,
-                        fillColor: AppColors.bgSecondary,
+                        fillColor: AppColorsExtension.of(context).bgSecondary,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -207,9 +207,9 @@ class _StudentCreateAccountScreenState extends State<StudentCreateAccountScreen>
     );
   }
 
-  static Widget _label(String text) => Padding(
+  Widget _label(String text) => Padding(
     padding: const EdgeInsets.only(bottom: 6),
-    child: Text(text, style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary, fontSize: 14)),
+    child: Text(text, style: TextStyle(fontWeight: FontWeight.w600, color: AppColorsExtension.of(context).textPrimary, fontSize: 14)),
   );
 
   static Widget _twoCol({required Widget left, required Widget right}) {

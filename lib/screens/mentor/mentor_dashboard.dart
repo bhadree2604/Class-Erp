@@ -191,13 +191,13 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
 
   Widget _metricsGrid() {
     final metrics = [
-      (Icons.calendar_today, 'Avg Attendance', '87%', '\u2191 2% from last month',
+      (Icons.calendar_today, 'Avg Attendance','\u2191 2% from last month',
           const [AppColors.primary, AppColors.primaryDark]),
-      (Icons.bar_chart, 'Avg CGPA', '8.2', '\u2191 0.3 improvement',
+      (Icons.bar_chart, 'Avg CGPA','\u2191 0.3 improvement',
           const [Color(0xFFdc2626), Color(0xFFb91c1c)]),
       (Icons.assignment, 'Assignments', '$_assignmentCount', 'Active this month',
           const [Color(0xFF0284c7), Color(0xFF0369a1)]),
-      (Icons.groups, 'Meetings', '5', 'Scheduled this week',
+      (Icons.groups, 'Meetings','Scheduled this week',
           const [Color(0xFF16a34a), Color(0xFF15803d)]),
     ];
     return LayoutBuilder(
@@ -212,7 +212,6 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
             for (final m in metrics)
               SizedBox(
                 width: width,
-                child: _metricCard(m.$2, m.$3, m.$4, m.$1, m.$5),
               ),
           ],
         );
@@ -300,8 +299,8 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.bgPrimary,
-          border: Border.all(color: AppColors.bgTertiary, width: 2),
+          color: AppColorsExtension.of(context).bgPrimary,
+          border: Border.all(color: AppColorsExtension.of(context).bgTertiary, width: 2),
           borderRadius: BorderRadius.circular(15),
         ),
         child: Column(
@@ -317,9 +316,9 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
             Text(
               desc,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
-                color: AppColors.textSecondary,
+                color: AppColorsExtension.of(context).textSecondary,
               ),
             ),
           ],
@@ -383,7 +382,7 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.bgSecondary,
+                color: AppColorsExtension.of(context).bgSecondary,
                 borderRadius: BorderRadius.circular(8),
                 border: Border(
                   left: BorderSide(color: _schedule[i].$4, width: 4),
@@ -401,9 +400,9 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
                       ),
                       Text(
                         _schedule[i].$2,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
-                          color: AppColors.textSecondary,
+                          color: AppColorsExtension.of(context).textSecondary,
                         ),
                       ),
                     ],
@@ -435,7 +434,7 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.bgSecondary,
+                color: AppColorsExtension.of(context).bgSecondary,
                 borderRadius: BorderRadius.circular(5),
                 border: Border(
                   left: BorderSide(color: _activity[i].$4, width: 3),
@@ -450,13 +449,13 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
                   ),
                   Text(
                     _activity[i].$2,
-                    style: const TextStyle(color: AppColors.textSecondary),
+                    style: TextStyle(color: AppColorsExtension.of(context).textSecondary),
                   ),
                   Text(
                     _activity[i].$3,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
-                      color: AppColors.textLight,
+                      color: AppColorsExtension.of(context).textLight,
                     ),
                   ),
                 ],
@@ -524,7 +523,7 @@ class _MetricTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.bgSecondary,
+        color: AppColorsExtension.of(context).bgSecondary,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -540,7 +539,7 @@ class _MetricTile extends StatelessWidget {
           Text(
             label,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 13, color: AppColors.textLight),
+            style: TextStyle(fontSize: 13, color: AppColorsExtension.of(context).textLight),
           ),
         ],
       ),
@@ -564,7 +563,7 @@ class _ChartLegend extends StatelessWidget {
           color: color,
         ),
         const SizedBox(width: 6),
-        Text(label, style: const TextStyle(color: AppColors.textPrimary)),
+        Text(label, style: TextStyle(color: AppColorsExtension.of(context).textPrimary)),
       ],
     );
   }

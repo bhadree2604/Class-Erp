@@ -187,19 +187,19 @@ class _StudentCertificatesScreenState extends State<StudentCertificatesScreen> {
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
+                          children: [
                             Text(
                               'My Certificates',
                               style: TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.textPrimary,
+                                color: AppColorsExtension.of(context).textPrimary,
                               ),
                             ),
                             SizedBox(height: 4),
                             Text(
                               'View, upload, and download your certificates',
-                              style: TextStyle(color: AppColors.textSecondary),
+                              style: TextStyle(color: AppColorsExtension.of(context).textSecondary),
                             ),
                           ],
                         ),
@@ -219,23 +219,23 @@ class _StudentCertificatesScreenState extends State<StudentCertificatesScreen> {
                   if (_certificates.isEmpty && !_showUploadForm)
                     AppCard(
                       child: Column(
-                        children: const [
+                        children: [
                           SizedBox(height: 32),
                           Icon(Icons.emoji_events_outlined,
-                              size: 64, color: AppColors.textLight),
+                              size: 64, color: AppColorsExtension.of(context).textLight),
                           SizedBox(height: 16),
                           Text(
                             'No Certificates Yet',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
+                              color: AppColorsExtension.of(context).textPrimary,
                             ),
                           ),
                           SizedBox(height: 8),
                           Text(
                             'Upload your certificates or wait for them to be issued by your mentor',
-                            style: TextStyle(color: AppColors.textSecondary),
+                            style: TextStyle(color: AppColorsExtension.of(context).textSecondary),
                           ),
                           SizedBox(height: 32),
                         ],
@@ -300,8 +300,8 @@ class _StudentCertificatesScreenState extends State<StudentCertificatesScreen> {
                     : '',
                 style: TextStyle(
                   color: _issueDate != null
-                      ? AppColors.textPrimary
-                      : AppColors.textLight,
+                      ? AppColorsExtension.of(context).textPrimary
+                      : AppColorsExtension.of(context).textLight,
                 ),
               ),
             ),
@@ -352,10 +352,10 @@ class _StudentCertificatesScreenState extends State<StudentCertificatesScreen> {
                 Expanded(
                   child: Text(
                     cert.title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
+                      color: AppColorsExtension.of(context).textPrimary,
                     ),
                   ),
                 ),
@@ -368,17 +368,17 @@ class _StudentCertificatesScreenState extends State<StudentCertificatesScreen> {
             const SizedBox(height: 8),
             Text(
               cert.description,
-              style: const TextStyle(
-                color: AppColors.textSecondary,
+              style: TextStyle(
+                color: AppColorsExtension.of(context).textSecondary,
                 fontSize: 14,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               'Uploaded by: $uploadedBy',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
-                color: AppColors.textLight,
+                color: AppColorsExtension.of(context).textLight,
               ),
             ),
             const SizedBox(height: 16),
@@ -408,14 +408,14 @@ class _StudentCertificatesScreenState extends State<StudentCertificatesScreen> {
         children: [
           Text(
             '$label: ',
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+              color: AppColorsExtension.of(context).textPrimary,
             ),
           ),
           Text(
             value,
-            style: const TextStyle(color: AppColors.textSecondary),
+            style: TextStyle(color: AppColorsExtension.of(context).textSecondary),
           ),
         ],
       ),
@@ -427,9 +427,9 @@ class _StudentCertificatesScreenState extends State<StudentCertificatesScreen> {
       padding: const EdgeInsets.only(bottom: 6),
       child: Text(
         text,
-        style: const TextStyle(
+        style: TextStyle(
           fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
+          color: AppColorsExtension.of(context).textPrimary,
         ),
       ),
     );

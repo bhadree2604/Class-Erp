@@ -161,7 +161,7 @@ class _MentorCoursesScreenState extends State<MentorCoursesScreen> {
                   AppCard(
                     heading: 'Course Management',
                     padding: const EdgeInsets.all(24),
-                    child: const Text('Select and manage courses for your mentorship group', style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+                    child: Text('Select and manage courses for your mentorship group', style: TextStyle(color: AppColorsExtension.of(context).textSecondary, fontSize: 14)),
                   ),
                   const SizedBox(height: 24),
                   AppCard(
@@ -173,9 +173,9 @@ class _MentorCoursesScreenState extends State<MentorCoursesScreen> {
                         ElevatedButton.icon(onPressed: _showAddStudentDialog, icon: const Icon(Icons.add), label: const Text('Add Student')),
                         const SizedBox(height: 16),
                         if (_students.isEmpty)
-                          const Padding(
+                          Padding(
                             padding: EdgeInsets.all(16),
-                            child: Text('No students added yet. Click "Add Student" to add students to your group.', style: TextStyle(color: AppColors.textSecondary)),
+                            child: Text('No students added yet. Click "Add Student" to add students to your group.', style: TextStyle(color: AppColorsExtension.of(context).textSecondary)),
                           )
                         else
                           Table(
@@ -189,8 +189,8 @@ class _MentorCoursesScreenState extends State<MentorCoursesScreen> {
                               ),
                               for (final s in _students)
                                 TableRow(
-                                  decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.bgTertiary))),
-                                  children: [
+                                decoration: BoxDecoration(border: Border(bottom: BorderSide(color: AppColorsExtension.of(context).bgTertiary))),
+                                children: [
                                     _B(s.rollNo),
                                     _B(s.name),
                                     _B(s.department),
@@ -215,7 +215,7 @@ class _MentorCoursesScreenState extends State<MentorCoursesScreen> {
                   const SizedBox(height: 24),
                   AppCard(
                     heading: 'Assign Semester Courses',
-                    padding: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.all(8),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -245,7 +245,7 @@ class _MentorCoursesScreenState extends State<MentorCoursesScreen> {
                         ],
                         if (_selectedDepartment != null && _selectedSemester != null) ...[
                           const SizedBox(height: 16),
-                          Text('${_getSemesterCourses(_selectedDepartment!, _selectedSemester!).length} courses found', style: const TextStyle(color: AppColors.textSecondary)),
+                          Text('${_getSemesterCourses(_selectedDepartment!, _selectedSemester!).length} courses found', style: TextStyle(color: AppColorsExtension.of(context).textSecondary)),
                           const SizedBox(height: 12),
                           ElevatedButton(
                             onPressed: () async {
@@ -275,7 +275,7 @@ class _MentorCoursesScreenState extends State<MentorCoursesScreen> {
                       builder: (context, snapshot) {
                         final assigned = snapshot.data ?? [];
                         if (assigned.isEmpty) {
-                          return const Text('No courses assigned yet. Select department and semester from above.', style: TextStyle(color: AppColors.textSecondary));
+                          return Text('No courses assigned yet. Select department and semester from above.', style: TextStyle(color: AppColorsExtension.of(context).textSecondary));
                         }
                         return Table(
                           columnWidths: const {0: FlexColumnWidth(1.2), 1: FlexColumnWidth(2.5), 2: FlexColumnWidth(1), 3: FlexColumnWidth(1.5), 4: FlexColumnWidth(1)},
@@ -286,7 +286,7 @@ class _MentorCoursesScreenState extends State<MentorCoursesScreen> {
                             ),
                             for (final c in assigned)
                               TableRow(
-                                decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.bgTertiary))),
+                                decoration: BoxDecoration(border: Border(bottom: BorderSide(color: AppColorsExtension.of(context).bgTertiary))),
                                 children: [
                                   _B(c.code),
                                   _B(c.name),
@@ -350,5 +350,5 @@ class _B extends StatelessWidget {
   final String t;
   const _B(this.t);
   @override
-  Widget build(BuildContext context) => Padding(padding: const EdgeInsets.all(12), child: Text(t, style: const TextStyle(color: AppColors.textPrimary)));
+  Widget build(BuildContext context) => Padding(padding: const EdgeInsets.all(12), child: Text(t, style: TextStyle(color: Theme.of(context).colorScheme.onSurface)));
 }

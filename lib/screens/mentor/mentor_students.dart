@@ -63,8 +63,8 @@ class _MentorStudentsScreenState extends State<MentorStudentsScreen> {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) => AlertDialog(
-            title: const Text('Add New Student',
-                style: TextStyle(color: AppColors.textPrimary)),
+            title: Text('Add New Student',
+                style: TextStyle(color: AppColorsExtension.of(context).textPrimary)),
             content: SizedBox(
               width: 480,
               child: SingleChildScrollView(
@@ -267,10 +267,10 @@ class _MentorStudentsScreenState extends State<MentorStudentsScreen> {
                       Container(
                         padding: const EdgeInsets.all(24),
                         decoration: BoxDecoration(
-                          color: AppColors.bgSecondary,
+                          color: AppColorsExtension.of(context).bgSecondary,
                           borderRadius: BorderRadius.circular(12),
                           border:
-                              Border.all(color: AppColors.bgTertiary, width: 2),
+                              Border.all(color: AppColorsExtension.of(context).bgTertiary, width: 2),
                         ),
                         child: Column(
                           children: [
@@ -336,10 +336,10 @@ class _MentorStudentsScreenState extends State<MentorStudentsScreen> {
         const SizedBox(width: 8),
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
+            color: AppColorsExtension.of(context).textPrimary,
           ),
         ),
       ],
@@ -382,7 +382,7 @@ class _MentorStudentsScreenState extends State<MentorStudentsScreen> {
 
   Widget _semesterRow(SemesterReport r) {
     final completed = r.isCompleted;
-    final bg = completed ? AppColors.bgSecondary : const Color(0xFFFFF3E0);
+    final bg = completed ? AppColorsExtension.of(context).bgSecondary : const Color(0xFFFFF3E0);
     final border = completed ? AppColors.success : AppColors.warning;
     return Container(
       padding: const EdgeInsets.all(16),
@@ -399,9 +399,9 @@ class _MentorStudentsScreenState extends State<MentorStudentsScreen> {
             children: [
               Text(
                 'Semester ${r.semester}',
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
+                  color: AppColorsExtension.of(context).textPrimary,
                 ),
               ),
               Container(
@@ -430,16 +430,16 @@ class _MentorStudentsScreenState extends State<MentorStudentsScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              const Text(
+              Text(
                 'GPA / Percentage',
-                style: TextStyle(fontSize: 13, color: AppColors.textLight),
+                style: TextStyle(fontSize: 13, color: AppColorsExtension.of(context).textLight),
               ),
               Text(
                 r.percentage != '-' ? '${r.gpa} / ${r.percentage}%' : r.gpa,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color: AppColorsExtension.of(context).textPrimary,
                 ),
               ),
             ],
@@ -453,9 +453,9 @@ class _MentorStudentsScreenState extends State<MentorStudentsScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.bgSecondary,
+        color: AppColorsExtension.of(context).bgSecondary,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.bgTertiary),
+        border: Border.all(color: AppColorsExtension.of(context).bgTertiary),
       ),
       child: Column(
         children: [
@@ -469,7 +469,7 @@ class _MentorStudentsScreenState extends State<MentorStudentsScreen> {
           ),
           Text(
             label,
-            style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+            style: TextStyle(fontSize: 13, color: AppColorsExtension.of(context).textSecondary),
           ),
         ],
       ),
@@ -482,7 +482,7 @@ class _MentorStudentsScreenState extends State<MentorStudentsScreen> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: isElective ? const Color(0xFFFFF3E0) : AppColors.bgSecondary,
+        color: isElective ? const Color(0xFFFFF3E0) : AppColorsExtension.of(context).bgSecondary,
         borderRadius: BorderRadius.circular(6),
         border: Border(left: BorderSide(color: color, width: 4)),
       ),
@@ -500,7 +500,7 @@ class _MentorStudentsScreenState extends State<MentorStudentsScreen> {
                   ),
                 ),
                 Text(c.name,
-                    style: const TextStyle(color: AppColors.textPrimary)),
+                    style: TextStyle(color: AppColorsExtension.of(context).textPrimary)),
               ],
             ),
           ),
@@ -566,9 +566,9 @@ class _MentorStudentsScreenState extends State<MentorStudentsScreen> {
       padding: const EdgeInsets.only(bottom: 6),
       child: Text(
         text,
-        style: const TextStyle(
+        style: TextStyle(
           fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
+          color: AppColorsExtension.of(context).textPrimary,
         ),
       ),
     );
@@ -593,21 +593,21 @@ class _MentorStudentsScreenState extends State<MentorStudentsScreen> {
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            Text(
-                              'My Students',
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.textPrimary,
-                              ),
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              'Students assigned to you this semester',
-                              style: TextStyle(color: AppColors.textSecondary),
-                            ),
-                          ],
+                      children: [
+                        Text(
+                          'My Students',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w700,
+                            color: AppColorsExtension.of(context).textPrimary,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Students assigned to you this semester',
+                          style: TextStyle(color: AppColorsExtension.of(context).textSecondary),
+                        ),
+                      ],
                         ),
                       ),
                       ElevatedButton.icon(
@@ -625,12 +625,12 @@ class _MentorStudentsScreenState extends State<MentorStudentsScreen> {
                   AppCard(
                     heading: 'Student List',
                     child: _students.isEmpty
-                        ? const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 32),
+                        ? Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 32),
                             child: Center(
                               child: Text(
                                 'No students added yet. Click "Add Student" to add students to your group.',
-                                style: TextStyle(color: AppColors.textLight),
+                                style: TextStyle(color: AppColorsExtension.of(context).textLight),
                               ),
                             ),
                           )
@@ -664,11 +664,11 @@ class _MentorStudentsScreenState extends State<MentorStudentsScreen> {
                               ),
                               for (final s in _students)
                                 TableRow(
-                                  decoration: const BoxDecoration(
-                                    border: Border(
-                                      bottom: BorderSide(
-                                          color: AppColors.bgTertiary),
-                                    ),
+                                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                          color: AppColorsExtension.of(context).bgTertiary),
+                    ),
                                   ),
                                   children: [
                                     _BodyCell(s.rollNo, strong: true),
@@ -712,9 +712,9 @@ class _MentorStudentsScreenState extends State<MentorStudentsScreen> {
             children: [
               Text(
                 s.name,
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
+                  color: AppColorsExtension.of(context).textPrimary,
                 ),
               ),
               FutureBuilder(
@@ -724,9 +724,9 @@ class _MentorStudentsScreenState extends State<MentorStudentsScreen> {
                   final count = snapshot.data?.length ?? 0;
                   return Text(
                     '$count courses assigned',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
-                      color: AppColors.textLight,
+                      color: AppColorsExtension.of(context).textLight,
                     ),
                   );
                 },
@@ -833,7 +833,7 @@ class _BodyCell extends StatelessWidget {
         text,
         style: TextStyle(
           fontWeight: strong ? FontWeight.w600 : FontWeight.w400,
-          color: AppColors.textPrimary,
+          color: Theme.of(context).colorScheme.onSurface,
         ),
       ),
     );

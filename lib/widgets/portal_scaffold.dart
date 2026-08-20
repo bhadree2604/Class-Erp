@@ -40,7 +40,6 @@ class PortalScaffold extends StatelessWidget {
     _NavItem('Certificates', Icons.workspace_premium_outlined, AppRoutes.studentCertificates),
     _NavItem('Parent Report', Icons.family_restroom_outlined, AppRoutes.studentParentReport),
     _NavItem('Profile', Icons.person_outline, AppRoutes.studentProfile),
-    _NavItem('Feedback', Icons.feedback_outlined, AppRoutes.studentFeedback),
     _NavItem('Settings', Icons.settings_outlined, AppRoutes.studentSettings),
   ];
 
@@ -132,7 +131,7 @@ class PortalScaffold extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: isStudent
-                      ? [const Color(0xFF1d4ed8), const Color(0xFF1e40af)]
+                      ? [AppColors.primary, AppColors.primaryDark]
                       : [const Color(0xFF2e7d32), const Color(0xFF1b5e20)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,

@@ -24,26 +24,15 @@ class _StudentParentReportScreenState extends State<StudentParentReportScreen> {
   bool _loading = true;
 
   static const _academicPerformance = [
-    ('Data Structures', 'A', 'Excellent performance'),
-    ('Database Management', 'A-', 'Good understanding'),
-    ('Web Development', 'B+', 'Needs improvement'),
-    ('Software Engineering', 'A', 'Outstanding work'),
-    ('Computer Networks', 'B+', 'Good progress'),
+
   ];
 
   static const _teacherComments = [
-    ('Class Teacher',
-        'Bhadree is a dedicated student who shows great interest in learning. Regular attendance and active participation in class.'),
-    ('Subject Teacher - Data Structures',
-        'Excellent problem-solving skills. Shows strong understanding of complex algorithms.'),
-    ('Subject Teacher - Web Development',
-        'Good practical skills. Encourage more practice on responsive design concepts.'),
+
   ];
 
   static const _activities = [
-    ('Sports', 'Participated in inter-college cricket tournament'),
-    ('Technical Events', 'Won 2nd prize in coding competition'),
-    ('Cultural Activities', 'Active member of college drama club'),
+
   ];
 
   @override
@@ -82,10 +71,10 @@ class _StudentParentReportScreenState extends State<StudentParentReportScreen> {
                   AppCard(
                     heading: 'Parent Report',
                     padding: const EdgeInsets.all(24),
-                    child: const Text(
+                    child: Text(
                       'Comprehensive report for parents about student performance',
                       style: TextStyle(
-                        color: AppColors.textSecondary,
+                        color: AppColorsExtension.of(context).textSecondary,
                         fontSize: 14,
                       ),
                     ),
@@ -99,12 +88,7 @@ class _StudentParentReportScreenState extends State<StudentParentReportScreen> {
                       return Wrap(
                         spacing: 24,
                         runSpacing: 24,
-                        children: [
-                          SizedBox(width: w, child: const StatCard(label: 'Overall Performance', value: 'A', subtitle: 'Grade this semester', icon: Icons.school, color: AppColors.primary)),
-                          SizedBox(width: w, child: StatCard(label: 'Attendance', value: '${_profile?.attendance ?? 85}%', subtitle: 'Overall attendance', icon: Icons.calendar_today, color: AppColors.success)),
-                          SizedBox(width: w, child: StatCard(label: 'CGPA', value: '${_profile?.cgpa ?? 8.5}', subtitle: 'Current semester', icon: Icons.grade, color: AppColors.warning)),
-                          SizedBox(width: w, child: const StatCard(label: 'Behavior', value: 'Excellent', subtitle: 'Conduct rating', icon: Icons.star, color: AppColors.info)),
-                        ],
+
                       );
                     },
                   ),
@@ -153,9 +137,9 @@ class _StudentParentReportScreenState extends State<StudentParentReportScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Generate and download comprehensive parent report',
-                          style: TextStyle(color: AppColors.textSecondary),
+                          style: TextStyle(color: AppColorsExtension.of(context).textSecondary),
                         ),
                         const SizedBox(height: 16),
                         ElevatedButton.icon(
@@ -202,8 +186,8 @@ class _StudentParentReportScreenState extends State<StudentParentReportScreen> {
           ),
           for (final row in _academicPerformance)
             TableRow(
-              decoration: const BoxDecoration(
-                border: Border(bottom: BorderSide(color: AppColors.bgTertiary)),
+              decoration: BoxDecoration(
+                border: Border(bottom: BorderSide(color: AppColorsExtension.of(context).bgTertiary)),
               ),
               children: [
                 _BodyCell(row.$1),
@@ -226,12 +210,12 @@ class _StudentParentReportScreenState extends State<StudentParentReportScreen> {
             if (i > 0) const Divider(height: 24),
             Text(
               _teacherComments[i].$1,
-              style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+              style: TextStyle(fontWeight: FontWeight.w600, color: AppColorsExtension.of(context).textPrimary),
             ),
             const SizedBox(height: 4),
             Text(
               _teacherComments[i].$2,
-              style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
+              style: TextStyle(color: AppColorsExtension.of(context).textSecondary, fontSize: 14),
             ),
           ],
         ],
@@ -249,12 +233,12 @@ class _StudentParentReportScreenState extends State<StudentParentReportScreen> {
             if (i > 0) const Divider(height: 24),
             Text(
               _activities[i].$1,
-              style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+              style: TextStyle(fontWeight: FontWeight.w600, color: AppColorsExtension.of(context).textPrimary),
             ),
             const SizedBox(height: 4),
             Text(
               _activities[i].$2,
-              style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
+              style: TextStyle(color: AppColorsExtension.of(context).textSecondary, fontSize: 14),
             ),
           ],
         ],
@@ -267,8 +251,8 @@ class _StudentParentReportScreenState extends State<StudentParentReportScreen> {
       heading: 'Disciplinary Record',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          Padding(
+        children: [
+          const Padding(
             padding: EdgeInsets.symmetric(vertical: 8),
             child: Text(
               'No disciplinary issues reported',
@@ -280,7 +264,7 @@ class _StudentParentReportScreenState extends State<StudentParentReportScreen> {
           ),
           Text(
             'Student maintains good conduct and follows all college rules and regulations.',
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+            style: TextStyle(color: AppColorsExtension.of(context).textSecondary, fontSize: 14),
           ),
         ],
       ),
@@ -307,7 +291,7 @@ class _BodyCell extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(12),
-      child: Text(text, style: const TextStyle(color: AppColors.textPrimary)),
+      child: Text(text, style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
     );
   }
 }

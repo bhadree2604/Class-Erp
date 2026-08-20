@@ -111,7 +111,7 @@ class _MentorEventsScreenState extends State<MentorEventsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Create and manage college events', style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+                        Text('Create and manage college events', style: TextStyle(color: AppColorsExtension.of(context).textSecondary, fontSize: 14)),
                         const SizedBox(height: 16),
                         ElevatedButton.icon(onPressed: () => setState(() => _showForm = !_showForm), icon: Icon(_showForm ? Icons.close : Icons.add), label: Text(_showForm ? 'Cancel' : 'Create New Event')),
                       ],
@@ -161,7 +161,7 @@ class _MentorEventsScreenState extends State<MentorEventsScreen> {
                     heading: 'All Events',
                     padding: const EdgeInsets.all(24),
                     child: _events.isEmpty
-                        ? const Text('No events created yet', style: TextStyle(color: AppColors.textSecondary))
+                        ? Text('No events created yet', style: TextStyle(color: AppColorsExtension.of(context).textSecondary))
                         : Column(
                             children: [
                               for (final e in _events) ...[
@@ -173,7 +173,7 @@ class _MentorEventsScreenState extends State<MentorEventsScreen> {
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(e.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+                                          Text(e.title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColorsExtension.of(context).textPrimary)),
                                           TextButton(onPressed: () => _delete(e.id), child: const Text('Delete', style: TextStyle(color: AppColors.danger))),
                                         ],
                                       ),
@@ -183,7 +183,7 @@ class _MentorEventsScreenState extends State<MentorEventsScreen> {
                                       _info('Time', e.time),
                                       _info('Venue', e.venue),
                                       const SizedBox(height: 8),
-                                      Text(e.description, style: const TextStyle(color: AppColors.textSecondary)),
+                                      Text(e.description, style: TextStyle(color: AppColorsExtension.of(context).textSecondary)),
                                     ],
                                   ),
                                 ),
@@ -198,12 +198,12 @@ class _MentorEventsScreenState extends State<MentorEventsScreen> {
     );
   }
 
-  Widget _label(String t) => Padding(padding: const EdgeInsets.only(bottom: 6), child: Text(t, style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary, fontSize: 14)));
+  Widget _label(String t) => Padding(padding: const EdgeInsets.only(bottom: 6), child: Text(t, style: TextStyle(fontWeight: FontWeight.w600, color: AppColorsExtension.of(context).textPrimary, fontSize: 14)));
 
   Widget _info(String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
-      child: RichText(text: TextSpan(style: const TextStyle(color: AppColors.textSecondary, fontSize: 14), children: [TextSpan(text: '$label: ', style: const TextStyle(fontWeight: FontWeight.w600)), TextSpan(text: value)])),
+      child: RichText(text: TextSpan(style: TextStyle(color: AppColorsExtension.of(context).textSecondary, fontSize: 14), children: [TextSpan(text: '$label: ', style: const TextStyle(fontWeight: FontWeight.w600)), TextSpan(text: value)])),
     );
   }
 }

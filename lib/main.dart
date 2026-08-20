@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app_routes.dart';
 import 'screens/landing_screen.dart';
@@ -26,7 +27,6 @@ import 'screens/student/student_courses.dart';
 import 'screens/student/student_create_account.dart';
 import 'screens/student/student_dashboard.dart';
 import 'screens/student/student_events.dart';
-import 'screens/student/student_feedback.dart';
 import 'screens/student/student_forgot_password.dart';
 import 'screens/student/student_grades.dart';
 import 'screens/student/student_parent_report.dart';
@@ -41,11 +41,70 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   AuthService.instance.initialize();
   DataService.instance.initialize();
-  runApp(const MyClassApp());
+  runApp(MyClassApp(key: myAppKey));
 }
 
-class MyClassApp extends StatelessWidget {
+final GlobalKey<MyClassAppState> myAppKey = GlobalKey<MyClassAppState>();
+
+class MyClassApp extends StatefulWidget {
   const MyClassApp({super.key});
+
+  static void setThemeMode(ThemeMode mode) {
+    myAppKey.currentState?.setThemeMode(mode);
+  }
+
+  @override
+  State<MyClassApp> createState() => MyClassAppState();
+}
+
+class MyClassAppState extends State<MyClassApp> {
+  ThemeMode _themeMode = ThemeMode.light;
+
+  ThemeMode get themeMode => _themeMode;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadThemeMode();
+  }
+
+  Future<void> _loadThemeMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    final value = prefs.getString('theme_mode') ?? 'light';
+    setState(() {
+      _themeMode = _themeModeFromString(value);
+    });
+  }
+
+  Future<void> setThemeMode(ThemeMode mode) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('theme_mode', _themeModeToString(mode));
+    setState(() {
+      _themeMode = mode;
+    });
+  }
+
+  static ThemeMode _themeModeFromString(String value) {
+    switch (value) {
+      case 'dark':
+        return ThemeMode.dark;
+      case 'system':
+        return ThemeMode.system;
+      default:
+        return ThemeMode.light;
+    }
+  }
+
+  static String _themeModeToString(ThemeMode mode) {
+    switch (mode) {
+      case ThemeMode.dark:
+        return 'dark';
+      case ThemeMode.system:
+        return 'system';
+      case ThemeMode.light:
+        return 'light';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,6 +112,8 @@ class MyClassApp extends StatelessWidget {
       title: 'RIT College ERP',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      themeMode: _themeMode,
       initialRoute: AppRoutes.landing,
       routes: {
         AppRoutes.landing: (_) => const LandingScreen(),
@@ -68,7 +129,6 @@ class MyClassApp extends StatelessWidget {
         AppRoutes.studentParentReport: (_) => const StudentParentReportScreen(),
         AppRoutes.studentProfile: (_) => const StudentProfileScreen(),
         AppRoutes.studentProfileEdit: (_) => const StudentProfileEditScreen(),
-        AppRoutes.studentFeedback: (_) => const StudentFeedbackScreen(),
         AppRoutes.studentSettings: (_) => const StudentSettingsScreen(),
         AppRoutes.studentForgotPassword: (_) => const StudentForgotPasswordScreen(),
         AppRoutes.studentCreateAccount: (_) => const StudentCreateAccountScreen(),
@@ -89,6 +149,17 @@ class MyClassApp extends StatelessWidget {
         AppRoutes.mentorSettings: (_) => const MentorSettingsScreen(),
         AppRoutes.mentorForgotPassword: (_) => const MentorForgotPasswordScreen(),
         AppRoutes.mentorCreateAccount: (_) => const MentorCreateAccountScreen(),
+      },
+      builder: (context, child) {
+        final mediaQuery = MediaQuery.of(context);
+        return MediaQuery(
+          data: mediaQuery.copyWith(
+            textScaler: TextScaler.linear(
+              mediaQuery.textScaler.scale(1.0).clamp(0.8, 1.2),
+            ),
+          ),
+          child: child!,
+        );
       },
     );
   }

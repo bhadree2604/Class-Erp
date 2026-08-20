@@ -93,10 +93,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Container(
                         padding: const EdgeInsets.all(48),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.98),
+                          color: Theme.of(context).colorScheme.surface,
                           borderRadius: BorderRadius.circular(15),
                           border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.2),
+                            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
                           ),
                           boxShadow: const [
                             BoxShadow(
@@ -123,8 +123,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             Text(
                               isStudent ? 'Student Login' : 'Mentor Login',
                               textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                color: AppColors.textPrimary,
+                              style: TextStyle(
+                                color: AppColorsExtension.of(context).textPrimary,
                                 fontSize: 24,
                                 fontWeight: FontWeight.w700,
                               ),
@@ -133,8 +133,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             Text(
                               'Please login to continue',
                               textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                color: AppColors.textSecondary,
+                              style: TextStyle(
+                                color: AppColorsExtension.of(context).textSecondary,
                                 fontSize: 14,
                               ),
                             ),
@@ -217,7 +217,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                         height: 20,
                                         child: CircularProgressIndicator(
                                           strokeWidth: 2,
-                                          color: Colors.white,
                                         ),
                                       )
                                     : const Text('LOGIN'),
@@ -264,20 +263,20 @@ class _LoginScreenState extends State<LoginScreen> {
                   top: 20,
                   right: 20,
                   child: Material(
-                    color: Colors.white.withValues(alpha: 0.95),
+                    color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(999),
                     elevation: 8,
                     child: InkWell(
                       borderRadius: BorderRadius.circular(999),
                       onTap: () =>
                           Navigator.of(context).popUntil((r) => r.isFirst),
-                      child: const Padding(
+                      child: Padding(
                         padding:
                             EdgeInsets.symmetric(horizontal: 18, vertical: 10),
                         child: Text(
                           '\u2190 Back to Home',
                           style: TextStyle(
-                            color: AppColors.textPrimary,
+                            color: AppColorsExtension.of(context).textPrimary,
                             fontWeight: FontWeight.w600,
                             fontSize: 14,
                           ),
@@ -305,8 +304,8 @@ class _LoginScreenState extends State<LoginScreen> {
       children: [
         Text(
           label,
-          style: const TextStyle(
-            color: AppColors.textPrimary,
+          style: TextStyle(
+            color: AppColorsExtension.of(context).textPrimary,
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -317,7 +316,7 @@ class _LoginScreenState extends State<LoginScreen> {
           obscureText: obscure,
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: const TextStyle(color: AppColors.textLight),
+            hintStyle: TextStyle(color: AppColorsExtension.of(context).textLight),
           ),
           onSubmitted: (_) => _handleLogin(),
         ),

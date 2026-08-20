@@ -16,7 +16,6 @@ class AppRoutes {
   static const studentParentReport = '/student/parent-report';
   static const studentProfile = '/student/profile';
   static const studentProfileEdit = '/student/profile-edit';
-  static const studentFeedback = '/student/feedback';
   static const studentSettings = '/student/settings';
   static const studentForgotPassword = '/student/forgot-password';
   static const studentCreateAccount = '/student/create-account';

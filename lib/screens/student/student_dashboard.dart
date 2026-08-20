@@ -83,17 +83,17 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                               if (i > 0) const Divider(height: 16),
                               Text(
                                 _announcements[i].$1,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.w600,
-                                  color: AppColors.textPrimary,
+                                  color: AppColorsExtension.of(context).textPrimary,
                                 ),
                               ),
                               const SizedBox(height: 4),
                               Text(
                                 _announcements[i].$2,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 14,
-                                  color: AppColors.textSecondary,
+                                  color: AppColorsExtension.of(context).textSecondary,
                                 ),
                               ),
                             ],
@@ -119,10 +119,10 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
-                                  Text(
+                                   Text(
                                     _schedule[i].$2,
-                                    style: const TextStyle(
-                                      color: AppColors.textPrimary,
+                                    style: TextStyle(
+                                      color: AppColorsExtension.of(context).textPrimary,
                                     ),
                                   ),
                                 ],
@@ -252,11 +252,11 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
         return AppCard(
           heading: 'Upcoming Assignments',
           child: assignments.isEmpty
-              ? const Padding(
+              ? Padding(
                   padding: EdgeInsets.symmetric(vertical: 16),
                   child: Text(
                     'No assignments available',
-                    style: TextStyle(color: AppColors.textSecondary),
+                    style: TextStyle(color: AppColorsExtension.of(context).textSecondary),
                   ),
                 )
               : Table(
@@ -283,9 +283,9 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                     ),
                     for (final a in assignments)
                       TableRow(
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           border: Border(
-                            bottom: BorderSide(color: AppColors.bgTertiary),
+                            bottom: BorderSide(color: AppColorsExtension.of(context).bgTertiary),
                           ),
                         ),
                         children: [
@@ -355,7 +355,7 @@ class _BodyCell extends StatelessWidget {
       child: Text(
         text,
         style: TextStyle(
-          color: text.isEmpty ? null : AppColors.textPrimary,
+          color: text.isEmpty ? null : Theme.of(context).colorScheme.onSurface,
           fontWeight: FontWeight.w500,
         ),
       ),

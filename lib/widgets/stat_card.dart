@@ -48,13 +48,37 @@ class StatCard extends StatelessWidget {
                     color: color,
                     fontWeight: FontWeight.bold,
                   ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
             ),
             if (subtitle != null)
               Padding(
                 padding: const EdgeInsets.only(top: 4),
-                child: Text(
-                  subtitle!,
-                  style: Theme.of(context).textTheme.bodySmall,
+                child: Row(
+                  children: [
+                    // Show an arrow icon if subtitle starts with ↑ or ↓
+                    if (subtitle!.startsWith('↑') || subtitle!.startsWith('↓'))
+                      Icon(
+                        subtitle!.startsWith('↑')
+                            ? Icons.arrow_upward
+                            : Icons.arrow_downward,
+                        size: 16,
+                        color: Theme.of(context).brightness == Brightness.light
+                            ? Colors.green[600]
+                            : Colors.greenAccent,
+                      )
+                    else
+                      const SizedBox(width: 0), // placeholder when no arrow
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        subtitle!,
+                        style: Theme.of(context).textTheme.bodySmall,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ),
+                  ],
                 ),
               ),
           ],

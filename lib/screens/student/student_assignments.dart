@@ -57,10 +57,10 @@ class _StudentAssignmentsScreenState extends State<StudentAssignmentsScreen> {
                   AppCard(
                     heading: 'Assignments',
                     padding: const EdgeInsets.all(24),
-                    child: const Text(
+                    child: Text(
                       'Manage and submit your assignments',
                       style: TextStyle(
-                        color: AppColors.textSecondary,
+                        color: AppColorsExtension.of(context).textSecondary,
                         fontSize: 14,
                       ),
                     ),
@@ -69,11 +69,11 @@ class _StudentAssignmentsScreenState extends State<StudentAssignmentsScreen> {
                   AppCard(
                     heading: 'All Assignments',
                     child: _assignments.isEmpty
-                        ? const Padding(
+                        ? Padding(
                             padding: EdgeInsets.symmetric(vertical: 16),
                             child: Text(
                               'No assignments available',
-                              style: TextStyle(color: AppColors.textSecondary),
+                              style: TextStyle(color: AppColorsExtension.of(context).textSecondary),
                             ),
                           )
                         : Table(
@@ -108,10 +108,10 @@ class _StudentAssignmentsScreenState extends State<StudentAssignmentsScreen> {
                               ),
                               for (final a in _assignments)
                                 TableRow(
-                                  decoration: const BoxDecoration(
+                                  decoration: BoxDecoration(
                                     border: Border(
                                       bottom: BorderSide(
-                                          color: AppColors.bgTertiary),
+                                          color: AppColorsExtension.of(context).bgTertiary),
                                     ),
                                   ),
                                   children: [
@@ -187,7 +187,7 @@ class _BodyCell extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       child: Text(
         text,
-        style: const TextStyle(color: AppColors.textPrimary),
+        style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
       ),
     );
   }

@@ -122,10 +122,10 @@ class _StudentProfileEditScreenState extends State<StudentProfileEditScreen> {
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            Text('Edit Profile', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+                          children: [
+                            Text('Edit Profile', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: AppColorsExtension.of(context).textPrimary)),
                             SizedBox(height: 4),
-                            Text('Update your personal information', style: TextStyle(color: AppColors.textSecondary)),
+                            Text('Update your personal information', style: TextStyle(color: AppColorsExtension.of(context).textSecondary)),
                           ],
                         ),
                       ),
@@ -199,7 +199,7 @@ class _StudentProfileEditScreenState extends State<StudentProfileEditScreen> {
   Widget _fieldLabel(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
-      child: Text(text, style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+      child: Text(text, style: TextStyle(fontWeight: FontWeight.w600, color: AppColorsExtension.of(context).textPrimary)),
     );
   }
 }

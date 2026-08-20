@@ -56,10 +56,10 @@ class _StudentEventsScreenState extends State<StudentEventsScreen> {
                   AppCard(
                     heading: 'College Events',
                     padding: const EdgeInsets.all(24),
-                    child: const Text(
+                    child: Text(
                       'View upcoming and past college events',
                       style: TextStyle(
-                        color: AppColors.textSecondary,
+                        color: AppColorsExtension.of(context).textSecondary,
                         fontSize: 14,
                       ),
                     ),
@@ -68,12 +68,12 @@ class _StudentEventsScreenState extends State<StudentEventsScreen> {
                   AppCard(
                     heading: 'All Events',
                     child: _events.isEmpty
-                        ? const Padding(
+                        ? Padding(
                             padding: EdgeInsets.symmetric(vertical: 32),
                             child: Text(
                               'No events available',
                               textAlign: TextAlign.center,
-                              style: TextStyle(color: AppColors.textSecondary),
+                              style: TextStyle(color: AppColorsExtension.of(context).textSecondary),
                             ),
                           )
                         : LayoutBuilder(
@@ -117,10 +117,10 @@ class _StudentEventsScreenState extends State<StudentEventsScreen> {
               Expanded(
                 child: Text(
                   event.title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                    color: AppColorsExtension.of(context).textPrimary,
                   ),
                 ),
               ),
@@ -136,8 +136,8 @@ class _StudentEventsScreenState extends State<StudentEventsScreen> {
             const SizedBox(height: 12),
             Text(
               event.description,
-              style: const TextStyle(
-                color: AppColors.textSecondary,
+              style: TextStyle(
+                color: AppColorsExtension.of(context).textSecondary,
                 fontSize: 14,
               ),
             ),
@@ -152,21 +152,21 @@ class _StudentEventsScreenState extends State<StudentEventsScreen> {
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Icon(icon, size: 16, color: AppColors.textLight),
+          Icon(icon, size: 16, color: AppColorsExtension.of(context).textLight),
           const SizedBox(width: 8),
           Text(
             '$label: ',
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+              color: AppColorsExtension.of(context).textPrimary,
               fontSize: 14,
             ),
           ),
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
-                color: AppColors.textSecondary,
+              style: TextStyle(
+                color: AppColorsExtension.of(context).textSecondary,
                 fontSize: 14,
               ),
             ),

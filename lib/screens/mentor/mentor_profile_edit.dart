@@ -89,10 +89,10 @@ class _MentorProfileEditScreenState extends State<MentorProfileEditScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Row(children: [
-                    Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: const [
-                      Text('Edit Profile', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+                    Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text('Edit Profile', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: AppColorsExtension.of(context).textPrimary)),
                       SizedBox(height: 4),
-                      Text('Update your professional information', style: TextStyle(color: AppColors.textSecondary)),
+                      Text('Update your professional information', style: TextStyle(color: AppColorsExtension.of(context).textSecondary)),
                     ])),
                     TextButton.icon(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.arrow_back), label: const Text('Back to Profile')),
                   ]),
@@ -174,5 +174,5 @@ class _MentorProfileEditScreenState extends State<MentorProfileEditScreen> {
     );
   }
 
-  Widget _label(String t) => Padding(padding: const EdgeInsets.only(bottom: 6), child: Text(t, style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary, fontSize: 14)));
+  Widget _label(String t) => Padding(padding: const EdgeInsets.only(bottom: 6), child: Text(t, style: TextStyle(fontWeight: FontWeight.w600, color: AppColorsExtension.of(context).textPrimary, fontSize: 14)));
 }

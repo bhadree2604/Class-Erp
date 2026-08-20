@@ -93,7 +93,7 @@ class _MentorParentReportScreenState extends State<MentorParentReportScreen> {
                   AppCard(
                     heading: 'Parent Report Management',
                     padding: const EdgeInsets.all(24),
-                    child: const Text('Add messages and updates for parent reports', style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+                    child: Text('Add messages and updates for parent reports', style: TextStyle(color: AppColorsExtension.of(context).textSecondary, fontSize: 14)),
                   ),
                   const SizedBox(height: 24),
                   AppCard(
@@ -139,7 +139,7 @@ class _MentorParentReportScreenState extends State<MentorParentReportScreen> {
                       heading: 'Parent Report Messages',
                       padding: const EdgeInsets.all(24),
                       child: _messages.isEmpty
-                          ? const Text('No messages added yet', style: TextStyle(color: AppColors.textSecondary))
+                          ? Text('No messages added yet', style: TextStyle(color: AppColorsExtension.of(context).textSecondary))
                           : Column(
                               children: [
                                 for (final m in _messages) ...[
@@ -148,11 +148,11 @@ class _MentorParentReportScreenState extends State<MentorParentReportScreen> {
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text(m.category, style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+                                        Text(m.category, style: TextStyle(fontWeight: FontWeight.w700, color: AppColorsExtension.of(context).textPrimary)),
                                         const SizedBox(height: 4),
-                                        Text(m.message, style: const TextStyle(color: AppColors.textSecondary)),
+                                        Text(m.message, style: TextStyle(color: AppColorsExtension.of(context).textSecondary)),
                                         const SizedBox(height: 4),
-                                        Text('Added on: ${m.date}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                                        Text('Added on: ${m.date}', style: TextStyle(color: AppColorsExtension.of(context).textSecondary, fontSize: 12)),
                                       ],
                                     ),
                                   ),
@@ -168,5 +168,5 @@ class _MentorParentReportScreenState extends State<MentorParentReportScreen> {
     );
   }
 
-  Widget _label(String t) => Padding(padding: const EdgeInsets.only(bottom: 6), child: Text(t, style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary, fontSize: 14)));
+  Widget _label(String t) => Padding(padding: const EdgeInsets.only(bottom: 6), child: Text(t, style: TextStyle(fontWeight: FontWeight.w600, color: AppColorsExtension.of(context).textPrimary, fontSize: 14)));
 }

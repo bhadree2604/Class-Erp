@@ -49,7 +49,7 @@ class _MentorProfileScreenState extends State<MentorProfileScreen> {
                   AppCard(
                     heading: 'Mentor Profile',
                     padding: const EdgeInsets.all(24),
-                    child: const Text('View and update your profile information', style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+                    child: Text('View and update your profile information', style: TextStyle(color: AppColorsExtension.of(context).textSecondary, fontSize: 14)),
                   ),
                   const SizedBox(height: 24),
                   AppCard(
@@ -63,8 +63,8 @@ class _MentorProfileScreenState extends State<MentorProfileScreen> {
                             child: const Icon(Icons.person, size: 50, color: AppColors.primary),
                           ),
                           const SizedBox(height: 16),
-                          const Text('Dr. Rajesh Kumar', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
-                          const Text('M2024001', style: TextStyle(color: AppColors.textSecondary)),
+                          Text('Dr. Rajesh Kumar', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: AppColorsExtension.of(context).textPrimary)),
+                          Text('M2024001', style: TextStyle(color: AppColorsExtension.of(context).textSecondary)),
                         ],
                       ),
                     ),
@@ -133,11 +133,11 @@ class _MentorProfileScreenState extends State<MentorProfileScreen> {
               padding: const EdgeInsets.symmetric(vertical: 6),
               child: Row(
                 children: [
-                  SizedBox(
-                    width: 160,
-                    child: Text('${row.$1}:', style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+                    Expanded(
+                    flex: 2,
+                    child: Text('${row.$1}:', style: TextStyle(fontWeight: FontWeight.w600, color: AppColorsExtension.of(context).textPrimary)),
                   ),
-                  Expanded(child: Text(row.$2, style: const TextStyle(color: AppColors.textSecondary))),
+                  Expanded(child: Text(row.$2, style: TextStyle(color: AppColorsExtension.of(context).textSecondary))),
                 ],
               ),
             ),

@@ -22,10 +22,6 @@ class _MentorAttendanceScreenState extends State<MentorAttendanceScreen> {
 
   static const _students = [
     ('953625104001', 'Bhadree'),
-    ('953625104002', 'Amit Patel'),
-    ('953625104003', 'Rahul Kumar'),
-    ('953625104004', 'Priya Sharma'),
-    ('953625104005', 'Vikram Singh'),
   ];
 
   static const _subjects = {
@@ -110,18 +106,18 @@ class _MentorAttendanceScreenState extends State<MentorAttendanceScreen> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(32),
+              padding: const EdgeInsets.all(4),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   AppCard(
-                    padding: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.all(4),
                     child: Container(
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(colors: [AppColors.primary, AppColors.primaryDark]),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(32),
                       ),
-                      padding: const EdgeInsets.all(24),
+                      padding: const EdgeInsets.all(8),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -130,29 +126,24 @@ class _MentorAttendanceScreenState extends State<MentorAttendanceScreen> {
                             SizedBox(height: 4),
                             Text('Professional attendance tracking and reporting', style: TextStyle(color: Colors.white70)),
                           ]),
-                          Row(children: [
-                            OutlinedButton(onPressed: () {}, style: OutlinedButton.styleFrom(side: const BorderSide(color: Colors.white), foregroundColor: Colors.white), child: const Text('Weekly Report')),
-                            const SizedBox(width: 8),
-                            ElevatedButton(onPressed: () {}, child: const Text('Monthly Report')),
-                          ]),
+
                         ],
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
                   AppCard(
                     padding: EdgeInsets.zero,
                     child: Column(
                       children: [
                         Container(
-                          color: AppColors.bgSecondary,
-                          padding: const EdgeInsets.all(16),
+                          color: AppColorsExtension.of(context).bgSecondary,
+                          padding: const EdgeInsets.all(8),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Column(crossAxisAlignment: CrossAxisAlignment.start, children: const [
-                                Text('Attendance Sheet', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
-                                Text('Green = Present  Red = Absent', style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                Text('  Attendance Sheet', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColorsExtension.of(context).textPrimary)),
                               ]),
                               Row(children: [
                                 DropdownButton<String>(
@@ -160,16 +151,7 @@ class _MentorAttendanceScreenState extends State<MentorAttendanceScreen> {
                                   items: _subjects.entries.map((e) => DropdownMenuItem(value: e.key, child: Text(e.value, style: const TextStyle(fontSize: 13)))).toList(),
                                   onChanged: (v) => setState(() => _selectedSubject = v ?? _selectedSubject),
                                 ),
-                                const SizedBox(width: 8),
-                                IconButton(onPressed: _prevMonth, icon: const Icon(Icons.chevron_left)),
-                                Text('${monthNames[_currentMonth.month]} ${_currentMonth.year}', style: const TextStyle(fontWeight: FontWeight.w600)),
-                                IconButton(onPressed: _nextMonth, icon: const Icon(Icons.chevron_right)),
-                                const SizedBox(width: 8),
-                                ElevatedButton.icon(
-                                  onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Attendance saved!'), behavior: SnackBarBehavior.floating)),
-                                  icon: const Icon(Icons.save),
-                                  label: const Text('Save'),
-                                ),
+
                               ]),
                             ],
                           ),
@@ -183,7 +165,7 @@ class _MentorAttendanceScreenState extends State<MentorAttendanceScreen> {
                           ]),
                         ),
                         Container(
-                          color: AppColors.bgSecondary,
+                          color: AppColorsExtension.of(context).bgSecondary,
                           padding: const EdgeInsets.all(12),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -193,7 +175,7 @@ class _MentorAttendanceScreenState extends State<MentorAttendanceScreen> {
                                 const SizedBox(width: 16),
                                 _legend(Colors.red, 'Absent'),
                                 const SizedBox(width: 16),
-                                _legend(AppColors.bgTertiary, 'Not Marked'),
+                                _legend(AppColorsExtension.of(context).bgTertiary, 'Not Marked'),
                               ]),
                             ],
                           ),
@@ -211,7 +193,7 @@ class _MentorAttendanceScreenState extends State<MentorAttendanceScreen> {
 
   Widget _headerRow(List<String> monthNames) {
     return Container(
-      color: AppColors.textPrimary,
+      color: AppColorsExtension.of(context).textPrimary,
       child: Row(children: [
         _thCell('Roll No', 140),
         _thCell('Name', 140),
@@ -229,7 +211,7 @@ class _MentorAttendanceScreenState extends State<MentorAttendanceScreen> {
       width: w,
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
       alignment: Alignment.center,
-      decoration: const BoxDecoration(border: Border(right: BorderSide(color: Colors.white24))),
+      decoration: BoxDecoration(border: Border(right: BorderSide(color: Colors.white24))),
       child: Text(t, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 11)),
     );
   }
@@ -241,7 +223,7 @@ class _MentorAttendanceScreenState extends State<MentorAttendanceScreen> {
     final pct = total > 0 ? ((present / total) * 100).round() : 0;
 
     return Container(
-      color: idx.isEven ? Colors.white : AppColors.bgSecondary,
+      color: idx.isEven ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.surfaceContainerHighest,
       child: Row(children: [
         _tdCell(roll, 140, bold: true),
         _tdCell(name, 140),
@@ -259,17 +241,18 @@ class _MentorAttendanceScreenState extends State<MentorAttendanceScreen> {
       width: w,
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
       alignment: Alignment.center,
-      decoration: const BoxDecoration(border: Border(right: BorderSide(color: AppColors.bgTertiary))),
-      child: Text(t, style: TextStyle(fontWeight: bold ? FontWeight.w700 : FontWeight.w500, fontSize: 12, color: color ?? AppColors.textPrimary)),
+      decoration: BoxDecoration(border: Border(right: BorderSide(color: AppColorsExtension.of(context).bgTertiary))),
+      child: Text(t, style: TextStyle(fontWeight: bold ? FontWeight.w700 : FontWeight.w500, fontSize: 12, color: color ?? AppColorsExtension.of(context).textPrimary)),
     );
   }
 
   Widget _attCell(String roll, int day) {
     final key = _cellKey(roll, day);
     final status = _attendance[key];
-    final bg = status == 'present' ? AppColors.success : status == 'absent' ? AppColors.danger : AppColors.bgTertiary;
-    final fg = status == null ? AppColors.textSecondary : Colors.white;
+    final bg = status == 'present' ? AppColors.success : status == 'absent' ? AppColors.danger : AppColorsExtension.of(context).bgTertiary;
+    final fg = status == null ? AppColorsExtension.of(context).textSecondary : Colors.white;
     final label = status == 'present' ? 'P' : status == 'absent' ? 'A' : '-';
+
 
     return GestureDetector(
       onTap: () => _toggleCell(roll, day),
@@ -277,7 +260,7 @@ class _MentorAttendanceScreenState extends State<MentorAttendanceScreen> {
         width: 42,
         padding: const EdgeInsets.symmetric(vertical: 10),
         alignment: Alignment.center,
-        decoration: BoxDecoration(color: bg, border: Border.all(color: Colors.white24)),
+        decoration: BoxDecoration(color: bg, border: Border.all(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3))),
         child: Text(label, style: TextStyle(color: fg, fontWeight: FontWeight.w700, fontSize: 12)),
       ),
     );
@@ -317,6 +300,13 @@ class _MentorAttendanceScreenState extends State<MentorAttendanceScreen> {
             _statCard('Avg Attendance', '$avgPct%', AppColors.success, w),
             _statCard('Classes This Month', '$_daysInMonth', AppColors.danger, w),
             _statCard('Low Attendance', '$lowCount', AppColors.warning, w),
+            const SizedBox(width: 8),
+            const SizedBox(width: 8),
+            ElevatedButton.icon(
+              onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Attendance saved!'), behavior: SnackBarBehavior.floating)),
+              icon: const Icon(Icons.save),
+              label: const Text('Save'),
+            ),
           ],
         );
       },
@@ -332,6 +322,7 @@ class _MentorAttendanceScreenState extends State<MentorAttendanceScreen> {
         Text(label, style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.w500)),
         const SizedBox(height: 8),
         Text(value, style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w700)),
+
       ]),
     );
   }

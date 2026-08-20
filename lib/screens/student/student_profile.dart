@@ -58,9 +58,9 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                   AppCard(
                     heading: 'Student Profile',
                     padding: const EdgeInsets.all(24),
-                    child: const Text(
+                    child: Text(
                       'View and manage your personal information',
-                      style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                      style: TextStyle(color: AppColorsExtension.of(context).textSecondary, fontSize: 14),
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -78,14 +78,14 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          Text(
-                            p?.fullName ?? 'Student',
-                            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-                          ),
-                          Text(
-                            p?.userId ?? '',
-                            style: const TextStyle(color: AppColors.textSecondary),
-                          ),
+                           Text(
+                             p?.fullName ?? 'Student',
+                             style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: AppColorsExtension.of(context).textPrimary),
+                           ),
+                           Text(
+                             p?.userId ?? '',
+                             style: TextStyle(color: AppColorsExtension.of(context).textSecondary),
+                           ),
                         ],
                       ),
                     ),
@@ -205,11 +205,11 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
             width: 160,
             child: Text(
               '$label:',
-              style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+              style: TextStyle(fontWeight: FontWeight.w600, color: AppColorsExtension.of(context).textPrimary),
             ),
           ),
           Expanded(
-            child: Text(value, style: const TextStyle(color: AppColors.textSecondary)),
+            child: Text(value, style: TextStyle(color: AppColorsExtension.of(context).textSecondary)),
           ),
         ],
       ),

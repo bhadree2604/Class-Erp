@@ -18,14 +18,9 @@ class _MentorMeetingsScreenState extends State<MentorMeetingsScreen> {
   bool _loading = true;
 
   static const _upcoming = [
-    ('March 27, 2026 - 10:00 AM', 'Rahul Kumar', '2024CS015', 'Attendance Discussion', 'Scheduled'),
-    ('March 28, 2026 - 2:00 PM', 'Amit Patel', '2024CS008', 'Academic Performance', 'Scheduled'),
-    ('March 29, 2026 - 11:00 AM', 'Priya Sharma', '2024CS022', 'Career Guidance', 'Scheduled'),
   ];
 
   static const _past = [
-    ('March 20, 2026', 'Bhadree', 'Progress Review'),
-    ('March 18, 2026', 'Vikram Singh', 'Project Discussion'),
   ];
 
   @override
@@ -60,7 +55,7 @@ class _MentorMeetingsScreenState extends State<MentorMeetingsScreen> {
                   AppCard(
                     heading: 'Student Meetings',
                     padding: const EdgeInsets.all(24),
-                    child: const Text('Schedule and manage one-on-one meetings with students', style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+                    child: Text('Schedule and manage one-on-one meetings with students', style: TextStyle(color: AppColorsExtension.of(context).textSecondary, fontSize: 14)),
                   ),
                   const SizedBox(height: 24),
                   AppCard(
@@ -73,9 +68,9 @@ class _MentorMeetingsScreenState extends State<MentorMeetingsScreen> {
                           decoration: BoxDecoration(gradient: LinearGradient(colors: [AppColors.primary, AppColors.primaryDark])),
                           children: [_H('Date & Time'), _H('Student'), _H('Roll No'), _H('Purpose'), _H('Status')],
                         ),
-                        for (final m in _upcoming)
+                          for (final m in _upcoming)
                           TableRow(
-                            decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.bgTertiary))),
+                            decoration: BoxDecoration(border: Border(bottom: BorderSide(color: AppColorsExtension.of(context).bgTertiary))),
                             children: [
                               _B(m.$1),
                               _B(m.$2),
@@ -98,9 +93,9 @@ class _MentorMeetingsScreenState extends State<MentorMeetingsScreen> {
                           decoration: BoxDecoration(gradient: LinearGradient(colors: [AppColors.primary, AppColors.primaryDark])),
                           children: [_H('Date'), _H('Student'), _H('Purpose'), _H('Notes')],
                         ),
-                        for (final m in _past)
+                          for (final m in _past)
                           TableRow(
-                            decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.bgTertiary))),
+                            decoration: BoxDecoration(border: Border(bottom: BorderSide(color: AppColorsExtension.of(context).bgTertiary))),
                             children: [
                               _B(m.$1),
                               _B(m.$2),
@@ -129,5 +124,5 @@ class _B extends StatelessWidget {
   final String t;
   const _B(this.t);
   @override
-  Widget build(BuildContext context) => Padding(padding: const EdgeInsets.all(12), child: Text(t, style: const TextStyle(color: AppColors.textPrimary)));
+  Widget build(BuildContext context) => Padding(padding: const EdgeInsets.all(12), child: Text(t, style: TextStyle(color: Theme.of(context).colorScheme.onSurface)));
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app_routes.dart';
+import '../../main.dart';
 import '../../services/auth_service.dart';
 import '../../theme.dart';
 import '../../widgets/app_card.dart';
@@ -83,6 +84,9 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    final currentMode = brightness == Brightness.dark ? ThemeMode.dark : ThemeMode.light;
+
     return PortalScaffold(
       role: 'student',
       title: 'Settings',
@@ -98,9 +102,21 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
                   AppCard(
                     heading: 'Settings',
                     padding: const EdgeInsets.all(24),
-                    child: const Text(
+                    child: Text(
                       'Manage your account settings and preferences',
-                      style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                      style: TextStyle(color: AppColorsExtension.of(context).textSecondary, fontSize: 14),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  AppCard(
+                    heading: 'Appearance',
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      children: [
+                        _themeOption('Light', ThemeMode.light, currentMode),
+                        _themeOption('Dark', ThemeMode.dark, currentMode),
+                        _themeOption('System', ThemeMode.system, currentMode),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -156,13 +172,27 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
     );
   }
 
+  Widget _themeOption(String label, ThemeMode mode, ThemeMode currentMode) {
+    return RadioListTile<ThemeMode>(
+      title: Text(label),
+      value: mode,
+      groupValue: currentMode,
+      onChanged: (value) {
+        if (value != null) {
+          MyClassApp.setThemeMode(value);
+        }
+      },
+      activeColor: AppColors.primary,
+    );
+  }
+
   Widget _toggleRow(String label, bool value, ValueChanged<bool> onChanged) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(child: Text(label, style: const TextStyle(color: AppColors.textPrimary))),
+          Expanded(child: Text(label, style: TextStyle(color: AppColorsExtension.of(context).textPrimary))),
           Switch(value: value, onChanged: onChanged, activeThumbColor: AppColors.primary),
         ],
       ),
@@ -172,7 +202,7 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
   Widget _fieldLabel(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
-      child: Text(text, style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+      child: Text(text, style: TextStyle(fontWeight: FontWeight.w600, color: AppColorsExtension.of(context).textPrimary)),
     );
   }
 }

@@ -73,10 +73,10 @@ class _StudentGradesScreenState extends State<StudentGradesScreen> {
                   AppCard(
                     heading: 'Academic Performance',
                     padding: const EdgeInsets.all(24),
-                    child: const Text(
+                    child: Text(
                       'View your grades and CGPA',
                       style: TextStyle(
-                        color: AppColors.textSecondary,
+                        color: AppColorsExtension.of(context).textSecondary,
                         fontSize: 14,
                       ),
                     ),
@@ -118,11 +118,11 @@ class _StudentGradesScreenState extends State<StudentGradesScreen> {
                   AppCard(
                     heading: 'Current Semester Grades',
                     child: _grades.isEmpty
-                        ? const Padding(
+                        ? Padding(
                             padding: EdgeInsets.symmetric(vertical: 16),
                             child: Text(
                               'No grades available yet.',
-                              style: TextStyle(color: AppColors.textSecondary),
+                              style: TextStyle(color: AppColorsExtension.of(context).textSecondary),
                             ),
                           )
                         : Table(
@@ -153,10 +153,10 @@ class _StudentGradesScreenState extends State<StudentGradesScreen> {
                               ),
                               for (final g in _grades)
                                 TableRow(
-                                  decoration: const BoxDecoration(
+                                  decoration: BoxDecoration(
                                     border: Border(
                                       bottom: BorderSide(
-                                          color: AppColors.bgTertiary),
+                                          color: AppColorsExtension.of(context).bgTertiary),
                                     ),
                                   ),
                                   children: [
@@ -188,7 +188,7 @@ class _StudentGradesScreenState extends State<StudentGradesScreen> {
         color = AppColors.warning;
         break;
       default:
-        color = AppColors.textSecondary;
+        color = AppColorsExtension.of(context).textSecondary;
     }
     return Padding(
       padding: const EdgeInsets.all(12),
@@ -245,7 +245,7 @@ class _BodyCell extends StatelessWidget {
         text,
         style: TextStyle(
           fontWeight: strong ? FontWeight.w600 : FontWeight.w400,
-          color: AppColors.textPrimary,
+          color: Theme.of(context).colorScheme.onSurface,
         ),
       ),
     );

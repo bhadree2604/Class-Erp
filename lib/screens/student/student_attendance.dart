@@ -62,8 +62,8 @@ class _StudentAttendanceScreenState extends State<StudentAttendanceScreen> {
                     padding: const EdgeInsets.all(24),
                     child: Text(
                       'Your attendance record across all subjects this semester',
-                      style: const TextStyle(
-                        color: AppColors.textSecondary,
+                      style: TextStyle(
+                        color: AppColorsExtension.of(context).textSecondary,
                         fontSize: 14,
                       ),
                     ),
@@ -89,13 +89,6 @@ class _StudentAttendanceScreenState extends State<StudentAttendanceScreen> {
                           ),
                           SizedBox(
                             width: width,
-                            child: const StatCard(
-                              label: 'Classes Attended',
-                              value: '170',
-                              subtitle: 'Out of 200 classes',
-                              icon: Icons.check_circle,
-                              color: AppColors.success,
-                            ),
                           ),
                         ],
                       );
@@ -119,11 +112,11 @@ class _StudentAttendanceScreenState extends State<StudentAttendanceScreen> {
         return AppCard(
           heading: 'Recent Attendance Records',
           child: records.isEmpty
-              ? const Padding(
+              ? Padding(
                   padding: EdgeInsets.symmetric(vertical: 16),
                   child: Text(
                     'No attendance records yet.',
-                    style: TextStyle(color: AppColors.textSecondary),
+                    style: TextStyle(color: AppColorsExtension.of(context).textSecondary),
                   ),
                 )
               : Table(
@@ -150,9 +143,9 @@ class _StudentAttendanceScreenState extends State<StudentAttendanceScreen> {
                     ),
                     for (final r in records)
                       TableRow(
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           border: Border(
-                            bottom: BorderSide(color: AppColors.bgTertiary),
+                            bottom: BorderSide(color: AppColorsExtension.of(context).bgTertiary),
                           ),
                         ),
                         children: [
@@ -214,7 +207,7 @@ class _BodyCell extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       child: Text(
         text,
-        style: const TextStyle(color: AppColors.textPrimary),
+        style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
       ),
     );
   }
