@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app_routes.dart';
 import '../../models/certificate.dart';
+import '../../models/mentor_student.dart';
 import '../../services/auth_service.dart';
 import '../../services/data_service.dart';
 import '../../theme.dart';
@@ -27,12 +28,7 @@ class _MentorCertificatesScreenState extends State<MentorCertificatesScreen> {
   List<Certificate> _certificates = [];
 
   static const _categories = ['Academic Excellence', 'Sports Achievement', 'Cultural Event', 'Technical Competition', 'Leadership', 'Perfect Attendance', 'Other'];
-  static const _students = [
-    ('RIT2024CS001', 'Bhadree'),
-    ('RIT2024CS008', 'Amit Patel'),
-    ('RIT2024CS015', 'Rahul Kumar'),
-    ('RIT2024CS022', 'Priya Sharma'),
-  ];
+  List<MentorStudent> _students = [];
 
   @override
   void initState() {
@@ -50,14 +46,16 @@ class _MentorCertificatesScreenState extends State<MentorCertificatesScreen> {
 
   Future<void> _load() async {
     final user = await AuthService.instance.getCurrentUser();
+    final students = await DataService.instance.getMentorStudents();
     final allCerts = <Certificate>[];
-    for (final (id, _) in _students) {
-      final certs = await DataService.instance.getCertificates(id);
+    for (final s in students) {
+      final certs = await DataService.instance.getCertificates(s.rollNo);
       allCerts.addAll(certs.where((c) => c.uploadedBy == 'Mentor'));
     }
     if (!mounted) return;
     setState(() {
       _userName = user?.fullName ?? 'Mentor';
+      _students = students;
       _certificates = allCerts;
       _loading = false;
     });
@@ -126,7 +124,7 @@ class _MentorCertificatesScreenState extends State<MentorCertificatesScreen> {
                           DropdownButtonFormField<String>(
                             initialValue: _selectedStudent,
                             hint: const Text('-- Select Student --'),
-                            items: _students.map((s) => DropdownMenuItem(value: s.$1, child: Text('${s.$2} (${s.$1})'))).toList(),
+                            items: _students.map((s) => DropdownMenuItem(value: s.rollNo, child: Text('${s.name} (${s.rollNo})'))).toList(),
                             onChanged: (v) => setState(() => _selectedStudent = v),
                           ),
                           const SizedBox(height: 16),

@@ -5,7 +5,6 @@ import 'app_routes.dart';
 import 'screens/landing_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/mentor/mentor_assignments.dart';
-import 'screens/mentor/mentor_attendance.dart';
 import 'screens/mentor/mentor_certificates.dart';
 import 'screens/mentor/mentor_courses.dart';
 import 'screens/mentor/mentor_create_account.dart';
@@ -136,7 +135,6 @@ class MyClassAppState extends State<MyClassApp> {
         AppRoutes.mentorDashboard: (_) => const MentorDashboardScreen(),
         AppRoutes.mentorStudents: (_) => const MentorStudentsScreen(),
         AppRoutes.mentorCourses: (_) => const MentorCoursesScreen(),
-        AppRoutes.mentorAttendance: (_) => const MentorAttendanceScreen(),
         AppRoutes.mentorAssignments: (_) => const MentorAssignmentsScreen(),
         AppRoutes.mentorEvents: (_) => const MentorEventsScreen(),
         AppRoutes.mentorCertificates: (_) => const MentorCertificatesScreen(),

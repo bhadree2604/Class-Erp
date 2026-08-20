@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app_routes.dart';
+import '../../models/mentor_student.dart';
 import '../../models/parent_message.dart';
 import '../../services/auth_service.dart';
 import '../../services/data_service.dart';
@@ -25,11 +26,7 @@ class _MentorParentReportScreenState extends State<MentorParentReportScreen> {
   List<ParentMessage> _messages = [];
 
   static const _categories = ['Academic Performance', 'Attendance', 'Behavior & Conduct', 'Co-curricular Activities', 'General Remarks'];
-  static const _students = [
-    ('RIT2024CS001', 'Bhadree'),
-    ('RIT2024CS008', 'Amit Patel'),
-    ('RIT2024CS015', 'Rahul Kumar'),
-  ];
+  List<MentorStudent> _students = [];
 
   @override
   void initState() {
@@ -45,9 +42,11 @@ class _MentorParentReportScreenState extends State<MentorParentReportScreen> {
 
   Future<void> _load() async {
     final user = await AuthService.instance.getCurrentUser();
+    final students = await DataService.instance.getMentorStudents();
     if (!mounted) return;
     setState(() {
       _userName = user?.fullName ?? 'Mentor';
+      _students = students;
       _loading = false;
     });
   }
@@ -102,7 +101,7 @@ class _MentorParentReportScreenState extends State<MentorParentReportScreen> {
                     child: DropdownButtonFormField<String>(
                       initialValue: _selectedStudent,
                       hint: const Text('-- Select a student --'),
-                      items: _students.map((s) => DropdownMenuItem(value: s.$1, child: Text('${s.$2} (${s.$1})'))).toList(),
+                      items: _students.map((s) => DropdownMenuItem(value: s.rollNo, child: Text('${s.name} (${s.rollNo})'))).toList(),
                       onChanged: (v) {
                         setState(() {
                           _selectedStudent = v;

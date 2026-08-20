@@ -184,14 +184,6 @@ class DataService {
         .toList();
   }
 
-  Future<void> markAttendance(String studentId, AttendanceRecord record) async {
-    final prefs = await _store;
-    final records = await getAttendance(studentId);
-    records.add(record);
-    await prefs.setString(
-        _attendanceKey(studentId), jsonEncode(records.map((e) => e.toJson()).toList()));
-  }
-
   // ---------- Grades ----------
 
   /// Default semester grade sheet (mirrors the static data in grades.html).

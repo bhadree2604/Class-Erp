@@ -26,8 +26,6 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
   static const _quickActions = [
     (Icons.person, 'View Students', 'Check student info and records',
         AppRoutes.mentorStudents),
-    (Icons.check_circle_outline, 'Mark Attendance', "Take today's attendance",
-        AppRoutes.mentorAttendance),
     (Icons.assignment_outlined, 'Create Assignment', 'Post a new assignment',
         AppRoutes.mentorAssignments),
     (Icons.event_outlined, 'Manage Events', 'Add or edit events',

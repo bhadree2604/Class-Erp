@@ -24,7 +24,6 @@ class AppRoutes {
   static const mentorDashboard = '/mentor/dashboard';
   static const mentorStudents = '/mentor/students';
   static const mentorCourses = '/mentor/courses';
-  static const mentorAttendance = '/mentor/attendance';
   static const mentorAssignments = '/mentor/assignments';
   static const mentorEvents = '/mentor/events';
   static const mentorCertificates = '/mentor/certificates';

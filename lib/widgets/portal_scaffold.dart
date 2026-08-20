@@ -47,7 +47,6 @@ class PortalScaffold extends StatelessWidget {
     _NavItem('Dashboard', Icons.dashboard_outlined, AppRoutes.mentorDashboard),
     _NavItem('My Students', Icons.people_outline, AppRoutes.mentorStudents),
     _NavItem('Courses', Icons.menu_book_outlined, AppRoutes.mentorCourses),
-    _NavItem('Attendance', Icons.calendar_today_outlined, AppRoutes.mentorAttendance),
     _NavItem('Assignments', Icons.assignment_outlined, AppRoutes.mentorAssignments),
     _NavItem('Events', Icons.event_outlined, AppRoutes.mentorEvents),
     _NavItem('Certificates', Icons.workspace_premium_outlined, AppRoutes.mentorCertificates),
