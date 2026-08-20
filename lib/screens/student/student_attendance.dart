@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app_routes.dart';
+import '../../models/attendance.dart';
 import '../../models/student_profile.dart';
 import '../../services/auth_service.dart';
 import '../../services/data_service.dart';
@@ -22,11 +23,19 @@ class _StudentAttendanceScreenState extends State<StudentAttendanceScreen> {
   StudentProfile? _profile;
   String _userName = 'Student';
   bool _loading = true;
+  String? _studentId;
+  int _attendanceVersion = 0;
 
   @override
   void initState() {
     super.initState();
     _load();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _refreshAttendance();
   }
 
   Future<void> _load() async {
@@ -38,7 +47,14 @@ class _StudentAttendanceScreenState extends State<StudentAttendanceScreen> {
     setState(() {
       _profile = profile;
       _userName = user?.fullName ?? profile.fullName;
+      _studentId = user?.userId ?? profile.userId;
       _loading = false;
+    });
+  }
+
+  void _refreshAttendance() {
+    setState(() {
+      _attendanceVersion++;
     });
   }
 
@@ -103,10 +119,10 @@ class _StudentAttendanceScreenState extends State<StudentAttendanceScreen> {
   }
 
   Widget _recordsCard() {
+    final studentId = _studentId ?? DataService.defaultStudentId;
     return FutureBuilder(
-      future: DataService.instance.getAttendance(
-        _profile?.userId ?? DataService.defaultStudentId,
-      ),
+      key: ValueKey('attendance_$_attendanceVersion'),
+      future: DataService.instance.getAttendance(studentId),
       builder: (context, snapshot) {
         final records = snapshot.data ?? const [];
         return AppCard(

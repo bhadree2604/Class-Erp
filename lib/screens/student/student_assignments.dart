@@ -20,8 +20,8 @@ class StudentAssignmentsScreen extends StatefulWidget {
 
 class _StudentAssignmentsScreenState extends State<StudentAssignmentsScreen> {
   String _userName = 'Student';
-  List<Assignment> _assignments = const [];
   bool _loading = true;
+  int _assignmentsVersion = 0;
 
   @override
   void initState() {
@@ -29,14 +29,24 @@ class _StudentAssignmentsScreenState extends State<StudentAssignmentsScreen> {
     _load();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _refreshAssignments();
+  }
+
   Future<void> _load() async {
     final user = await AuthService.instance.getCurrentUser();
-    final assignments = await DataService.instance.getAssignments();
     if (!mounted) return;
     setState(() {
       _userName = user?.fullName ?? 'Student';
-      _assignments = assignments;
       _loading = false;
+    });
+  }
+
+  void _refreshAssignments() {
+    setState(() {
+      _assignmentsVersion++;
     });
   }
 

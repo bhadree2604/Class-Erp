@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../app_routes.dart';
+import '../../models/attendance.dart';
+import '../../models/mentor_student.dart';
 import '../../services/auth_service.dart';
+import '../../services/data_service.dart';
 import '../../theme.dart';
 import '../../widgets/app_card.dart';
 import '../../widgets/portal_scaffold.dart';
@@ -19,10 +22,8 @@ class _MentorAttendanceScreenState extends State<MentorAttendanceScreen> {
   String _selectedSubject = 'CS25C06';
   late DateTime _currentMonth;
   final Map<String, String> _attendance = {};
-
-  static const _students = [
-    ('953625104001', 'Bhadree'),
-  ];
+  List<MentorStudent> _students = [];
+  final Map<String, String> _rollToUserId = {};
 
   static const _subjects = {
     'CS25C06': 'CS25C06 - Digital Principles',
@@ -41,9 +42,16 @@ class _MentorAttendanceScreenState extends State<MentorAttendanceScreen> {
 
   Future<void> _load() async {
     final user = await AuthService.instance.getCurrentUser();
+    final students = await DataService.instance.getMentorStudents();
+    final Map<String, String> rollMap = {};
+    for (final s in students) {
+      rollMap[s.rollNo] = s.rollNo;
+    }
     if (!mounted) return;
     setState(() {
       _userName = user?.fullName ?? 'Mentor';
+      _students = students;
+      _rollToUserId.addAll(rollMap);
       _loading = false;
     });
   }
@@ -92,6 +100,48 @@ class _MentorAttendanceScreenState extends State<MentorAttendanceScreen> {
       if (_attendance[_cellKey(roll, d)] != null) count++;
     }
     return count;
+  }
+
+  Future<void> _saveAttendance() async {
+    if (_students.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No students to save attendance for.'), behavior: SnackBarBehavior.floating),
+        );
+      }
+      return;
+    }
+
+    int savedCount = 0;
+    final now = DateTime.now();
+    final today = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+
+    for (final student in _students) {
+      for (int d = 1; d <= _daysInMonth; d++) {
+        final key = _cellKey(student.rollNo, d);
+        final status = _attendance[key];
+        if (status == null) continue;
+
+        final dateStr = '${_currentMonth.year}-${_currentMonth.month.toString().padLeft(2, '0')}-${d.toString().padLeft(2, '0')}';
+
+        final record = AttendanceRecord(
+          subject: _selectedSubject,
+          date: dateStr,
+          status: status == 'present' ? 'Present' : 'Absent',
+          markedBy: _userName,
+          timestamp: now.toIso8601String(),
+        );
+
+        await DataService.instance.markAttendance(student.rollNo, record);
+        savedCount++;
+      }
+    }
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Attendance saved! ($savedCount records)'), behavior: SnackBarBehavior.floating),
+      );
+    }
   }
 
   @override
@@ -160,8 +210,17 @@ class _MentorAttendanceScreenState extends State<MentorAttendanceScreen> {
                           scrollDirection: Axis.horizontal,
                           child: Column(children: [
                             _headerRow(monthNames),
-                            for (var i = 0; i < _students.length; i++)
-                              _dataRow(i),
+                            if (_students.isEmpty)
+                              Padding(
+                                padding: const EdgeInsets.all(24),
+                                child: Text(
+                                  'No students added yet. Go to My Students to add students first.',
+                                  style: TextStyle(color: AppColorsExtension.of(context).textSecondary),
+                                ),
+                              )
+                            else
+                              for (var i = 0; i < _students.length; i++)
+                                _dataRow(i),
                           ]),
                         ),
                         Container(
@@ -217,7 +276,9 @@ class _MentorAttendanceScreenState extends State<MentorAttendanceScreen> {
   }
 
   Widget _dataRow(int idx) {
-    final (roll, name) = _students[idx];
+    final student = _students[idx];
+    final roll = student.rollNo;
+    final name = student.name;
     final total = _studentTotalCount(roll);
     final present = _studentPresentCount(roll);
     final pct = total > 0 ? ((present / total) * 100).round() : 0;
@@ -277,15 +338,15 @@ class _MentorAttendanceScreenState extends State<MentorAttendanceScreen> {
   Widget _statCards() {
     final avgPct = _students.isNotEmpty
         ? _students.fold(0, (sum, s) {
-            final t = _studentTotalCount(s.$1);
-            final p = _studentPresentCount(s.$1);
+            final t = _studentTotalCount(s.rollNo);
+            final p = _studentPresentCount(s.rollNo);
             return sum + (t > 0 ? ((p / t) * 100).round() : 0);
           }) ~/ _students.length
         : 0;
 
     final lowCount = _students.where((s) {
-      final t = _studentTotalCount(s.$1);
-      final p = _studentPresentCount(s.$1);
+      final t = _studentTotalCount(s.rollNo);
+      final p = _studentPresentCount(s.rollNo);
       return t > 0 && ((p / t) * 100) < 75;
     }).length;
 
@@ -303,7 +364,7 @@ class _MentorAttendanceScreenState extends State<MentorAttendanceScreen> {
             const SizedBox(width: 8),
             const SizedBox(width: 8),
             ElevatedButton.icon(
-              onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Attendance saved!'), behavior: SnackBarBehavior.floating)),
+              onPressed: _saveAttendance,
               icon: const Icon(Icons.save),
               label: const Text('Save'),
             ),
