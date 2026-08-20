@@ -23,7 +23,6 @@ class _MentorAttendanceScreenState extends State<MentorAttendanceScreen> {
   late DateTime _currentMonth;
   final Map<String, String> _attendance = {};
   List<MentorStudent> _students = [];
-  final Map<String, String> _rollToUserId = {};
 
   static const _subjects = {
     'CS25C06': 'CS25C06 - Digital Principles',
@@ -43,15 +42,10 @@ class _MentorAttendanceScreenState extends State<MentorAttendanceScreen> {
   Future<void> _load() async {
     final user = await AuthService.instance.getCurrentUser();
     final students = await DataService.instance.getMentorStudents();
-    final Map<String, String> rollMap = {};
-    for (final s in students) {
-      rollMap[s.rollNo] = s.rollNo;
-    }
     if (!mounted) return;
     setState(() {
       _userName = user?.fullName ?? 'Mentor';
       _students = students;
-      _rollToUserId.addAll(rollMap);
       _loading = false;
     });
   }
@@ -71,18 +65,6 @@ class _MentorAttendanceScreenState extends State<MentorAttendanceScreen> {
       } else {
         _attendance.remove(key);
       }
-    });
-  }
-
-  void _prevMonth() {
-    setState(() {
-      _currentMonth = DateTime(_currentMonth.year, _currentMonth.month - 1);
-    });
-  }
-
-  void _nextMonth() {
-    setState(() {
-      _currentMonth = DateTime(_currentMonth.year, _currentMonth.month + 1);
     });
   }
 
