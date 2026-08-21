@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../app_routes.dart';
 import '../../main.dart';
@@ -46,14 +47,21 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
 
   Future<void> _load() async {
     final user = await AuthService.instance.getCurrentUser();
+    final prefs = await SharedPreferences.getInstance();
     if (!mounted) return;
     setState(() {
       _userName = user?.fullName ?? 'Student';
+      _emailAssignments = prefs.getBool('stud_notif_emailAssignments') ?? true;
+      _emailGrades = prefs.getBool('stud_notif_emailGrades') ?? true;
+      _smsAttendance = prefs.getBool('stud_notif_smsAttendance') ?? false;
+      _announcements = prefs.getBool('stud_notif_announcements') ?? true;
+      _showProfile = prefs.getBool('stud_privacy_showProfile') ?? true;
+      _allowContact = prefs.getBool('stud_privacy_allowContact') ?? false;
       _loading = false;
     });
   }
 
-  void _changePassword() {
+  Future<void> _changePassword() async {
     if (_currentPwdCtrl.text.isEmpty ||
         _newPwdCtrl.text.isEmpty ||
         _confirmPwdCtrl.text.isEmpty) {
@@ -74,12 +82,31 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
       );
       return;
     }
+    final error = await AuthService.instance.changePassword(
+      _currentPwdCtrl.text,
+      _newPwdCtrl.text,
+    );
+    if (error != null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error), behavior: SnackBarBehavior.floating),
+        );
+      }
+      return;
+    }
     _currentPwdCtrl.clear();
     _newPwdCtrl.clear();
     _confirmPwdCtrl.clear();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Password updated successfully! Please login again.'), behavior: SnackBarBehavior.floating),
-    );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Password updated successfully! Please login again.'), behavior: SnackBarBehavior.floating),
+      );
+    }
+  }
+
+  Future<void> _saveNotificationPref(String key, bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(key, value);
   }
 
   @override
@@ -115,7 +142,6 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
                       children: [
                         _themeOption('Light', ThemeMode.light, currentMode),
                         _themeOption('Dark', ThemeMode.dark, currentMode),
-                        _themeOption('System', ThemeMode.system, currentMode),
                       ],
                     ),
                   ),
@@ -148,10 +174,22 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
                     padding: const EdgeInsets.all(24),
                     child: Column(
                       children: [
-                        _toggleRow('Email notifications for assignments', _emailAssignments, (v) => setState(() => _emailAssignments = v)),
-                        _toggleRow('Email notifications for grades', _emailGrades, (v) => setState(() => _emailGrades = v)),
-                        _toggleRow('SMS notifications for attendance', _smsAttendance, (v) => setState(() => _smsAttendance = v)),
-                        _toggleRow('Announcement notifications', _announcements, (v) => setState(() => _announcements = v)),
+                        _toggleRow('Email notifications for assignments', _emailAssignments, (v) {
+                          setState(() => _emailAssignments = v);
+                          _saveNotificationPref('stud_notif_emailAssignments', v);
+                        }),
+                        _toggleRow('Email notifications for grades', _emailGrades, (v) {
+                          setState(() => _emailGrades = v);
+                          _saveNotificationPref('stud_notif_emailGrades', v);
+                        }),
+                        _toggleRow('SMS notifications for attendance', _smsAttendance, (v) {
+                          setState(() => _smsAttendance = v);
+                          _saveNotificationPref('stud_notif_smsAttendance', v);
+                        }),
+                        _toggleRow('Announcement notifications', _announcements, (v) {
+                          setState(() => _announcements = v);
+                          _saveNotificationPref('stud_notif_announcements', v);
+                        }),
                       ],
                     ),
                   ),
@@ -161,8 +199,14 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
                     padding: const EdgeInsets.all(24),
                     child: Column(
                       children: [
-                        _toggleRow('Show profile to other students', _showProfile, (v) => setState(() => _showProfile = v)),
-                        _toggleRow('Allow contact from faculty', _allowContact, (v) => setState(() => _allowContact = v)),
+                        _toggleRow('Show profile to other students', _showProfile, (v) {
+                          setState(() => _showProfile = v);
+                          _saveNotificationPref('stud_privacy_showProfile', v);
+                        }),
+                        _toggleRow('Allow contact from faculty', _allowContact, (v) {
+                          setState(() => _allowContact = v);
+                          _saveNotificationPref('stud_privacy_allowContact', v);
+                        }),
                       ],
                     ),
                   ),

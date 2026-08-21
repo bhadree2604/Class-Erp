@@ -16,6 +16,7 @@ class MentorProfileScreen extends StatefulWidget {
 class _MentorProfileScreenState extends State<MentorProfileScreen> {
   String _userName = 'Mentor';
   bool _loading = true;
+  User? _user;
 
   @override
   void initState() {
@@ -27,6 +28,7 @@ class _MentorProfileScreenState extends State<MentorProfileScreen> {
     final user = await AuthService.instance.getCurrentUser();
     if (!mounted) return;
     setState(() {
+      _user = user;
       _userName = user?.fullName ?? 'Mentor';
       _loading = false;
     });
@@ -34,6 +36,8 @@ class _MentorProfileScreenState extends State<MentorProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final u = _user;
+    final extra = u?.extra ?? {};
     return PortalScaffold(
       role: 'mentor',
       title: 'Mentor Profile',
@@ -60,57 +64,63 @@ class _MentorProfileScreenState extends State<MentorProfileScreen> {
                           CircleAvatar(
                             radius: 50,
                             backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                            child: const Icon(Icons.person, size: 50, color: AppColors.primary),
+                            child: Text(
+                              (u?.fullName ?? 'M')[0].toUpperCase(),
+                              style: const TextStyle(fontSize: 40, color: AppColors.primary, fontWeight: FontWeight.bold),
+                            ),
                           ),
                           const SizedBox(height: 16),
-                          Text('Dr. Rajesh Kumar', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: AppColorsExtension.of(context).textPrimary)),
-                          Text('M2024001', style: TextStyle(color: AppColorsExtension.of(context).textSecondary)),
+                          Text(u?.fullName ?? 'Mentor', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: AppColorsExtension.of(context).textPrimary)),
+                          Text(u?.userId ?? '', style: TextStyle(color: AppColorsExtension.of(context).textSecondary)),
                         ],
                       ),
                     ),
                   ),
                   const SizedBox(height: 24),
                   _infoCard('Personal Information', [
-                    ('Mentor ID', 'M2024001'),
-                    ('Name', 'Dr. Rajesh Kumar'),
-                    ('Email', 'rajesh.kumar@rit.edu'),
-                    ('Phone', '+91 98765 43210'),
-                    ('Date of Birth', 'May 15, 1980'),
-                    ('Gender', 'Male'),
-                    ('Blood Group', 'B+'),
-                    ('Nationality', 'Indian'),
+                    ('Mentor ID', u?.userId ?? '-'),
+                    ('Name', u?.fullName ?? '-'),
+                    ('Email', u?.email ?? '-'),
+                    ('Phone', u?.phone ?? '-'),
+                    ('Date of Birth', extra['dob'] as String? ?? '-'),
+                    ('Gender', extra['gender'] as String? ?? '-'),
+                    ('Blood Group', extra['bloodGroup'] as String? ?? '-'),
+                    ('Nationality', extra['nationality'] as String? ?? '-'),
                   ]),
                   const SizedBox(height: 24),
                   _infoCard('Professional Information', [
-                    ('Department', 'Computer Science'),
-                    ('Designation', 'Assistant Professor'),
-                    ('Qualification', 'Ph.D'),
-                    ('Specialization', 'Data Science, ML'),
-                    ('Experience', '10 Years'),
-                    ('Joining Date', 'July 1, 2014'),
-                    ('Office', 'Room 305, CS Block'),
-                    ('Employee ID', 'EMP2024001'),
+                    ('Department', u?.department ?? '-'),
+                    ('Designation', extra['designation'] as String? ?? '-'),
+                    ('Qualification', extra['qualification'] as String? ?? '-'),
+                    ('Specialization', extra['specialization'] as String? ?? '-'),
+                    ('Experience', extra['experience'] as String? ?? '-'),
+                    ('Joining Date', extra['joiningDate'] as String? ?? '-'),
+                    ('Office', extra['office'] as String? ?? '-'),
+                    ('Employee ID', extra['employeeId'] as String? ?? '-'),
                   ]),
                   const SizedBox(height: 24),
                   _infoCard('Address Information', [
-                    ('Current Address', '123 Main Street, Apartment 4B'),
-                    ('Permanent Address', '456 Home Street, City, State'),
-                    ('City', 'Chennai'),
-                    ('State', 'Tamil Nadu'),
-                    ('Pincode', '600001'),
-                    ('Country', 'India'),
+                    ('Current Address', extra['currentAddress'] as String? ?? '-'),
+                    ('Permanent Address', extra['permanentAddress'] as String? ?? '-'),
+                    ('City', extra['city'] as String? ?? '-'),
+                    ('State', extra['state'] as String? ?? '-'),
+                    ('Pincode', extra['pincode'] as String? ?? '-'),
+                    ('Country', extra['country'] as String? ?? '-'),
                   ]),
                   const SizedBox(height: 24),
                   _infoCard('Emergency Contact', [
-                    ('Contact Name', 'Family Member'),
-                    ('Relationship', 'Spouse'),
-                    ('Phone', '+91 98765 43210'),
-                    ('Email', 'emergency@email.com'),
+                    ('Contact Name', extra['emergencyName'] as String? ?? '-'),
+                    ('Relationship', extra['emergencyRelation'] as String? ?? '-'),
+                    ('Phone', extra['emergencyPhone'] as String? ?? '-'),
+                    ('Email', extra['emergencyEmail'] as String? ?? '-'),
                   ]),
                   const SizedBox(height: 24),
                   Center(
                     child: ElevatedButton.icon(
-                      onPressed: () => Navigator.of(context).pushNamed(AppRoutes.mentorProfileEdit),
+                      onPressed: () async {
+                        await Navigator.of(context).pushNamed(AppRoutes.mentorProfileEdit);
+                        _load();
+                      },
                       icon: const Icon(Icons.edit),
                       label: const Text('Edit Information'),
                     ),

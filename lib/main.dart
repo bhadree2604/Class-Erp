@@ -87,8 +87,6 @@ class MyClassAppState extends State<MyClassApp> {
     switch (value) {
       case 'dark':
         return ThemeMode.dark;
-      case 'system':
-        return ThemeMode.system;
       default:
         return ThemeMode.light;
     }
@@ -98,9 +96,9 @@ class MyClassAppState extends State<MyClassApp> {
     switch (mode) {
       case ThemeMode.dark:
         return 'dark';
-      case ThemeMode.system:
-        return 'system';
       case ThemeMode.light:
+        return 'light';
+      default:
         return 'light';
     }
   }

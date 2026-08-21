@@ -17,26 +17,26 @@ class _MentorProfileEditScreenState extends State<MentorProfileEditScreen> {
   String _userName = 'Mentor';
   bool _loading = true;
 
-  final _nameCtrl = TextEditingController(text: 'Dr. Rajesh Kumar');
-  final _emailCtrl = TextEditingController(text: 'rajesh.kumar@rit.edu');
-  final _phoneCtrl = TextEditingController(text: '+91 98765 43210');
-  final _dobCtrl = TextEditingController(text: '1980-05-15');
-  final _nationalityCtrl = TextEditingController(text: 'Indian');
-  final _designationCtrl = TextEditingController(text: 'Assistant Professor');
-  final _specializationCtrl = TextEditingController(text: 'Data Science, Machine Learning');
-  final _expCtrl = TextEditingController(text: '10');
-  final _joiningDateCtrl = TextEditingController(text: '2014-07-01');
-  final _officeCtrl = TextEditingController(text: 'Room 305, CS Block');
-  final _empIdCtrl = TextEditingController(text: 'EMP2024001');
-  final _currentAddrCtrl = TextEditingController(text: '123 Main Street, Apartment 4B');
-  final _permAddrCtrl = TextEditingController(text: '456 Home Street, City, State');
-  final _cityCtrl = TextEditingController(text: 'Chennai');
-  final _stateCtrl = TextEditingController(text: 'Tamil Nadu');
-  final _pincodeCtrl = TextEditingController(text: '600001');
-  final _countryCtrl = TextEditingController(text: 'India');
-  final _emergencyNameCtrl = TextEditingController(text: 'Family Member');
-  final _emergencyPhoneCtrl = TextEditingController(text: '+91 98765 43210');
-  final _emergencyEmailCtrl = TextEditingController(text: 'emergency@email.com');
+  final _nameCtrl = TextEditingController();
+  final _emailCtrl = TextEditingController();
+  final _phoneCtrl = TextEditingController();
+  final _dobCtrl = TextEditingController();
+  final _nationalityCtrl = TextEditingController();
+  final _designationCtrl = TextEditingController();
+  final _specializationCtrl = TextEditingController();
+  final _expCtrl = TextEditingController();
+  final _joiningDateCtrl = TextEditingController();
+  final _officeCtrl = TextEditingController();
+  final _empIdCtrl = TextEditingController();
+  final _currentAddrCtrl = TextEditingController();
+  final _permAddrCtrl = TextEditingController();
+  final _cityCtrl = TextEditingController();
+  final _stateCtrl = TextEditingController();
+  final _pincodeCtrl = TextEditingController();
+  final _countryCtrl = TextEditingController();
+  final _emergencyNameCtrl = TextEditingController();
+  final _emergencyPhoneCtrl = TextEditingController();
+  final _emergencyEmailCtrl = TextEditingController();
 
   String _selectedGender = 'Male';
   String _selectedBloodGroup = 'B+';
@@ -63,14 +63,78 @@ class _MentorProfileEditScreenState extends State<MentorProfileEditScreen> {
 
   Future<void> _load() async {
     final user = await AuthService.instance.getCurrentUser();
+    if (user == null) {
+      if (!mounted) return;
+      setState(() { _loading = false; });
+      return;
+    }
+    final extra = user.extra;
+    _nameCtrl.text = user.fullName;
+    _emailCtrl.text = user.email;
+    _phoneCtrl.text = user.phone;
+    _dobCtrl.text = extra['dob'] as String? ?? '';
+    _nationalityCtrl.text = extra['nationality'] as String? ?? '';
+    _designationCtrl.text = extra['designation'] as String? ?? '';
+    _specializationCtrl.text = extra['specialization'] as String? ?? '';
+    _expCtrl.text = extra['experience'] as String? ?? '';
+    _joiningDateCtrl.text = extra['joiningDate'] as String? ?? '';
+    _officeCtrl.text = extra['office'] as String? ?? '';
+    _empIdCtrl.text = extra['employeeId'] as String? ?? '';
+    _currentAddrCtrl.text = extra['currentAddress'] as String? ?? '';
+    _permAddrCtrl.text = extra['permanentAddress'] as String? ?? '';
+    _cityCtrl.text = extra['city'] as String? ?? '';
+    _stateCtrl.text = extra['state'] as String? ?? '';
+    _pincodeCtrl.text = extra['pincode'] as String? ?? '';
+    _countryCtrl.text = extra['country'] as String? ?? '';
+    _emergencyNameCtrl.text = extra['emergencyName'] as String? ?? '';
+    _emergencyPhoneCtrl.text = extra['emergencyPhone'] as String? ?? '';
+    _emergencyEmailCtrl.text = extra['emergencyEmail'] as String? ?? '';
+    _selectedGender = extra['gender'] as String? ?? 'Male';
+    _selectedBloodGroup = extra['bloodGroup'] as String? ?? 'B+';
+    _selectedDept = user.department.isNotEmpty ? user.department : (extra['department'] as String? ?? 'Computer Science');
+    _selectedQual = extra['qualification'] as String? ?? 'Ph.D';
+    _selectedRelation = extra['emergencyRelation'] as String? ?? 'Spouse';
     if (!mounted) return;
     setState(() {
-      _userName = user?.fullName ?? 'Mentor';
+      _userName = user.fullName.isNotEmpty ? user.fullName : 'Mentor';
       _loading = false;
     });
   }
 
-  void _save() {
+  Future<void> _save() async {
+    if (_nameCtrl.text.isEmpty || _emailCtrl.text.isEmpty || _phoneCtrl.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please fill in all required fields'), behavior: SnackBarBehavior.floating));
+      return;
+    }
+    final fields = {
+      'full_name': _nameCtrl.text.trim(),
+      'email': _emailCtrl.text.trim(),
+      'phone': _phoneCtrl.text.trim(),
+      'department': _selectedDept,
+      'designation': _designationCtrl.text.trim(),
+      'qualification': _selectedQual,
+      'experience': _expCtrl.text.trim(),
+      'dob': _dobCtrl.text.trim(),
+      'nationality': _nationalityCtrl.text.trim(),
+      'specialization': _specializationCtrl.text.trim(),
+      'joiningDate': _joiningDateCtrl.text.trim(),
+      'office': _officeCtrl.text.trim(),
+      'employeeId': _empIdCtrl.text.trim(),
+      'currentAddress': _currentAddrCtrl.text.trim(),
+      'permanentAddress': _permAddrCtrl.text.trim(),
+      'city': _cityCtrl.text.trim(),
+      'state': _stateCtrl.text.trim(),
+      'pincode': _pincodeCtrl.text.trim(),
+      'country': _countryCtrl.text.trim(),
+      'gender': _selectedGender,
+      'bloodGroup': _selectedBloodGroup,
+      'emergencyName': _emergencyNameCtrl.text.trim(),
+      'emergencyPhone': _emergencyPhoneCtrl.text.trim(),
+      'emergencyEmail': _emergencyEmailCtrl.text.trim(),
+      'emergencyRelation': _selectedRelation,
+    };
+    await AuthService.instance.updateUserFields(fields);
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Profile saved successfully!'), behavior: SnackBarBehavior.floating));
   }
 
@@ -99,7 +163,6 @@ class _MentorProfileEditScreenState extends State<MentorProfileEditScreen> {
                   const SizedBox(height: 24),
                   AppCard(heading: 'Personal Information', padding: const EdgeInsets.all(24), child: _formGrid([
                     _field('Full Name *', _nameCtrl),
-                    _field('Mentor ID', TextEditingController(text: 'M2024001')..dispose()),
                     _field('Email *', _emailCtrl),
                     _field('Phone *', _phoneCtrl),
                     _field('Date of Birth *', _dobCtrl),

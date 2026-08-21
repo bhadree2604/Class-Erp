@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../app_routes.dart';
 import '../../main.dart';
@@ -42,14 +43,21 @@ class _MentorSettingsScreenState extends State<MentorSettingsScreen> {
 
   Future<void> _load() async {
     final user = await AuthService.instance.getCurrentUser();
+    final prefs = await SharedPreferences.getInstance();
     if (!mounted) return;
     setState(() {
       _userName = user?.fullName ?? 'Mentor';
+      _emailAlerts = prefs.getBool('mentor_notif_emailAlerts') ?? true;
+      _emailMeetings = prefs.getBool('mentor_notif_emailMeetings') ?? true;
+      _smsUrgent = prefs.getBool('mentor_notif_smsUrgent') ?? false;
+      _weeklyReports = prefs.getBool('mentor_notif_weeklyReports') ?? true;
+      _showProfile = prefs.getBool('mentor_privacy_showProfile') ?? true;
+      _allowScheduling = prefs.getBool('mentor_privacy_allowScheduling') ?? true;
       _loading = false;
     });
   }
 
-  void _changePassword() {
+  Future<void> _changePassword() async {
     if (_currentPwdCtrl.text.isEmpty || _newPwdCtrl.text.isEmpty || _confirmPwdCtrl.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please fill in all fields'), behavior: SnackBarBehavior.floating));
       return;
@@ -58,8 +66,31 @@ class _MentorSettingsScreenState extends State<MentorSettingsScreen> {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('New passwords do not match!'), behavior: SnackBarBehavior.floating));
       return;
     }
+    if (_newPwdCtrl.text.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('New password must be at least 6 characters!'), behavior: SnackBarBehavior.floating));
+      return;
+    }
+    final error = await AuthService.instance.changePassword(
+      _currentPwdCtrl.text,
+      _newPwdCtrl.text,
+    );
+    if (error != null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error), behavior: SnackBarBehavior.floating),
+        );
+      }
+      return;
+    }
     _currentPwdCtrl.clear(); _newPwdCtrl.clear(); _confirmPwdCtrl.clear();
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Password updated successfully!'), behavior: SnackBarBehavior.floating));
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Password updated successfully! Please login again.'), behavior: SnackBarBehavior.floating));
+    }
+  }
+
+  Future<void> _savePref(String key, bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(key, value);
   }
 
   @override
@@ -92,7 +123,6 @@ class _MentorSettingsScreenState extends State<MentorSettingsScreen> {
                       children: [
                         _themeOption('Light', ThemeMode.light, currentMode),
                         _themeOption('Dark', ThemeMode.dark, currentMode),
-                        _themeOption('System', ThemeMode.system, currentMode),
                       ],
                     ),
                   ),
@@ -137,10 +167,22 @@ class _MentorSettingsScreenState extends State<MentorSettingsScreen> {
                     heading: 'Notification Preferences',
                     padding: const EdgeInsets.all(24),
                     child: Column(children: [
-                      _toggleRow('Email notifications for student alerts', _emailAlerts, (v) => setState(() => _emailAlerts = v)),
-                      _toggleRow('Email notifications for meeting reminders', _emailMeetings, (v) => setState(() => _emailMeetings = v)),
-                      _toggleRow('SMS notifications for urgent matters', _smsUrgent, (v) => setState(() => _smsUrgent = v)),
-                      _toggleRow('Weekly performance summary reports', _weeklyReports, (v) => setState(() => _weeklyReports = v)),
+                      _toggleRow('Email notifications for student alerts', _emailAlerts, (v) {
+                        setState(() => _emailAlerts = v);
+                        _savePref('mentor_notif_emailAlerts', v);
+                      }),
+                      _toggleRow('Email notifications for meeting reminders', _emailMeetings, (v) {
+                        setState(() => _emailMeetings = v);
+                        _savePref('mentor_notif_emailMeetings', v);
+                      }),
+                      _toggleRow('SMS notifications for urgent matters', _smsUrgent, (v) {
+                        setState(() => _smsUrgent = v);
+                        _savePref('mentor_notif_smsUrgent', v);
+                      }),
+                      _toggleRow('Weekly performance summary reports', _weeklyReports, (v) {
+                        setState(() => _weeklyReports = v);
+                        _savePref('mentor_notif_weeklyReports', v);
+                      }),
                     ]),
                   ),
                   const SizedBox(height: 24),
@@ -148,8 +190,14 @@ class _MentorSettingsScreenState extends State<MentorSettingsScreen> {
                     heading: 'Privacy Settings',
                     padding: const EdgeInsets.all(24),
                     child: Column(children: [
-                      _toggleRow('Show my profile to students', _showProfile, (v) => setState(() => _showProfile = v)),
-                      _toggleRow('Allow students to schedule meetings', _allowScheduling, (v) => setState(() => _allowScheduling = v)),
+                      _toggleRow('Show my profile to students', _showProfile, (v) {
+                        setState(() => _showProfile = v);
+                        _savePref('mentor_privacy_showProfile', v);
+                      }),
+                      _toggleRow('Allow students to schedule meetings', _allowScheduling, (v) {
+                        setState(() => _allowScheduling = v);
+                        _savePref('mentor_privacy_allowScheduling', v);
+                      }),
                     ]),
                   ),
                 ],

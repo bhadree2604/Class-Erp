@@ -206,4 +206,72 @@ class AuthService {
             }))
         .toList();
   }
+
+  /// Verifies [currentPassword] for the logged-in user, then updates the
+  /// stored password to [newPassword].  Returns null on success or an error
+  /// string.
+  Future<String?> changePassword(String currentPassword, String newPassword) async {
+    final currentUser = await getCurrentUser();
+    if (currentUser == null) return 'No user logged in';
+
+    if (currentUser.password != currentPassword) {
+      return 'Current password is incorrect';
+    }
+    if (newPassword.length < 6) {
+      return 'New password must be at least 6 characters';
+    }
+
+    final users = await _loadUsersOrSeed();
+    final listName = currentUser.isStudent ? 'students' : 'mentors';
+    final list = (users[listName] as List?) ?? [];
+
+    for (var i = 0; i < list.length; i++) {
+      final json = list[i] as Map<String, dynamic>;
+      if (json['username'] == currentUser.username) {
+        json['password'] = newPassword;
+        break;
+      }
+    }
+
+    final prefs = await _store;
+    await prefs.setString(_usersKey, jsonEncode(users));
+
+    final updatedUser = User(
+      userId: currentUser.userId,
+      username: currentUser.username,
+      password: newPassword,
+      email: currentUser.email,
+      fullName: currentUser.fullName,
+      phone: currentUser.phone,
+      userType: currentUser.userType,
+      extra: currentUser.extra,
+    );
+    await saveCurrentUser(updatedUser);
+    return null;
+  }
+
+  /// Updates the stored user data (profile fields) for the current user.
+  /// [fields] should contain only the fields to update.
+  Future<void> updateUserFields(Map<String, dynamic> fields) async {
+    final currentUser = await getCurrentUser();
+    if (currentUser == null) return;
+
+    final users = await _loadUsersOrSeed();
+    final listName = currentUser.isStudent ? 'students' : 'mentors';
+    final list = (users[listName] as List?) ?? [];
+
+    for (var i = 0; i < list.length; i++) {
+      final json = list[i] as Map<String, dynamic>;
+      if (json['username'] == currentUser.username) {
+        json.addAll(fields);
+        break;
+      }
+    }
+
+    final prefs = await _store;
+    await prefs.setString(_usersKey, jsonEncode(users));
+
+    final updatedJson = {...currentUser.toJson(), ...fields};
+    await saveCurrentUser(User.fromJson(updatedJson));
+  }
 }
