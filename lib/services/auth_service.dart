@@ -59,6 +59,7 @@ class User {
 
   bool get isStudent => userType == 'student';
   bool get isMentor => userType == 'mentor';
+  bool get isAdmin => userType == 'admin';
 }
 
 /// Port of `auth.js` — login/logout/createUser with two hardcoded demo
@@ -80,6 +81,7 @@ class AuthService {
   /// Seeds the two demo users (same credentials as the web app):
   /// student  bhadree / bhadree123
   /// mentor   maha    / maha123
+  /// admin    admin   / admin123
   Future<void> initialize() async {
     final prefs = await _store;
     final alreadySet = prefs.getBool(_usersInitializedKey) ?? false;
@@ -117,6 +119,17 @@ class AuthService {
             'user_type': 'mentor',
           }
         ],
+        'admins': [
+          {
+            'user_id': 'ADMIN001',
+            'username': 'admin',
+            'password': 'admin123',
+            'email': 'admin@rit.edu',
+            'full_name': 'Administrator',
+            'phone': '9876543212',
+            'user_type': 'admin',
+          }
+        ],
       };
       await prefs.setString(_usersKey, jsonEncode(users));
       await prefs.setBool(_usersInitializedKey, true);
@@ -134,15 +147,17 @@ class AuthService {
     await initialize();
     final users = await _loadUsers();
     if (users == null) {
-      return {'students': <dynamic>[], 'mentors': <dynamic>[]};
+      return {'students': <dynamic>[], 'mentors': <dynamic>[], 'admins': <dynamic>[]};
     }
+    // Ensure admins key exists for backward compatibility
+    users['admins'] ??= <dynamic>[];
     return users;
   }
 
   /// Returns the logged-in user on success, or null on failure.
   Future<User?> login(String username, String password, String role) async {
     final users = await _loadUsersOrSeed();
-    final listName = role == 'student' ? 'students' : 'mentors';
+    final listName = role == 'student' ? 'students' : role == 'mentor' ? 'mentors' : 'admins';
     final list = (users[listName] as List?) ?? const [];
     for (final raw in list) {
       final json = raw as Map<String, dynamic>;
