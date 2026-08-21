@@ -4,9 +4,9 @@ import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/attendance.dart';
-import '../models/assignment.dart';
 import '../models/certificate.dart';
 import '../models/event.dart';
+import '../models/meeting.dart';
 import '../models/grade.dart';
 import '../models/mentor_student.dart';
 import '../models/parent_message.dart';
@@ -22,8 +22,8 @@ class DataService {
   static final DataService instance = DataService._();
 
   static const _studentsKey = 'allStudentsData';
-  static const _assignmentsKey = 'assignments';
   static const _eventsKey = 'events';
+  static const _meetingsKey = 'meetings';
   static const _seededKey = 'data_seeded';
 
   SharedPreferences? _prefs;
@@ -96,29 +96,6 @@ class DataService {
     return profile.certificates;
   }
 
-  // ---------- Assignments ----------
-
-  Future<List<Assignment>> getAssignments() async {
-    final prefs = await _store;
-    final raw = prefs.getString(_assignmentsKey);
-    if (raw == null) return [];
-    return (jsonDecode(raw) as List)
-        .map((e) => Assignment.fromJson(e as Map<String, dynamic>))
-        .toList();
-  }
-
-  Future<void> saveAssignments(List<Assignment> assignments) async {
-    final prefs = await _store;
-    await prefs.setString(
-        _assignmentsKey, jsonEncode(assignments.map((e) => e.toJson()).toList()));
-  }
-
-  Future<void> addAssignment(Assignment assignment) async {
-    final assignments = await getAssignments();
-    assignments.add(assignment);
-    await saveAssignments(assignments);
-  }
-
   // ---------- Events ----------
 
   Future<List<Event>> getEvents() async {
@@ -148,12 +125,42 @@ class DataService {
     await saveEvents(events);
   }
 
-  // ---------- Assignments (delete) ----------
+  // ---------- Meetings ----------
 
-  Future<void> deleteAssignment(int id) async {
-    final assignments = await getAssignments();
-    assignments.removeWhere((a) => a.id == id);
-    await saveAssignments(assignments);
+  Future<List<Meeting>> getMeetings() async {
+    final prefs = await _store;
+    final raw = prefs.getString(_meetingsKey);
+    if (raw == null) return [];
+    return (jsonDecode(raw) as List)
+        .map((e) => Meeting.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<void> saveMeetings(List<Meeting> meetings) async {
+    final prefs = await _store;
+    await prefs.setString(
+        _meetingsKey, jsonEncode(meetings.map((e) => e.toJson()).toList()));
+  }
+
+  Future<void> addMeeting(Meeting meeting) async {
+    final meetings = await getMeetings();
+    meetings.add(meeting);
+    await saveMeetings(meetings);
+  }
+
+  Future<void> updateMeeting(Meeting meeting) async {
+    final meetings = await getMeetings();
+    final idx = meetings.indexWhere((m) => m.id == meeting.id);
+    if (idx != -1) {
+      meetings[idx] = meeting;
+      await saveMeetings(meetings);
+    }
+  }
+
+  Future<void> deleteMeeting(int id) async {
+    final meetings = await getMeetings();
+    meetings.removeWhere((m) => m.id == id);
+    await saveMeetings(meetings);
   }
 
   // ---------- Parent report messages ----------

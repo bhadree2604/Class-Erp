@@ -8,7 +8,6 @@ import '../../theme.dart';
 import '../../widgets/app_card.dart';
 import '../../widgets/portal_scaffold.dart';
 import '../../widgets/stat_card.dart';
-import '../../widgets/status_badge.dart';
 
 /// Student dashboard — mirror of `student/dashboard.html`.
 class StudentDashboardScreen extends StatefulWidget {
@@ -22,7 +21,6 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
   StudentProfile? _profile;
   String _userName = 'Student';
   String _studentId = '';
-  int _pendingAssignments = 0;
   bool _loading = true;
 
   static const _announcements = [];
@@ -40,13 +38,11 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
     final profile = await DataService.instance.getStudentData(
       user?.userId ?? DataService.defaultStudentId,
     );
-    final assignments = await DataService.instance.getAssignments();
     if (!mounted) return;
     setState(() {
       _profile = profile;
       _userName = user?.fullName ?? profile.fullName;
       _studentId = user?.userId ?? profile.userId;
-      _pendingAssignments = assignments.length;
       _loading = false;
     });
   }
@@ -147,7 +143,6 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                     },
                   ),
                   const SizedBox(height: 8),
-                  _upcomingAssignments(),
                 ],
               ),
             ),
@@ -211,13 +206,6 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
         icon: Icons.grade,
         color: AppColors.success,
       ),
-      StatCard(
-        label: 'Assignments',
-        value: '$_pendingAssignments',
-        subtitle: 'Pending submissions',
-        icon: Icons.assignment,
-        color: AppColors.warning,
-      ),
       const StatCard(
         label: 'Fees',
         value: 'Paid',
@@ -244,123 +232,5 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
     );
   }
 
-  Widget _upcomingAssignments() {
-    return FutureBuilder(
-      future: DataService.instance.getAssignments(),
-      builder: (context, snapshot) {
-        final assignments = snapshot.data ?? const [];
-        return AppCard(
-          heading: 'Upcoming Assignments',
-          child: assignments.isEmpty
-              ? Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                  child: Text(
-                    'No assignments available',
-                    style: TextStyle(color: AppColorsExtension.of(context).textSecondary),
-                  ),
-                )
-              : Table(
-                  columnWidths: const {
-                    0: FlexColumnWidth(1),
-                    1: FlexColumnWidth(1.4),
-                    2: FlexColumnWidth(1),
-                    3: FlexColumnWidth(0.8),
-                  },
-                  defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                  children: [
-                    const TableRow(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [AppColors.primary, AppColors.primaryDark],
-                        ),
-                      ),
-                      children: [
-                        _HeaderCell('Subject'),
-                        _HeaderCell('Assignment'),
-                        _HeaderCell('Due Date'),
-                        _HeaderCell('Status'),
-                      ],
-                    ),
-                    for (final a in assignments)
-                      TableRow(
-                        decoration: BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(color: AppColorsExtension.of(context).bgTertiary),
-                          ),
-                        ),
-                        children: [
-                          _BodyCell(a.subject),
-                          _BodyCell(a.title),
-                          _BodyCell(_formatDate(a.dueDate)),
-                          Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: StatusBadge(
-                                status: _isOverdue(a) ? 'Overdue' : 'Pending'),
-                          ),
-                        ],
-                      ),
-                  ],
-                ),
-        );
-      },
-    );
-  }
-
-  bool _isOverdue(dynamic assignment) {
-    final due = DateTime.tryParse(assignment.dueDate);
-    if (due == null) return false;
-    return due.isBefore(DateTime.now());
-  }
-
-  String _formatDate(String iso) {
-    final dt = DateTime.tryParse(iso);
-    if (dt == null) return iso;
-    const months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December',
-    ];
-    return '${months[dt.month - 1]} ${dt.day}, ${dt.year}';
-  }
 }
-
-class _HeaderCell extends StatelessWidget {
-  final String text;
-  const _HeaderCell(this.text);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Text(
-        text.toUpperCase(),
-        style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.w600,
-          fontSize: 12,
-          letterSpacing: 1,
-        ),
-      ),
-    );
-  }
-}
-
-class _BodyCell extends StatelessWidget {
-  final String text;
-  const _BodyCell(this.text);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(12),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: text.isEmpty ? null : Theme.of(context).colorScheme.onSurface,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-    );
-  }
-}
-
 

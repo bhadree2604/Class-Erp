@@ -10,7 +10,8 @@ class AppRoutes {
   static const studentAttendance = '/student/attendance';
   static const studentGrades = '/student/grades';
   static const studentCourses = '/student/courses';
-  static const studentAssignments = '/student/assignments';
+
+  static const studentMeetings = '/student/meetings';
   static const studentEvents = '/student/events';
   static const studentCertificates = '/student/certificates';
   static const studentParentReport = '/student/parent-report';
@@ -24,7 +25,7 @@ class AppRoutes {
   static const mentorDashboard = '/mentor/dashboard';
   static const mentorStudents = '/mentor/students';
   static const mentorCourses = '/mentor/courses';
-  static const mentorAssignments = '/mentor/assignments';
+
   static const mentorEvents = '/mentor/events';
   static const mentorCertificates = '/mentor/certificates';
   static const mentorReports = '/mentor/reports';

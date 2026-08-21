@@ -24,7 +24,6 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
   final _newPwdCtrl = TextEditingController();
   final _confirmPwdCtrl = TextEditingController();
 
-  bool _emailAssignments = true;
   bool _emailGrades = true;
   bool _smsAttendance = false;
   bool _announcements = true;
@@ -51,7 +50,6 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
     if (!mounted) return;
     setState(() {
       _userName = user?.fullName ?? 'Student';
-      _emailAssignments = prefs.getBool('stud_notif_emailAssignments') ?? true;
       _emailGrades = prefs.getBool('stud_notif_emailGrades') ?? true;
       _smsAttendance = prefs.getBool('stud_notif_smsAttendance') ?? false;
       _announcements = prefs.getBool('stud_notif_announcements') ?? true;
@@ -174,10 +172,6 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
                     padding: const EdgeInsets.all(24),
                     child: Column(
                       children: [
-                        _toggleRow('Email notifications for assignments', _emailAssignments, (v) {
-                          setState(() => _emailAssignments = v);
-                          _saveNotificationPref('stud_notif_emailAssignments', v);
-                        }),
                         _toggleRow('Email notifications for grades', _emailGrades, (v) {
                           setState(() => _emailGrades = v);
                           _saveNotificationPref('stud_notif_emailGrades', v);

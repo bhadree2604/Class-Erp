@@ -4,7 +4,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'app_routes.dart';
 import 'screens/landing_screen.dart';
 import 'screens/login_screen.dart';
-import 'screens/mentor/mentor_assignments.dart';
 import 'screens/mentor/mentor_certificates.dart';
 import 'screens/mentor/mentor_courses.dart';
 import 'screens/mentor/mentor_create_account.dart';
@@ -19,7 +18,6 @@ import 'screens/mentor/mentor_profile_edit.dart';
 import 'screens/mentor/mentor_reports.dart';
 import 'screens/mentor/mentor_settings.dart';
 import 'screens/mentor/mentor_students.dart';
-import 'screens/student/student_assignments.dart';
 import 'screens/student/student_attendance.dart';
 import 'screens/student/student_certificates.dart';
 import 'screens/student/student_courses.dart';
@@ -28,6 +26,7 @@ import 'screens/student/student_dashboard.dart';
 import 'screens/student/student_events.dart';
 import 'screens/student/student_forgot_password.dart';
 import 'screens/student/student_grades.dart';
+import 'screens/student/student_meetings.dart';
 import 'screens/student/student_parent_report.dart';
 import 'screens/student/student_profile.dart';
 import 'screens/student/student_profile_edit.dart';
@@ -120,7 +119,7 @@ class MyClassAppState extends State<MyClassApp> {
         AppRoutes.studentAttendance: (_) => const StudentAttendanceScreen(),
         AppRoutes.studentGrades: (_) => const StudentGradesScreen(),
         AppRoutes.studentCourses: (_) => const StudentCoursesScreen(),
-        AppRoutes.studentAssignments: (_) => const StudentAssignmentsScreen(),
+        AppRoutes.studentMeetings: (_) => const StudentMeetingsScreen(),
         AppRoutes.studentEvents: (_) => const StudentEventsScreen(),
         AppRoutes.studentCertificates: (_) => const StudentCertificatesScreen(),
         AppRoutes.studentParentReport: (_) => const StudentParentReportScreen(),
@@ -133,7 +132,6 @@ class MyClassAppState extends State<MyClassApp> {
         AppRoutes.mentorDashboard: (_) => const MentorDashboardScreen(),
         AppRoutes.mentorStudents: (_) => const MentorStudentsScreen(),
         AppRoutes.mentorCourses: (_) => const MentorCoursesScreen(),
-        AppRoutes.mentorAssignments: (_) => const MentorAssignmentsScreen(),
         AppRoutes.mentorEvents: (_) => const MentorEventsScreen(),
         AppRoutes.mentorCertificates: (_) => const MentorCertificatesScreen(),
         AppRoutes.mentorReports: (_) => const MentorReportsScreen(),

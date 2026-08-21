@@ -35,7 +35,8 @@ class PortalScaffold extends StatelessWidget {
     _NavItem('Attendance', Icons.calendar_today_outlined, AppRoutes.studentAttendance),
     _NavItem('Grades', Icons.grade_outlined, AppRoutes.studentGrades),
     _NavItem('Courses', Icons.menu_book_outlined, AppRoutes.studentCourses),
-    _NavItem('Assignments', Icons.assignment_outlined, AppRoutes.studentAssignments),
+
+    _NavItem('Meetings', Icons.event_available_outlined, AppRoutes.studentMeetings),
     _NavItem('Events', Icons.event_outlined, AppRoutes.studentEvents),
     _NavItem('Certificates', Icons.workspace_premium_outlined, AppRoutes.studentCertificates),
     _NavItem('Parent Report', Icons.family_restroom_outlined, AppRoutes.studentParentReport),
@@ -47,7 +48,7 @@ class PortalScaffold extends StatelessWidget {
     _NavItem('Dashboard', Icons.dashboard_outlined, AppRoutes.mentorDashboard),
     _NavItem('My Students', Icons.people_outline, AppRoutes.mentorStudents),
     _NavItem('Courses', Icons.menu_book_outlined, AppRoutes.mentorCourses),
-    _NavItem('Assignments', Icons.assignment_outlined, AppRoutes.mentorAssignments),
+
     _NavItem('Events', Icons.event_outlined, AppRoutes.mentorEvents),
     _NavItem('Certificates', Icons.workspace_premium_outlined, AppRoutes.mentorCertificates),
     _NavItem('Reports', Icons.description_outlined, AppRoutes.mentorReports),

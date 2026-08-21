@@ -634,60 +634,205 @@ class _MentorStudentsScreenState extends State<MentorStudentsScreen> {
                               ),
                             ),
                           )
-                        : Table(
-                            columnWidths: const {
-                              0: FlexColumnWidth(0.8),
-                              1: FlexColumnWidth(2),
-                              2: FlexColumnWidth(1.2),
-                              3: FlexColumnWidth(0.8),
-                              4: FlexColumnWidth(1.2),
+                        : LayoutBuilder(
+                            builder: (context, constraints) {
+                              final isWide = constraints.maxWidth >= 600;
+                              if (isWide) {
+                                return _buildTable();
+                              }
+                              return _buildCardList();
                             },
-                            defaultVerticalAlignment:
-                                TableCellVerticalAlignment.middle,
-                            children: [
-                              const TableRow(
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      AppColors.primary,
-                                      AppColors.primaryDark,
-                                    ],
-                                  ),
-                                ),
-                                children: [
-                                  _HeaderCell('Roll No'),
-                                  _HeaderCell('Name'),
-                                  _HeaderCell('Department'),
-                                  _HeaderCell('Semester'),
-                                  _HeaderCell('Action'),
-                                ],
-                              ),
-                              for (final s in _students)
-                                TableRow(
-                                  decoration: BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(
-                          color: AppColorsExtension.of(context).bgTertiary),
-                    ),
-                                  ),
-                                  children: [
-                                    _BodyCell(s.rollNo, strong: true),
-                                    _nameCell(s),
-                                    _pillCell(s.department,
-                                        const Color(0xFFe3f2fd),
-                                        const Color(0xFF1976d2)),
-                                    _pillCell('Semester ${s.semester}',
-                                        const Color(0xFFf3e5f5),
-                                        const Color(0xFF7b1fa2)),
-                                    _actionCell(s),
-                                  ],
-                                ),
-                            ],
                           ),
                   ),
                 ],
               ),
             ),
+    );
+  }
+
+  Widget _buildTable() {
+    return Table(
+      columnWidths: const {
+        0: FlexColumnWidth(0.8),
+        1: FlexColumnWidth(2),
+        2: FlexColumnWidth(1.2),
+        3: FlexColumnWidth(0.8),
+        4: FlexColumnWidth(1.2),
+      },
+      defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+      children: [
+        const TableRow(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [AppColors.primary, AppColors.primaryDark],
+            ),
+          ),
+          children: [
+            _HeaderCell('Roll No'),
+            _HeaderCell('Name'),
+            _HeaderCell('Department'),
+            _HeaderCell('Semester'),
+            _HeaderCell('Action'),
+          ],
+        ),
+        for (final s in _students)
+          TableRow(
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(color: AppColorsExtension.of(context).bgTertiary),
+              ),
+            ),
+            children: [
+              _BodyCell(s.rollNo, strong: true),
+              _nameCell(s),
+              _pillCell(s.department, const Color(0xFFe3f2fd), const Color(0xFF1976d2)),
+              _pillCell('Semester ${s.semester}', const Color(0xFFf3e5f5), const Color(0xFF7b1fa2)),
+              _actionCell(s),
+            ],
+          ),
+      ],
+    );
+  }
+
+  Widget _buildCardList() {
+    return Column(
+      children: [
+        for (final s in _students) ...[
+          _studentCard(s),
+          const SizedBox(height: 12),
+        ],
+      ],
+    );
+  }
+
+  Widget _studentCard(MentorStudent s) {
+    final ext = AppColorsExtension.of(context);
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: ext.bgSecondary,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: ext.bgTertiary),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 24,
+                backgroundColor: AppColors.primary.withValues(alpha: 0.15),
+                child: Text(
+                  s.name.isEmpty ? '?' : s.name[0].toUpperCase(),
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      s.name,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: ext.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      s.rollNo,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: ext.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _cardInfoChip('Department', s.department, const Color(0xFFe3f2fd), const Color(0xFF1976d2)),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _cardInfoChip('Semester', '${s.semester}', const Color(0xFFf3e5f5), const Color(0xFF7b1fa2)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () => _viewDetails(s),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.info,
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: const Text('View Details', style: TextStyle(fontSize: 13)),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () => _removeStudent(s),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.danger,
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: const Text('Remove', style: TextStyle(fontSize: 13)),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _cardInfoChip(String label, String value, Color bg, Color fg) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label.toUpperCase(),
+            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: fg.withValues(alpha: 0.7), letterSpacing: 0.5),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            value,
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: fg),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
     );
   }
 

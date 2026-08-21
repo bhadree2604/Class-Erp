@@ -20,14 +20,11 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
   String _mentorId = '';
   String _department = '';
   int _studentCount = 0;
-  int _assignmentCount = 0;
   bool _loading = true;
 
   static const _quickActions = [
     (Icons.person, 'View Students', 'Check student info and records',
         AppRoutes.mentorStudents),
-    (Icons.assignment_outlined, 'Create Assignment', 'Post a new assignment',
-        AppRoutes.mentorAssignments),
     (Icons.event_outlined, 'Manage Events', 'Add or edit events',
         AppRoutes.mentorEvents),
     (Icons.description_outlined, 'Parent Reports', 'Write parent report notes',
@@ -51,14 +48,12 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
   Future<void> _load() async {
     final user = await AuthService.instance.getCurrentUser();
     final students = await DataService.instance.getMentorStudents();
-    final assignments = await DataService.instance.getAssignments();
     if (!mounted) return;
     setState(() {
       _userName = user?.fullName ?? 'Mentor';
       _mentorId = user?.userId ?? 'M2024001';
       _department = user?.department ?? 'Computer Science';
       _studentCount = students.length;
-      _assignmentCount = assignments.length;
       _loading = false;
     });
   }
@@ -193,8 +188,6 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
           const [AppColors.primary, AppColors.primaryDark]),
       (Icons.bar_chart, 'Avg CGPA','\u2191 0.3 improvement',
           const [Color(0xFFdc2626), Color(0xFFb91c1c)]),
-      (Icons.assignment, 'Assignments', '$_assignmentCount', 'Active this month',
-          const [Color(0xFF0284c7), Color(0xFF0369a1)]),
       (Icons.groups, 'Meetings','Scheduled this week',
           const [Color(0xFF16a34a), Color(0xFF15803d)]),
     ];
