@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app_routes.dart';
+import '../../models/grade.dart';
 import '../../services/auth_service.dart';
 import '../../services/data_service.dart';
 import '../../theme.dart';
@@ -8,7 +9,7 @@ import '../../widgets/app_card.dart';
 import '../../widgets/portal_scaffold.dart';
 import '../../widgets/stat_card.dart';
 
-/// Student grades — mirror of `student/grades.html`.
+/// Student grades — reads real per-student data.
 class StudentGradesScreen extends StatefulWidget {
   const StudentGradesScreen({super.key});
 
@@ -19,7 +20,7 @@ class StudentGradesScreen extends StatefulWidget {
 class _StudentGradesScreenState extends State<StudentGradesScreen> {
   String _userName = 'Student';
   bool _loading = true;
-  List<Map<String, dynamic>> _grades = const [];
+  List<Grade> _grades = [];
   double _cgpa = 0;
   double _semesterGpa = 0;
 
@@ -29,9 +30,17 @@ class _StudentGradesScreenState extends State<StudentGradesScreen> {
     _load();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _load();
+  }
+
   Future<void> _load() async {
     final user = await AuthService.instance.getCurrentUser();
-    final grades = DataService.instance.getDefaultGrades();
+    final userId = user?.userId ?? '';
+    final grades = await DataService.instance.getGrades(userId);
+
     double totalPoints = 0;
     int totalCredits = 0;
     for (final g in grades) {
@@ -39,17 +48,11 @@ class _StudentGradesScreenState extends State<StudentGradesScreen> {
       totalCredits += g.credits;
     }
     final gpa = totalCredits > 0 ? totalPoints / totalCredits : 0.0;
+
     if (!mounted) return;
     setState(() {
       _userName = user?.fullName ?? 'Student';
-      _grades = grades
-          .map((g) => {
-                'subject': g.subject,
-                'credits': g.credits,
-                'grade': g.grade,
-                'gradePoint': g.gradePoint,
-              })
-          .toList();
+      _grades = grades;
       _cgpa = gpa;
       _semesterGpa = gpa;
       _loading = false;
@@ -121,7 +124,7 @@ class _StudentGradesScreenState extends State<StudentGradesScreen> {
                         ? Padding(
                             padding: EdgeInsets.symmetric(vertical: 16),
                             child: Text(
-                              'No grades available yet.',
+                              'No grades available yet. Your mentor will enter grades.',
                               style: TextStyle(color: AppColorsExtension.of(context).textSecondary),
                             ),
                           )
@@ -160,10 +163,10 @@ class _StudentGradesScreenState extends State<StudentGradesScreen> {
                                     ),
                                   ),
                                   children: [
-                                    _BodyCell(g['subject'], strong: true),
-                                    _BodyCell('${g['credits']}'),
-                                    _gradeCell(g['grade']),
-                                    _BodyCell('${g['gradePoint']}'),
+                                    _BodyCell(g.subject, strong: true),
+                                    _BodyCell('${g.credits}'),
+                                    _gradeCell(g.grade),
+                                    _BodyCell('${g.gradePoint}'),
                                   ],
                                 ),
                             ],

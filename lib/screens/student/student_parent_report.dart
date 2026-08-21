@@ -41,6 +41,12 @@ class _StudentParentReportScreenState extends State<StudentParentReportScreen> {
     _load();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _load();
+  }
+
   Future<void> _load() async {
     final user = await AuthService.instance.getCurrentUser();
     final profile = await DataService.instance.getStudentData(

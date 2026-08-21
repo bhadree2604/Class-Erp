@@ -35,6 +35,12 @@ class _MentorParentReportScreenState extends State<MentorParentReportScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _load();
+  }
+
+  @override
   void dispose() {
     _messageCtrl.dispose();
     super.dispose();

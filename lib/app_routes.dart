@@ -31,6 +31,8 @@ class AppRoutes {
   static const mentorReports = '/mentor/reports';
   static const mentorMeetings = '/mentor/meetings';
   static const mentorPerformance = '/mentor/performance';
+  static const mentorGrades = '/mentor/grades';
+  static const mentorAttendance = '/mentor/attendance';
   static const mentorParentReport = '/mentor/parent-report';
   static const mentorProfile = '/mentor/profile';
   static const mentorProfileEdit = '/mentor/profile-edit';

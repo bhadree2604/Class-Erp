@@ -138,7 +138,7 @@ class _MentorCoursesScreenState extends State<MentorCoursesScreen> {
   Future<List<Course>> _getAssigned() async {
     final codes = <String>{};
     for (final s in _students) {
-      final studentCodes = await DataService.instance.getStudentCourseCodes(s.id);
+      final studentCodes = await DataService.instance.getStudentCourseCodes(s.rollNo);
       codes.addAll(studentCodes);
     }
     return codes.map((c) => getCourseByCode(c)).whereType<Course>().toList();
@@ -252,9 +252,9 @@ class _MentorCoursesScreenState extends State<MentorCoursesScreen> {
                               final semCourses = _getSemesterCourses(_selectedDepartment!, _selectedSemester!);
                               for (final s in _students) {
                                 if (s.department == _selectedDepartment && s.semester.toString() == _selectedSemester) {
-                                  final existing = await DataService.instance.getStudentCourseCodes(s.id);
+                                  final existing = await DataService.instance.getStudentCourseCodes(s.rollNo);
                                   final merged = {...existing, ...semCourses.map((c) => c.code)}.toList();
-                                  await DataService.instance.saveStudentCourseCodes(s.id, merged);
+                                  await DataService.instance.saveStudentCourseCodes(s.rollNo, merged);
                                 }
                               }
                               if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Courses assigned successfully!')));
@@ -297,9 +297,9 @@ class _MentorCoursesScreenState extends State<MentorCoursesScreen> {
                                     child: TextButton(
                                       onPressed: () async {
                                         for (final s in _students) {
-                                          final existing = await DataService.instance.getStudentCourseCodes(s.id);
+                                          final existing = await DataService.instance.getStudentCourseCodes(s.rollNo);
                                           existing.remove(c.code);
-                                          await DataService.instance.saveStudentCourseCodes(s.id, existing);
+                                          await DataService.instance.saveStudentCourseCodes(s.rollNo, existing);
                                         }
                                         setState(() {});
                                       },

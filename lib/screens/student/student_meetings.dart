@@ -26,6 +26,12 @@ class _StudentMeetingsScreenState extends State<StudentMeetingsScreen> {
     _load();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _load();
+  }
+
   Future<void> _load() async {
     final user = await AuthService.instance.getCurrentUser();
     final allMeetings = await DataService.instance.getMeetings();

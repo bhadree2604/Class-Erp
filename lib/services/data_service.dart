@@ -191,17 +191,38 @@ class DataService {
         .toList();
   }
 
+  Future<void> addAttendanceRecord(String studentId, AttendanceRecord record) async {
+    final records = await getAttendance(studentId);
+    records.add(record);
+    final prefs = await _store;
+    await prefs.setString(
+        _attendanceKey(studentId), jsonEncode(records.map((e) => e.toJson()).toList()));
+  }
+
   // ---------- Grades ----------
 
-  /// Default semester grade sheet (mirrors the static data in grades.html).
-  List<Grade> getDefaultGrades() {
-    return const [
-      Grade(subject: 'Data Structures', credits: 4, grade: 'A', gradePoint: 9.0),
-      Grade(subject: 'Database Management', credits: 4, grade: 'A+', gradePoint: 10.0),
-      Grade(subject: 'Web Development', credits: 3, grade: 'A', gradePoint: 9.0),
-      Grade(subject: 'Software Engineering', credits: 3, grade: 'B+', gradePoint: 8.0),
-      Grade(subject: 'Computer Networks', credits: 4, grade: 'A', gradePoint: 9.0),
-    ];
+  static const _gradesKey = 'studentGrades';
+
+  String _gradeStudentKey(String studentId) => studentId;
+
+  Future<List<Grade>> getGrades(String studentId) async {
+    final prefs = await _store;
+    final raw = prefs.getString(_gradesKey);
+    if (raw == null) return [];
+    final all = jsonDecode(raw) as Map<String, dynamic>;
+    final entry = all[_gradeStudentKey(studentId)];
+    if (entry is List) {
+      return entry.map((e) => Grade.fromJson(e as Map<String, dynamic>)).toList();
+    }
+    return [];
+  }
+
+  Future<void> saveGrades(String studentId, List<Grade> grades) async {
+    final prefs = await _store;
+    final raw = prefs.getString(_gradesKey);
+    final all = raw != null ? jsonDecode(raw) as Map<String, dynamic> : <String, dynamic>{};
+    all[_gradeStudentKey(studentId)] = grades.map((e) => e.toJson()).toList();
+    await prefs.setString(_gradesKey, jsonEncode(all));
   }
 
   // ---------- Mentor: students ----------
@@ -253,13 +274,14 @@ class DataService {
 
   Future<void> removeMentorStudent(int studentId) async {
     final students = await getMentorStudents();
+    final removed = students.firstWhere((s) => s.id == studentId, orElse: () => students.first);
     await saveMentorStudents(
         students.where((s) => s.id != studentId).toList());
 
     final prefs = await _store;
     final assignments = jsonDecode(prefs.getString(_courseAssignmentsKey) ?? '{}')
         as Map<String, dynamic>;
-    assignments.remove('$studentId');
+    assignments.remove(removed.rollNo);
     await prefs.setString(_courseAssignmentsKey, jsonEncode(assignments));
   }
 
@@ -303,11 +325,11 @@ class DataService {
   }
 
   /// Course codes assigned to each student (mentor-side assignment).
-  Future<List<String>> getStudentCourseCodes(int studentId) async {
+  Future<List<String>> getStudentCourseCodes(String studentId) async {
     final prefs = await _store;
     final all = jsonDecode(prefs.getString(_courseAssignmentsKey) ?? '{}')
         as Map<String, dynamic>;
-    final entry = all['$studentId'];
+    final entry = all[studentId];
     if (entry is Map<String, dynamic>) {
       return (entry['courses'] as List? ?? const [])
           .map((e) => e.toString())
@@ -316,11 +338,11 @@ class DataService {
     return [];
   }
 
-  Future<void> saveStudentCourseCodes(int studentId, List<String> codes) async {
+  Future<void> saveStudentCourseCodes(String studentId, List<String> codes) async {
     final prefs = await _store;
     final all = jsonDecode(prefs.getString(_courseAssignmentsKey) ?? '{}')
         as Map<String, dynamic>;
-    all['$studentId'] = {'courses': codes};
+    all[studentId] = {'courses': codes};
     await prefs.setString(_courseAssignmentsKey, jsonEncode(all));
   }
 

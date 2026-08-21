@@ -53,8 +53,10 @@ class _MentorStudentsScreenState extends State<MentorStudentsScreen> {
   }
 
   Future<void> _showAddStudent() async {
-    final nameCtrl = TextEditingController();
-    final rollCtrl = TextEditingController();
+    final registeredStudents = await AuthService.instance.getAllUsers('student');
+    if (!mounted) return;
+
+    String? selectedUserId;
     String department = '';
     int semester = 0;
 
@@ -72,18 +74,18 @@ class _MentorStudentsScreenState extends State<MentorStudentsScreen> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _label('Student Name'),
-                    TextField(
-                      controller: nameCtrl,
-                      decoration:
-                          const InputDecoration(hintText: 'Enter student name'),
-                    ),
-                    const SizedBox(height: 12),
-                    _label('Roll Number'),
-                    TextField(
-                      controller: rollCtrl,
-                      decoration:
-                          const InputDecoration(hintText: 'Enter roll number'),
+                    _label('Select Student'),
+                    DropdownButtonFormField<String>(
+                      initialValue: selectedUserId,
+                      items: registeredStudents
+                          .where((u) => !_students.any((s) => s.rollNo == u.userId))
+                          .map((u) => DropdownMenuItem(
+                              value: u.userId,
+                              child: Text('${u.fullName} (${u.userId})')))
+                          .toList(),
+                      onChanged: (v) => setState(() => selectedUserId = v),
+                      decoration: const InputDecoration(
+                          hintText: '-- Select a registered student --'),
                     ),
                     const SizedBox(height: 12),
                     _label('Department'),
@@ -128,10 +130,11 @@ class _MentorStudentsScreenState extends State<MentorStudentsScreen> {
       },
     );
 
-    if (result == 'add') {
+    if (result == 'add' && selectedUserId != null) {
+      final student = registeredStudents.firstWhere((u) => u.userId == selectedUserId);
       final error = await DataService.instance.addMentorStudent(
-        name: nameCtrl.text.trim(),
-        rollNo: rollCtrl.text.trim(),
+        name: student.fullName,
+        rollNo: student.userId,
         department: department,
         semester: semester,
       );
@@ -139,14 +142,14 @@ class _MentorStudentsScreenState extends State<MentorStudentsScreen> {
       if (error != null) {
         _showMessage(error);
       } else {
-        _showMessage('Student "${nameCtrl.text.trim()}" added successfully!');
+        _showMessage('Student "${student.fullName}" added successfully!');
         await _load();
       }
     }
   }
 
   Future<void> _viewDetails(MentorStudent student) async {
-    final codes = await DataService.instance.getStudentCourseCodes(student.id);
+    final codes = await DataService.instance.getStudentCourseCodes(student.rollNo);
     final reports =
         await DataService.instance.getAcademicReport(student);
     if (!mounted) return;
@@ -864,7 +867,7 @@ class _MentorStudentsScreenState extends State<MentorStudentsScreen> {
               ),
               FutureBuilder(
                 future:
-                    DataService.instance.getStudentCourseCodes(s.id),
+                    DataService.instance.getStudentCourseCodes(s.rollNo),
                 builder: (context, snapshot) {
                   final count = snapshot.data?.length ?? 0;
                   return Text(

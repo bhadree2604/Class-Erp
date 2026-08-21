@@ -3,14 +3,13 @@ import 'package:flutter/material.dart';
 import '../../app_routes.dart';
 import '../../models/course.dart';
 import '../../models/course_catalog.dart';
-import '../../models/student_profile.dart';
 import '../../services/auth_service.dart';
 import '../../services/data_service.dart';
 import '../../theme.dart';
 import '../../widgets/app_card.dart';
 import '../../widgets/portal_scaffold.dart';
 
-/// Student courses — mirror of `student/courses.html`.
+/// Student courses — reads assigned courses from mentor.
 class StudentCoursesScreen extends StatefulWidget {
   const StudentCoursesScreen({super.key});
 
@@ -30,25 +29,35 @@ class _StudentCoursesScreenState extends State<StudentCoursesScreen> {
     _load();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _load();
+  }
+
   Future<void> _load() async {
     final user = await AuthService.instance.getCurrentUser();
-    final profile = await DataService.instance.getStudentData(
-      user?.userId ?? DataService.defaultStudentId,
-    );
+    final userId = user?.userId ?? '';
+    final semester = int.tryParse(user?.semester ?? '') ?? 0;
 
-    final semester = _semesterOf(profile, user?.semester ?? '');
-    _courses = CSE_COURSES.where((c) => c.semester == semester).toList();
-    _semesterInfo = 'Semester $semester - Computer Science and Engineering (CSE)';
-    _userName = user?.fullName ?? profile.fullName;
+    final assignedCodes = await DataService.instance.getStudentCourseCodes(userId);
+    if (assignedCodes.isNotEmpty) {
+      _courses = assignedCodes
+          .map((code) => getCourseByCode(code))
+          .whereType<Course>()
+          .toList();
+      _semesterInfo = 'Assigned Courses - ${_courses.length} courses';
+    } else {
+      _courses = [];
+      _semesterInfo = semester > 0
+          ? 'Semester $semester - No courses assigned yet'
+          : 'No courses assigned yet';
+    }
+
+    _userName = user?.fullName ?? 'Student';
 
     if (!mounted) return;
     setState(() => _loading = false);
-  }
-
-  int _semesterOf(StudentProfile profile, String userSemester) {
-    final raw = userSemester.isNotEmpty ? userSemester : profile.semester;
-    final parsed = int.tryParse(raw);
-    return (parsed != null && parsed > 0) ? parsed : 2;
   }
 
   @override
@@ -88,9 +97,11 @@ class _StudentCoursesScreenState extends State<StudentCoursesScreen> {
                     _sectionHeader('Core Courses', Icons.menu_book,
                         const [AppColors.primary, AppColors.primaryDark]),
                     _courseGrid(_courses.where((c) => c.type != 'Elective')),
-                    _sectionHeader('Elective Courses', Icons.adjust,
-                        const [Color(0xFFdc2626), Color(0xFFb91c1c)]),
-                    _courseGrid(_courses.where((c) => c.type == 'Elective')),
+                    if (_courses.any((c) => c.type == 'Elective')) ...[
+                      _sectionHeader('Elective Courses', Icons.adjust,
+                          const [Color(0xFFdc2626), Color(0xFFb91c1c)]),
+                      _courseGrid(_courses.where((c) => c.type == 'Elective')),
+                    ],
                   ],
                 ],
               ),

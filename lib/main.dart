@@ -9,6 +9,8 @@ import 'screens/mentor/mentor_courses.dart';
 import 'screens/mentor/mentor_create_account.dart';
 import 'screens/mentor/mentor_dashboard.dart';
 import 'screens/mentor/mentor_events.dart';
+import 'screens/mentor/mentor_grades.dart';
+import 'screens/mentor/mentor_attendance.dart';
 import 'screens/mentor/mentor_forgot_password.dart';
 import 'screens/mentor/mentor_meetings.dart';
 import 'screens/mentor/mentor_parent_report.dart';
@@ -137,6 +139,8 @@ class MyClassAppState extends State<MyClassApp> {
         AppRoutes.mentorReports: (_) => const MentorReportsScreen(),
         AppRoutes.mentorMeetings: (_) => const MentorMeetingsScreen(),
         AppRoutes.mentorPerformance: (_) => const MentorPerformanceScreen(),
+        AppRoutes.mentorGrades: (_) => const MentorGradesScreen(),
+        AppRoutes.mentorAttendance: (_) => const MentorAttendanceScreen(),
         AppRoutes.mentorParentReport: (_) => const MentorParentReportScreen(),
         AppRoutes.mentorProfile: (_) => const MentorProfileScreen(),
         AppRoutes.mentorProfileEdit: (_) => const MentorProfileEditScreen(),
