@@ -209,35 +209,36 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                             const SizedBox(height: 16),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                TextButton(
-                                  onPressed: _loading
-                                      ? null
-                                      : () {
-                                          Navigator.of(context).pushNamed(
-                                            AppRoutes.studentForgotPassword,
-                                          );
-                                        },
-                                  child: const Text('Forgot Password? (Student)'),
-                                ),
-                                const SizedBox(width: 8),
-                                TextButton(
-                                  onPressed: _loading
-                                      ? null
-                                      : () {
-                                          Navigator.of(context).pushNamed(
-                                            AppRoutes.mentorForgotPassword,
-                                          );
-                                        },
-                                  child: const Text('Forgot Password? (Mentor)'),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 16),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                             Wrap(
+                               alignment: WrapAlignment.center,
+                               spacing: 8.0,
+                               children: [
+                                 TextButton(
+                                   onPressed: _loading
+                                       ? null
+                                       : () {
+                                           Navigator.of(context).pushNamed(
+                                             AppRoutes.studentForgotPassword,
+                                           );
+                                         },
+                                   child: const Text('Forgot Password? (Student)'),
+                                 ),
+                                 TextButton(
+                                   onPressed: _loading
+                                       ? null
+                                       : () {
+                                           Navigator.of(context).pushNamed(
+                                             AppRoutes.mentorForgotPassword,
+                                           );
+                                         },
+                                   child: const Text('Forgot Password? (Mentor)'),
+                                 ),
+                               ],
+                             ),
+                             const SizedBox(height: 16),
+                            Wrap(
+                              alignment: WrapAlignment.center,
+                              spacing: 8.0,
                               children: [
                                 TextButton(
                                   onPressed: _loading
@@ -249,7 +250,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                         },
                                   child: const Text('Create Student Account'),
                                 ),
-                                const SizedBox(width: 8),
                                 TextButton(
                                   onPressed: _loading
                                       ? null
@@ -268,32 +268,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
-                Positioned(
-                  top: 20,
-                  right: 20,
-                  child: Material(
-                    color: Theme.of(context).colorScheme.surface,
-                    borderRadius: BorderRadius.circular(999),
-                    elevation: 8,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(999),
-                      onTap: () =>
-                          Navigator.of(context).popUntil((r) => r.isFirst),
-                      child: Padding(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-                        child: Text(
-                          '\u2190 Back to Home',
-                          style: TextStyle(
-                            color: AppColorsExtension.of(context).textPrimary,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+                
               ],
             ),
           ),

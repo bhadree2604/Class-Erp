@@ -111,9 +111,8 @@ class MyClassAppState extends State<MyClassApp> {
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: _themeMode,
-      initialRoute: AppRoutes.landing,
+      initialRoute: AppRoutes.login,
       routes: {
-        AppRoutes.landing: (_) => const LandingScreen(),
         AppRoutes.login: (_) => const LoginScreen(),
         // Student portal
         AppRoutes.studentDashboard: (_) => const StudentDashboardScreen(),

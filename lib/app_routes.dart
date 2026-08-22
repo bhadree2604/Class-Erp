@@ -2,7 +2,6 @@
 class AppRoutes {
   AppRoutes._();
 
-  static const landing = '/';
   static const login = '/login';
 
   // Student portal
