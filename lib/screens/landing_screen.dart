@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../app_routes.dart';
 
 /// Landing screen — mirror of `index.html`: RIT branding with
-/// Student Portal / Mentor Portal selection cards.
+/// a single login portal.
 class LandingScreen extends StatelessWidget {
   const LandingScreen({super.key});
 
@@ -61,152 +61,31 @@ class LandingScreen extends StatelessWidget {
                             ),
                       ),
                       const SizedBox(height: 40),
-                      LayoutBuilder(
-                        builder: (context, constraints) {
-                          final wide = constraints.maxWidth >= 560;
-                          final cards = [
-                            _PortalCard(
-                              title: 'Student Portal',
-                              description: 'Access courses, grades & resources',
-                              buttonLabel: 'Student Login',
-                              color: const Color(0xFF2e7d32),
-                              icon: Icons.school_outlined,
-                              onTap: () => Navigator.of(context).pushNamed(
-                                AppRoutes.login,
-                                arguments: 'student',
-                              ),
+                      // Single login button
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () =>
+                              Navigator.of(context).pushNamed(AppRoutes.login),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF1565c0),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                            _PortalCard(
-                              title: 'Mentor Portal',
-                              description: 'Manage students & track performance',
-                              buttonLabel: 'Mentor Login',
-                              color: const Color(0xFF1565c0),
-                              icon: Icons.people_outline,
-                              onTap: () => Navigator.of(context).pushNamed(
-                                AppRoutes.login,
-                                arguments: 'mentor',
-                              ),
-                            ),
-                          ];
-                          if (wide) {
-                            return Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: cards
-                                  .map((c) => Expanded(
-                                        child: Padding(
-                                          padding:
-                                              const EdgeInsets.symmetric(horizontal: 12),
-                                          child: c,
-                                        ),
-                                      ))
-                                  .toList(),
-                            );
-                          }
-                          return Column(
-                            children: cards
-                                .map((c) => Padding(
-                                      padding: const EdgeInsets.only(bottom: 20),
-                                      child: c,
-                                    ))
-                                .toList(),
-                          );
-                        },
+                          ),
+                          child: const Text(
+                            'Login',
+                            style: TextStyle(fontSize: 18),
+                          ),
+                        ),
                       ),
                     ],
                   ),
                 ),
               ),
             ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _PortalCard extends StatelessWidget {
-  final String title;
-  final String description;
-  final String buttonLabel;
-  final Color color;
-  final IconData icon;
-  final VoidCallback onTap;
-
-  const _PortalCard({
-    required this.title,
-    required this.description,
-    required this.buttonLabel,
-    required this.color,
-    required this.icon,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Theme.of(context).colorScheme.surface,
-      borderRadius: BorderRadius.circular(16),
-      elevation: 4,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            children: [
-              Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: color.withValues(alpha: 0.15),
-                  border: Border.all(color: color.withValues(alpha: 0.4)),
-                ),
-                child: Icon(icon, size: 38, color: color),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                title,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                description,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-              ),
-              const SizedBox(height: 20),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [color, color.withValues(alpha: 0.8)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(25),
-                  boxShadow: [
-                    BoxShadow(
-                      color: color.withValues(alpha: 0.3),
-                      blurRadius: 15,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Text(
-                  buttonLabel,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
           ),
         ),
       ),

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app_routes.dart';
-import 'screens/landing_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/mentor/mentor_certificates.dart';
 import 'screens/mentor/mentor_courses.dart';
