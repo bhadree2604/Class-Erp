@@ -4,8 +4,7 @@ import '../app_routes.dart';
 import '../services/auth_service.dart';
 import '../theme.dart';
 
-/// Login screen — mirror of `student/index.html` / `mentor/index.html`.
-/// Expects a role argument: 'student' | 'mentor'.
+/// Unified login screen for both students and mentors.
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -18,13 +17,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _loading = false;
   String? _error;
-  late String _role;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _role = (ModalRoute.of(context)?.settings.arguments as String?) ?? 'student';
-  }
 
   @override
   void dispose() {
@@ -32,8 +24,6 @@ class _LoginScreenState extends State<LoginScreen> {
     _passwordController.dispose();
     super.dispose();
   }
-
-  bool get _isStudent => _role == 'student';
 
   Future<void> _handleLogin() async {
     final username = _usernameController.text.trim();
@@ -49,7 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
       _error = null;
     });
 
-    final user = await AuthService.instance.login(username, password, _role);
+    final user = await AuthService.instance.login(username, password);
 
     if (!mounted) return;
 
@@ -61,7 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    final destination = _isStudent
+    final destination = user.isStudent
         ? AppRoutes.studentDashboard
         : AppRoutes.mentorDashboard;
 
@@ -70,8 +60,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isStudent = _isStudent;
-
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -121,7 +109,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              _isStudent ? 'Student Login' : 'Mentor Login',
+                              'Login',
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: AppColorsExtension.of(context).textPrimary,
@@ -197,9 +185,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: ElevatedButton(
                                 onPressed: _loading ? null : _handleLogin,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: _isStudent
-                                      ? const Color(0xFF1d4ed8)
-                                      : const Color(0xFF2e7d32),
+                                  backgroundColor: const Color(0xFF1d4ed8), // neutral blue
                                   foregroundColor: Colors.white,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
@@ -231,25 +217,48 @@ class _LoginScreenState extends State<LoginScreen> {
                                       ? null
                                       : () {
                                           Navigator.of(context).pushNamed(
-                                            isStudent
-                                                ? AppRoutes.studentForgotPassword
-                                                : AppRoutes.mentorForgotPassword,
+                                            AppRoutes.studentForgotPassword,
                                           );
                                         },
-                                  child: const Text('Forgot Password?'),
+                                  child: const Text('Forgot Password? (Student)'),
                                 ),
-                                const SizedBox(width: 16),
+                                const SizedBox(width: 8),
                                 TextButton(
                                   onPressed: _loading
                                       ? null
                                       : () {
                                           Navigator.of(context).pushNamed(
-                                            isStudent
-                                                ? AppRoutes.studentCreateAccount
-                                                : AppRoutes.mentorCreateAccount,
+                                            AppRoutes.mentorForgotPassword,
                                           );
                                         },
-                                  child: const Text('Create Account'),
+                                  child: const Text('Forgot Password? (Mentor)'),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                TextButton(
+                                  onPressed: _loading
+                                      ? null
+                                      : () {
+                                          Navigator.of(context).pushNamed(
+                                            AppRoutes.studentCreateAccount,
+                                          );
+                                        },
+                                  child: const Text('Create Student Account'),
+                                ),
+                                const SizedBox(width: 8),
+                                TextButton(
+                                  onPressed: _loading
+                                      ? null
+                                      : () {
+                                          Navigator.of(context).pushNamed(
+                                            AppRoutes.mentorCreateAccount,
+                                          );
+                                        },
+                                  child: const Text('Create Mentor Account'),
                                 ),
                               ],
                             ),
