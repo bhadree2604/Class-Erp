@@ -39,4 +39,5 @@ class AppRoutes {
   static const mentorSettings = '/mentor/settings';
   static const mentorForgotPassword = '/mentor/forgot-password';
   static const mentorCreateAccount = '/mentor/create-account';
-}
+
+  }
