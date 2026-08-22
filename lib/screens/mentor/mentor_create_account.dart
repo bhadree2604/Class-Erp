@@ -56,7 +56,7 @@ class _MentorCreateAccountScreenState extends State<MentorCreateAccountScreen> {
     final deptCode = _departments[_selectedDepartment];
     final year = DateTime.now().year.toString().substring(2);
     // simple placeholder ID; could be improved with sequence
-    setState(() => _generatedId = 'M$year$deptCode001');
+    setState(() => _generatedId = 'M$year${deptCode}001');
   }
 
   Future<void> _handleCreate() async {
