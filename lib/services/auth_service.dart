@@ -140,14 +140,25 @@ class AuthService {
   }
 
   /// Returns the logged-in user on success, or null on failure.
-  Future<User?> login(String username, String password, String role) async {
+  /// Searches both students and mentors lists.
+  Future<User?> login(String username, String password) async {
     final users = await _loadUsersOrSeed();
-    final listName = role == 'student' ? 'students' : 'mentors';
-    final list = (users[listName] as List?) ?? const [];
-    for (final raw in list) {
+    // search students
+    final studentsList = (users['students'] as List?) ?? const [];
+    for (final raw in studentsList) {
       final json = raw as Map<String, dynamic>;
       if (json['username'] == username && json['password'] == password) {
-        final user = User.fromJson({...json, 'user_type': role});
+        final user = User.fromJson({...json, 'user_type': 'student'});
+        await saveCurrentUser(user);
+        return user;
+      }
+    }
+    // search mentors
+    final mentorsList = (users['mentors'] as List?) ?? const [];
+    for (final raw in mentorsList) {
+      final json = raw as Map<String, dynamic>;
+      if (json['username'] == username && json['password'] == password) {
+        final user = User.fromJson({...json, 'user_type': 'mentor'});
         await saveCurrentUser(user);
         return user;
       }
