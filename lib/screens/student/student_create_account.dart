@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app_routes.dart';
+import '../../services/auth_service.dart';
 import '../../theme.dart';
 import '../../widgets/app_card.dart';
 
@@ -56,7 +57,7 @@ class _StudentCreateAccountScreenState extends State<StudentCreateAccountScreen>
     setState(() => _generatedId = '9536$year$deptCode$num');
   }
 
-  void _handleCreate() {
+  Future<void> _handleCreate() async {
     if (_nameCtrl.text.isEmpty ||
         _emailCtrl.text.isEmpty ||
         _phoneCtrl.text.isEmpty ||
@@ -87,11 +88,34 @@ class _StudentCreateAccountScreenState extends State<StudentCreateAccountScreen>
       return;
     }
 
+    final userData = {
+      'user_id': _generatedId,
+      'username': _emailCtrl.text.trim(),
+      'password': _passwordCtrl.text,
+      'email': _emailCtrl.text.trim(),
+      'full_name': _nameCtrl.text.trim(),
+      'phone': _phoneCtrl.text.trim(),
+      'user_type': 'student',
+      'department': _selectedDepartment,
+      'semester': _selectedSemester,
+      'batch': '',
+      'section': '',
+    };
+
+    final error = await AuthService.instance.createUser(userData);
+    if (!mounted) return;
+    if (error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $error'), behavior: SnackBarBehavior.floating),
+      );
+      return;
+    }
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Account created successfully! Your Student ID: $_generatedId'), behavior: SnackBarBehavior.floating),
     );
 
-    Future.delayed(const Duration(seconds: 3), () {
+    Future.delayed(const Duration(seconds: 2), () {
       if (mounted) Navigator.of(context).pushReplacementNamed(AppRoutes.login);
     });
   }
