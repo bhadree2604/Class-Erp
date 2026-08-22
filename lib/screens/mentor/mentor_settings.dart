@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../app_routes.dart';
 import '../../main.dart';
 import '../../services/auth_service.dart';
+import '../../services/data_service.dart';
 import '../../theme.dart';
 import '../../widgets/app_card.dart';
 import '../../widgets/portal_scaffold.dart';
@@ -93,6 +95,79 @@ class _MentorSettingsScreenState extends State<MentorSettingsScreen> {
     await prefs.setBool(key, value);
   }
 
+  Future<void> _exportData() async {
+    try {
+      final jsonString = await DataService.instance.exportAllData();
+      await SharePlus.instance.share(ShareParams(text: jsonString, subject: 'RIT ERP Data Backup'));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Data exported successfully!'), behavior: SnackBarBehavior.floating),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Export failed: $e'), behavior: SnackBarBehavior.floating),
+        );
+      }
+    }
+  }
+
+  Future<void> _importData() async {
+    final controller = TextEditingController();
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Import Data'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Paste the JSON data from a previous export. This will OVERWRITE all current data.',
+              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: controller,
+              maxLines: 10,
+              decoration: const InputDecoration(
+                hintText: 'Paste exported JSON here...',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Import (Overwrite)'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && controller.text.isNotEmpty) {
+      try {
+        final count = await DataService.instance.importAllData(controller.text);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Imported $count data keys successfully!'), behavior: SnackBarBehavior.floating),
+          );
+          _load();
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Import failed: $e'), behavior: SnackBarBehavior.floating),
+          );
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
@@ -114,6 +189,29 @@ class _MentorSettingsScreenState extends State<MentorSettingsScreen> {
                     heading: 'Settings',
                     padding: const EdgeInsets.all(24),
                     child: Text('Manage your account settings and preferences', style: TextStyle(color: AppColorsExtension.of(context).textSecondary, fontSize: 14)),
+                  ),
+                  const SizedBox(height: 24),
+                  AppCard(
+                    heading: 'Backup & Restore',
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      children: [
+                        _actionRow(
+                          'Export All Data',
+                          'Save a complete backup of all app data (profiles, certificates, grades, attendance, etc.)',
+                          Icons.download,
+                          _exportData,
+                        ),
+                        const SizedBox(height: 12),
+                        _actionRow(
+                          'Import Data',
+                          'Restore from a previously exported backup file (OVERWRITES current data)',
+                          Icons.upload,
+                          _importData,
+                          isDestructive: true,
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 24),
                   AppCard(
@@ -237,6 +335,38 @@ class _MentorSettingsScreenState extends State<MentorSettingsScreen> {
         Expanded(child: Text(label, style: TextStyle(color: AppColorsExtension.of(context).textPrimary))),
         Switch(value: value, onChanged: onChanged, activeThumbColor: AppColors.primary),
       ]),
+    );
+  }
+
+  Widget _actionRow(String title, String subtitle, IconData icon, VoidCallback onTap, {bool isDestructive = false}) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          border: Border.all(color: isDestructive ? Colors.red.withValues(alpha: 0.3) : AppColorsExtension.of(context).bgTertiary),
+          borderRadius: BorderRadius.circular(12),
+          color: isDestructive ? Colors.red.withValues(alpha: 0.05) : AppColorsExtension.of(context).bgSecondary,
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: isDestructive ? Colors.red : AppColors.primary, size: 28),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: isDestructive ? Colors.red : AppColorsExtension.of(context).textPrimary)),
+                  const SizedBox(height: 4),
+                  Text(subtitle, style: TextStyle(fontSize: 13, color: AppColorsExtension.of(context).textSecondary)),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right, color: AppColorsExtension.of(context).textLight),
+          ],
+        ),
+      ),
     );
   }
 

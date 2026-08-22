@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'dart:async';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -25,6 +26,13 @@ class DataService {
   static const _eventsKey = 'events';
   static const _meetingsKey = 'meetings';
   static const _seededKey = 'data_seeded';
+  static const _usersKey = 'college_erp_users';
+  static const _usersInitializedKey = 'users_initialized';
+  static const _currentUserKey = 'current_user';
+  static const _mentorStudentsKey = 'mentorStudents';
+  static const _academicReportsKey = 'studentAcademicReports';
+  static const _courseAssignmentsKey = 'studentCourseAssignments';
+  static const _gradesKey = 'studentGrades';
 
   SharedPreferences? _prefs;
 
@@ -34,6 +42,99 @@ class DataService {
   Future<void> initialize() async { final prefs = await _store; if (prefs.getBool(_seededKey) ?? false) return; await prefs.setBool(_seededKey, true); }
 
   static const defaultStudentId = 'RIT2024CS001';
+
+  // ========== BACKUP / EXPORT / IMPORT ==========
+
+  /// Exports ALL app data as a JSON string.
+  /// Includes: student profiles, mentor students, certificates, courses,
+  /// grades, attendance, meetings, parent reports, events, auth users,
+  /// and all settings/keys.
+  Future<String> exportAllData() async {
+    final prefs = await _store;
+    final allKeys = prefs.getKeys();
+    final exportData = <String, dynamic>{};
+
+    for (final key in allKeys) {
+      final value = prefs.get(key);
+      if (value != null) {
+        exportData[key] = value;
+      }
+    }
+
+    // Add metadata
+    exportData['_export_metadata'] = {
+      'exported_at': DateTime.now().toIso8601String(),
+      'app_version': '1.0.0',
+      'keys_count': allKeys.length,
+    };
+
+    const encoder = JsonEncoder.withIndent('  ');
+    return encoder.convert(exportData);
+  }
+
+  /// Imports ALL app data from a JSON string.
+  /// Overwrites all existing data with the imported data.
+  /// Returns the number of keys imported.
+  Future<int> importAllData(String jsonString) async {
+    final prefs = await _store;
+    final importData = jsonDecode(jsonString) as Map<String, dynamic>;
+
+    // Remove metadata if present
+    importData.remove('_export_metadata');
+
+    // Clear all existing data first
+    await prefs.clear();
+
+    // Write imported data
+    int count = 0;
+    for (final entry in importData.entries) {
+      final value = entry.value;
+      if (value is String) {
+        await prefs.setString(entry.key, value);
+      } else if (value is int) {
+        await prefs.setInt(entry.key, value);
+      } else if (value is double) {
+        await prefs.setDouble(entry.key, value);
+      } else if (value is bool) {
+        await prefs.setBool(entry.key, value);
+      } else if (value is List<String>) {
+        await prefs.setStringList(entry.key, value);
+      } else {
+        // Fallback: encode as JSON string
+        await prefs.setString(entry.key, jsonEncode(value));
+      }
+      count++;
+    }
+
+    // Re-initialize to ensure seeded data exists if import was empty
+    await initialize();
+    return count;
+  }
+
+  /// Gets a summary of all stored data for display purposes.
+  Future<Map<String, dynamic>> getDataSummary() async {
+    final prefs = await _store;
+    final allKeys = prefs.getKeys();
+    final summary = <String, dynamic>{};
+    int totalSize = 0;
+
+    for (final key in allKeys) {
+      final value = prefs.get(key);
+      if (value != null) {
+        final str = value.toString();
+        summary[key] = {
+          'type': value.runtimeType.toString(),
+          'length': str.length,
+          'preview': str.length > 100 ? '${str.substring(0, 100)}...' : str,
+        };
+        totalSize += str.length;
+      }
+    }
+
+    summary['_total_keys'] = allKeys.length;
+    summary['_total_size_chars'] = totalSize;
+    return summary;
+  }
 
   static StudentProfile _defaultProfile() { return const StudentProfile( userId: '', username: '', email: '', fullName: '', phone: '', department: '', semester: '', batch: '', section: '', cgpa: 0.0, gpa: 0.0, arrears: 0, attendance: 0, profilePicture: null, currentAddress: '', permanentAddress: '', activities: const [], certificates: const [], parentReportMessages: const [], ); }
 
@@ -201,8 +302,6 @@ class DataService {
 
   // ---------- Grades ----------
 
-  static const _gradesKey = 'studentGrades';
-
   String _gradeStudentKey(String studentId) => studentId;
 
   Future<List<Grade>> getGrades(String studentId) async {
@@ -226,10 +325,6 @@ class DataService {
   }
 
   // ---------- Mentor: students ----------
-
-  static const _mentorStudentsKey = 'mentorStudents';
-  static const _academicReportsKey = 'studentAcademicReports';
-  static const _courseAssignmentsKey = 'studentCourseAssignments';
 
   Future<List<MentorStudent>> getMentorStudents() async {
     final prefs = await _store;

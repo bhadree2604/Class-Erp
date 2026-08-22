@@ -121,7 +121,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              isStudent ? 'Student Login' : 'Mentor Login',
+                              _isStudent ? 'Student Login' : 'Mentor Login',
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: AppColorsExtension.of(context).textPrimary,
@@ -197,7 +197,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: ElevatedButton(
                                 onPressed: _loading ? null : _handleLogin,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: isStudent
+                                  backgroundColor: _isStudent
                                       ? const Color(0xFF1d4ed8)
                                       : const Color(0xFF2e7d32),
                                   foregroundColor: Colors.white,
