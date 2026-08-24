@@ -216,13 +216,13 @@ const SizedBox(height: 16),
                                   TextButton(
                                     onPressed: _loading
                                         ? null
-                                        : () {
-                                            Navigator.of(context).pushNamed(
-                                              role == 'student'
-                                                  ? AppRoutes.studentForgotPassword
-                                                  : AppRoutes.mentorForgotPassword,
-                                            );
-                                          },
+                                        : () => _showRoleChoiceDialog(
+                                              context,
+                                              'Forgot Password?',
+                                              'Are you a Student or Mentor?',
+                                              onStudent: () => Navigator.of(context).pushNamed(AppRoutes.studentForgotPassword),
+                                              onMentor: () => Navigator.of(context).pushNamed(AppRoutes.mentorForgotPassword),
+                                            ),
                                     child: const Text('Forgot Password?'),
                                   ),
                                 ],
@@ -235,13 +235,13 @@ const SizedBox(height: 16),
                                   TextButton(
                                     onPressed: _loading
                                         ? null
-                                        : () {
-                                            Navigator.of(context).pushNamed(
-                                              role == 'student'
-                                                  ? AppRoutes.studentCreateAccount
-                                                  : AppRoutes.mentorCreateAccount,
-                                            );
-                                          },
+                                        : () => _showRoleChoiceDialog(
+                                              context,
+                                              'Create Account',
+                                              'Are you a Student or Mentor?',
+                                              onStudent: () => Navigator.of(context).pushNamed(AppRoutes.studentCreateAccount),
+                                              onMentor: () => Navigator.of(context).pushNamed(AppRoutes.mentorCreateAccount),
+                                            ),
                                     child: const Text('Create Account'),
                                   ),
                                 ],
@@ -259,8 +259,108 @@ const SizedBox(height: 16),
         ),
       ),
     );
+}
+  
+  Future<void> _showRoleChoiceDialog(
+    BuildContext context,
+    String title,
+    String message, {
+    required VoidCallback onStudent,
+    required VoidCallback onMentor,
+  }) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.15),
+              blurRadius: 20,
+              offset: const Offset(0, -4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                color: AppColorsExtension.of(context).textPrimary,
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppColorsExtension.of(context).textSecondary,
+                fontSize: 15,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.of(ctx).pop();
+                      onStudent();
+                    },
+                    icon: const Icon(Icons.school_outlined, size: 20),
+                    label: const Text('Student'),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      side: BorderSide(color: Theme.of(context).colorScheme.outline),
+                      foregroundColor: AppColorsExtension.of(context).textPrimary,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.of(ctx).pop();
+                      onMentor();
+                    },
+                    icon: const Icon(Icons.person_outline, size: 20),
+                    label: const Text('Mentor'),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  color: AppColorsExtension.of(context).textSecondary,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
   }
-
+  
   Widget _buildField({
     required TextEditingController controller,
     required String label,
