@@ -7,7 +7,7 @@ import '../../services/data_service.dart';
 import '../../theme.dart';
 import '../../widgets/app_card.dart';
 import '../../widgets/portal_scaffold.dart';
-import '../../widgets/stat_card.dart';
+
 
 /// Student parent report — mirror of `student/parent-report.html`.
 class StudentParentReportScreen extends StatefulWidget {
@@ -20,7 +20,6 @@ class StudentParentReportScreen extends StatefulWidget {
 
 class _StudentParentReportScreenState extends State<StudentParentReportScreen> {
   String _userName = 'Student';
-  StudentProfile? _profile;
   bool _loading = true;
 
   static const _academicPerformance = [

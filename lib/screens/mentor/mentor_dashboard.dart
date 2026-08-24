@@ -201,9 +201,7 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
           runSpacing: 24,
           children: [
             for (final m in metrics)
-              SizedBox(
-                width: width,
-              ),
+              _metricCard(m.$2, '', m.$3, m.$1, m.$4),
           ],
         );
       },
