@@ -193,7 +193,7 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
     ];
     return LayoutBuilder(
       builder: (context, constraints) {
-        final width = constraints.maxWidth >= 900
+        final double width = constraints.maxWidth >= 900
             ? (constraints.maxWidth - 72) / 4
             : (constraints.maxWidth - 24) / 2;
         return Wrap(
