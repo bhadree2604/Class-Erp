@@ -77,9 +77,9 @@ class AuthService {
   Future<SharedPreferences> get _store async =>
       _prefs ??= await SharedPreferences.getInstance();
 
-  /// Seeds the two demo users (same credentials as the web app):
-  /// student  bhadree / bhadree123
-  /// mentor   maha    / maha123
+/// Seeds the two demo users (same credentials as the web app):
+/// student  student / student123
+/// mentor   mentor  / mentor123
   Future<void> initialize() async {
     final prefs = await _store;
     final alreadySet = prefs.getBool(_usersInitializedKey) ?? false;
@@ -90,9 +90,9 @@ class AuthService {
         'students': [
           {
             'user_id': '953625104001',
-            'username': 'bhadree',
-            'password': 'bhadree123',
-            'email': 'bhadree@student.rit.edu',
+            'username': 'student',
+            'password': 'student123',
+            'email': 'student@student.rit.edu',
             'full_name': 'Bhadree',
             'phone': '9876543210',
             'department': 'Computer Science',
@@ -105,9 +105,9 @@ class AuthService {
         'mentors': [
           {
             'user_id': 'M2024001',
-            'username': 'maha',
-            'password': 'maha123',
-            'email': 'maha@rit.edu',
+            'username': 'mentor',
+            'password': 'mentor123',
+            'email': 'mentor@rit.edu',
             'full_name': 'Dr. Maha',
             'phone': '9876543211',
             'department': 'Computer Science',

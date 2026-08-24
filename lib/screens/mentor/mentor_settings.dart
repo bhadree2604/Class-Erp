@@ -217,11 +217,19 @@ class _MentorSettingsScreenState extends State<MentorSettingsScreen> {
                   AppCard(
                     heading: 'Appearance',
                     padding: const EdgeInsets.all(24),
-                    child: Column(
-                      children: [
-                        _themeOption('Light', ThemeMode.light, currentMode),
-                        _themeOption('Dark', ThemeMode.dark, currentMode),
-                      ],
+                    child: RadioGroup<ThemeMode>(
+                      groupValue: currentMode,
+                      onChanged: (value) {
+                        if (value != null) {
+                          MyClassApp.setThemeMode(value);
+                        }
+                      },
+                      child: Column(
+                        children: [
+                          _themeOption('Light', ThemeMode.light),
+                          _themeOption('Dark', ThemeMode.dark),
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -304,16 +312,10 @@ class _MentorSettingsScreenState extends State<MentorSettingsScreen> {
     );
   }
 
-  Widget _themeOption(String label, ThemeMode mode, ThemeMode currentMode) {
+  Widget _themeOption(String label, ThemeMode mode) {
     return RadioListTile<ThemeMode>(
       title: Text(label),
       value: mode,
-      groupValue: currentMode,
-      onChanged: (value) {
-        if (value != null) {
-          MyClassApp.setThemeMode(value);
-        }
-      },
       activeColor: AppColors.primary,
     );
   }

@@ -208,60 +208,44 @@ class _LoginScreenState extends State<LoginScreen> {
                                     : const Text('LOGIN'),
                               ),
                             ),
-                            const SizedBox(height: 16),
-                             Wrap(
-                               alignment: WrapAlignment.center,
-                               spacing: 8.0,
-                               children: [
-                                 TextButton(
-                                   onPressed: _loading
-                                       ? null
-                                       : () {
-                                           Navigator.of(context).pushNamed(
-                                             AppRoutes.studentForgotPassword,
-                                           );
-                                         },
-                                   child: const Text('Forgot Password? (Student)'),
-                                 ),
-                                 TextButton(
-                                   onPressed: _loading
-                                       ? null
-                                       : () {
-                                           Navigator.of(context).pushNamed(
-                                             AppRoutes.mentorForgotPassword,
-                                           );
-                                         },
-                                   child: const Text('Forgot Password? (Mentor)'),
-                                 ),
-                               ],
-                             ),
-                             const SizedBox(height: 16),
-                            Wrap(
-                              alignment: WrapAlignment.center,
-                              spacing: 8.0,
-                              children: [
-                                TextButton(
-                                  onPressed: _loading
-                                      ? null
-                                      : () {
-                                          Navigator.of(context).pushNamed(
-                                            AppRoutes.studentCreateAccount,
-                                          );
-                                        },
-                                  child: const Text('Create Student Account'),
-                                ),
-                                TextButton(
-                                  onPressed: _loading
-                                      ? null
-                                      : () {
-                                          Navigator.of(context).pushNamed(
-                                            AppRoutes.mentorCreateAccount,
-                                          );
-                                        },
-                                  child: const Text('Create Mentor Account'),
-                                ),
-                              ],
-                            ),
+const SizedBox(height: 16),
+                              Wrap(
+                                alignment: WrapAlignment.center,
+                                spacing: 8.0,
+                                children: [
+                                  TextButton(
+                                    onPressed: _loading
+                                        ? null
+                                        : () {
+                                            Navigator.of(context).pushNamed(
+                                              role == 'student'
+                                                  ? AppRoutes.studentForgotPassword
+                                                  : AppRoutes.mentorForgotPassword,
+                                            );
+                                          },
+                                    child: const Text('Forgot Password?'),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              Wrap(
+                                alignment: WrapAlignment.center,
+                                spacing: 8.0,
+                                children: [
+                                  TextButton(
+                                    onPressed: _loading
+                                        ? null
+                                        : () {
+                                            Navigator.of(context).pushNamed(
+                                              role == 'student'
+                                                  ? AppRoutes.studentCreateAccount
+                                                  : AppRoutes.mentorCreateAccount,
+                                            );
+                                          },
+                                    child: const Text('Create Account'),
+                                  ),
+                                ],
+                              ),
                           ],
                         ),
                       ),

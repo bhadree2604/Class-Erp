@@ -26,9 +26,6 @@ class DataService {
   static const _eventsKey = 'events';
   static const _meetingsKey = 'meetings';
   static const _seededKey = 'data_seeded';
-  static const _usersKey = 'college_erp_users';
-  static const _usersInitializedKey = 'users_initialized';
-  static const _currentUserKey = 'current_user';
   static const _mentorStudentsKey = 'mentorStudents';
   static const _academicReportsKey = 'studentAcademicReports';
   static const _courseAssignmentsKey = 'studentCourseAssignments';
@@ -136,7 +133,7 @@ class DataService {
     return summary;
   }
 
-  static StudentProfile _defaultProfile() { return const StudentProfile( userId: '', username: '', email: '', fullName: '', phone: '', department: '', semester: '', batch: '', section: '', cgpa: 0.0, gpa: 0.0, arrears: 0, attendance: 0, profilePicture: null, currentAddress: '', permanentAddress: '', activities: const [], certificates: const [], parentReportMessages: const [], ); }
+  static StudentProfile _defaultProfile() { return StudentProfile( userId: '', username: '', email: '', fullName: '', phone: '', department: '', semester: '', batch: '', section: '', cgpa: 0.0, gpa: 0.0, arrears: 0, attendance: 0, profilePicture: null, currentAddress: '', permanentAddress: '', activities: const [], certificates: const [], parentReportMessages: const [], ); }
 
   // ---------- Student profile ----------
 
