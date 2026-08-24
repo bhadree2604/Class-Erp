@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app_routes.dart';
-import '../../models/student_profile.dart';
+
 import '../../services/auth_service.dart';
 import '../../services/data_service.dart';
 import '../../theme.dart';
@@ -54,7 +54,7 @@ class _StudentParentReportScreenState extends State<StudentParentReportScreen> {
     if (!mounted) return;
     setState(() {
       _userName = user?.fullName ?? profile.fullName;
-      _profile = profile;
+      
       _loading = false;
     });
   }
@@ -85,18 +85,7 @@ class _StudentParentReportScreenState extends State<StudentParentReportScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      final w = constraints.maxWidth >= 760
-                          ? (constraints.maxWidth - 72) / 4
-                          : (constraints.maxWidth - 24) / 2;
-                      return Wrap(
-                        spacing: 24,
-                        runSpacing: 24,
-
-                      );
-                    },
-                  ),
+                  
                   const SizedBox(height: 24),
                   LayoutBuilder(
                     builder: (context, constraints) {
