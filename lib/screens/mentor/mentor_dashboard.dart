@@ -183,7 +183,7 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
             ],
           );
           final count = Column(
-            crossAxisAlignment: CrossAxisalignment.end,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
                 '$_studentCount',
@@ -206,7 +206,7 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
             );
           }
           return Column(
-            crossAxisAlignment: CrossAxisalignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [info, const SizedBox(height: 16), count],
           );
         },
@@ -555,6 +555,6 @@ class _MetricTile extends StatelessWidget {
           ),
         ],
       );
-    }
+    );
   }
 }
