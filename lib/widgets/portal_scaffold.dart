@@ -60,8 +60,19 @@ class PortalScaffold extends StatelessWidget {
     _NavItem('Settings', Icons.settings_outlined, AppRoutes.mentorSettings),
   ];
 
-  List<_NavItem> get _navItems =>
-      role == 'student' ? _studentNav : _mentorNav;
+  static const _adminNav = <_NavItem>[
+    _NavItem('Dashboard', Icons.dashboard_outlined, AppRoutes.adminDashboard),
+    _NavItem('Students', Icons.people_outline, AppRoutes.adminStudents),
+    _NavItem('Mentors', Icons.person_outline, AppRoutes.adminMentors),
+    _NavItem('Create User', Icons.person_add_outlined, AppRoutes.adminCreateUser),
+  ];
+
+  List<_NavItem> get _navItems {
+    if (role == 'student') return _studentNav;
+    if (role == 'mentor') return _mentorNav;
+    if (role == 'admin') return _adminNav;
+    return const [];
+  }
 
   Future<void> _logout(BuildContext context) async {
     await AuthService.instance.logout();
@@ -76,6 +87,7 @@ class PortalScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final isStudent = role == 'student';
+    final isAdmin = role == 'admin';
 
     return Scaffold(
       appBar: AppBar(
@@ -134,7 +146,9 @@ class PortalScaffold extends StatelessWidget {
                 gradient: LinearGradient(
                   colors: isStudent
                       ? [AppColors.primary, AppColors.primaryDark]
-                      : [const Color(0xFF2e7d32), const Color(0xFF1b5e20)],
+                      : isAdmin
+                          ? [Colors.indigo, Colors.indigoAccent]
+                          : [const Color(0xFF2e7d32), const Color(0xFF1b5e20)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -161,7 +175,11 @@ class PortalScaffold extends StatelessWidget {
                         ),
                   ),
                   Text(
-                    isStudent ? 'Student Portal' : 'Mentor Portal',
+                    isStudent
+                        ? 'Student Portal'
+                        : isAdmin
+                            ? 'Admin Portal'
+                            : 'Mentor Portal',
                     style: Theme.of(context)
                         .textTheme
                         .bodySmall
