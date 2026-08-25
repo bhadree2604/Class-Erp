@@ -39,4 +39,9 @@ class AppRoutes {
   static const mentorForgotPassword = '/mentor/forgot-password';
   static const mentorCreateAccount = '/mentor/create-account';
 
-  }
+  // Admin portal
+  static const adminDashboard = '/admin/dashboard';
+  static const adminStudents = '/admin/students';
+  static const adminMentors = '/admin/mentors';
+  static const adminCreateUser = '/admin/create-user';
+}

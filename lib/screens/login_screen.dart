@@ -51,9 +51,16 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    final destination = user.isStudent
-        ? AppRoutes.studentDashboard
-        : AppRoutes.mentorDashboard;
+    String destination;
+    if (user.isStudent) {
+      destination = AppRoutes.studentDashboard;
+    } else if (user.isMentor) {
+      destination = AppRoutes.mentorDashboard;
+    } else if (user.isAdmin) {
+      destination = AppRoutes.adminDashboard;
+    } else {
+      destination = AppRoutes.login; // fallback
+    }
 
     Navigator.of(context).pushNamedAndRemoveUntil(destination, (route) => false);
   }
@@ -208,66 +215,65 @@ class _LoginScreenState extends State<LoginScreen> {
                                     : const Text('LOGIN'),
                               ),
                             ),
-const SizedBox(height: 16),
-                              Wrap(
-                                alignment: WrapAlignment.center,
-                                spacing: 8.0,
-                                children: [
-                                  TextButton(
-                                    onPressed: _loading
-                                        ? null
-                                        : () => _showRoleChoiceDialog(
-                                              context,
-                                              'Forgot Password?',
-                                              'Are you a Student or Mentor?',
-                                              onStudent: () => Navigator.of(context).pushNamed(AppRoutes.studentForgotPassword),
-                                              onMentor: () => Navigator.of(context).pushNamed(AppRoutes.mentorForgotPassword),
-                                            ),
-                                    child: const Text('Forgot Password?'),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                              Wrap(
-                                alignment: WrapAlignment.center,
-                                spacing: 8.0,
-                                children: [
-                                  TextButton(
-                                    onPressed: _loading
-                                        ? null
-                                        : () => _showRoleChoiceDialog(
-                                              context,
-                                              'Create Account',
-                                              'Are you a Student or Mentor?',
-                                              onStudent: () => Navigator.of(context).pushNamed(AppRoutes.studentCreateAccount),
-                                              onMentor: () => Navigator.of(context).pushNamed(AppRoutes.mentorCreateAccount),
-                                            ),
-                                    child: const Text('Create Account'),
-                                  ),
-                                ],
-                              ),
+                            const SizedBox(height: 16),
+                            Wrap(
+                              alignment: WrapAlignment.center,
+                              spacing: 8.0,
+                              children: [
+                                TextButton(
+                                  onPressed: _loading
+                                      ? null
+                                      : () => _showRoleChoiceDialog(
+                                            context,
+                                            'Forgot Password?',
+                                            'Are you a Student or Mentor?',
+                                            onStudent: () => Navigator.of(context).pushNamed(AppRoutes.studentForgotPassword),
+                                            onMentor: () => Navigator.of(context).pushNamed(AppRoutes.mentorForgotPassword),
+                                          ),
+                                  child: const Text('Forgot Password?'),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            Wrap(
+                              alignment: WrapAlignment.center,
+                              spacing: 8.0,
+                              children: [
+                                TextButton(
+                                  onPressed: _loading
+                                      ? null
+                                      : () => _showRoleChoiceDialog(
+                                            context,
+                                            'Create Account',
+                                            'Are you a Student or Mentor?',
+                                            onStudent: () => Navigator.of(context).pushNamed(AppRoutes.studentCreateAccount),
+                                            onMentor: () => Navigator.of(context).pushNamed(AppRoutes.mentorCreateAccount),
+                                          ),
+                                  child: const Text('Create Account'),
+                                ),
+                              ],
+                            ),
                           ],
                         ),
                       ),
                     ),
                   ),
                 ),
-                
               ],
             ),
           ),
         ),
       ),
     );
-}
-  
+  }
+
   Future<void> _showRoleChoiceDialog(
-    BuildContext context,
-    String title,
-    String message, {
-    required VoidCallback onStudent,
-    required VoidCallback onMentor,
-  }) async {
+      BuildContext context,
+      String title,
+      String message, {
+        required VoidCallback onStudent,
+        required VoidCallback onMentor,
+      }) async {
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -360,7 +366,7 @@ const SizedBox(height: 16),
       ),
     );
   }
-  
+
   Widget _buildField({
     required TextEditingController controller,
     required String label,
