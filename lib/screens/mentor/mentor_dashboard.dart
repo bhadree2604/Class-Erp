@@ -32,13 +32,13 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
 
   static const _quickActions = [
     (Icons.person, 'View Students', 'Check student info and records',
-        AppRoutes.mentorStudents),
+    AppRoutes.mentorStudents),
     (Icons.event_outlined, 'Manage Events', 'Add or edit events',
-        AppRoutes.mentorEvents),
+    AppRoutes.mentorEvents),
     (Icons.description_outlined, 'Parent Reports', 'Write parent report notes',
-        AppRoutes.mentorParentReport),
+    AppRoutes.mentorParentReport),
     (Icons.event_available_outlined, 'Schedule Meeting',
-        'Schedule meetings with students', AppRoutes.mentorMeetings),
+    'Schedule meetings with students', AppRoutes.mentorMeetings),
   ];
 
   static const _schedule = [];
@@ -100,56 +100,56 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(32),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _welcomeBanner(),
-                  const SizedBox(height: 24),
-                  _metricsGrid(),
-                  const SizedBox(height: 24),
-                  _quickActionsCard(),
-                  const SizedBox(height: 8),
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      final twoCol = constraints.maxWidth >= 900;
-                      final performance = _performanceCard();
-                      final schedule = _scheduleCard();
-                      if (twoCol) {
-                        return Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(flex: 2, child: performance),
-                            const SizedBox(width: 24),
-                            Expanded(child: schedule),
-                          ],
-                        );
-                      }
-                      return Column(children: [performance, schedule]);
-                    },
-                  ),
-                  const SizedBox(height: 8),
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      final twoCol = constraints.maxWidth >= 900;
-                      final activity = _activityCard();
-                      final deadlines = _deadlinesCard();
-                      if (twoCol) {
-                        return Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(child: activity),
-                            const SizedBox(width: 24),
-                            Expanded(child: deadlines),
-                          ],
-                        );
-                      }
-                      return Column(children: [activity, deadlines]);
-                    },
-                  ),
-                ],
-              ),
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _welcomeBanner(),
+            const SizedBox(height: 24),
+            _metricsGrid(),
+            const SizedBox(height: 24),
+            _quickActionsCard(),
+            const SizedBox(height: 8),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final twoCol = constraints.maxWidth >= 900;
+                final performance = _performanceCard();
+                final schedule = _scheduleCard();
+                if (twoCol) {
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(flex: 2, child: performance),
+                      const SizedBox(width: 24),
+                      Expanded(child: schedule),
+                    ],
+                  );
+                }
+                return Column(children: [performance, schedule]);
+              },
             ),
+            const SizedBox(height: 8),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final twoCol = constraints.maxWidth >= 900;
+                final activity = _activityCard();
+                final deadlines = _deadlinesCard();
+                if (twoCol) {
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(child: activity),
+                      const SizedBox(width: 24),
+                      Expanded(child: deadlines),
+                    ],
+                  );
+                }
+                return Column(children: [activity, deadlines]);
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -220,7 +220,6 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
     }
     return LayoutBuilder(
       builder: (context, constraints) {
-        // Show two cards side by side if enough width
         final bool sideBySide = constraints.maxWidth >= 600;
         return Row(
           children: [
@@ -259,8 +258,8 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
           final width = constraints.maxWidth >= 1000
               ? (constraints.maxWidth - 80) / 6
               : constraints.maxWidth >= 640
-                  ? (constraints.maxWidth - 24) / 2
-                  : constraints.maxWidth;
+              ? (constraints.maxWidth - 24) / 2
+              : constraints.maxWidth;
           return Wrap(
             spacing: 16,
             runSpacing: 16,
@@ -268,8 +267,7 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
               for (final a in _quickActions)
                 SizedBox(
                   width: width,
-                  child: _quickAction(
-                      a.$1, a.$2, a.$3, a.$4),
+                  child: _quickAction(a.$1, a.$2, a.$3, a.$4),
                 ),
             ],
           );
@@ -286,7 +284,8 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: AppColorsExtension.of(context).bgPrimary,
-          border: Border.all(color: AppColorsExtension.of(context).bgTertiary, width: 2),
+          border: Border.all(
+              color: AppColorsExtension.of(context).bgTertiary, width: 2),
           borderRadius: BorderRadius.circular(15),
         ),
         child: Column(
@@ -348,7 +347,7 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child:
-                    _MetricTile('2', 'Need Attention (<7)', AppColors.danger),
+                _MetricTile('2', 'Need Attention (<7)', AppColors.danger),
               ),
             ],
           ),
@@ -402,10 +401,11 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
                   ),
                 ],
               ),
-            ],
+            ),
           ],
-        ),
-      );
+        ],
+      ),
+    );
   }
 
   Widget _activityCard() {
@@ -457,12 +457,11 @@ class _PerformanceChartPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
     final path = Path();
-    // Simulate some data points
     final w = size.width;
     final h = size.height;
     for (int i = 0; i < 12; i++) {
       final x = (i / 11) * w;
-      final y = h - ((((i % 3) + 1) * 10) / 100 * h); // fake oscillation
+      final y = h - ((((i % 3) + 1) * 10) / 100 * h);
       if (i == 0) {
         path.moveTo(x, y);
       } else {
@@ -470,7 +469,6 @@ class _PerformanceChartPainter extends CustomPainter {
       }
     }
     canvas.drawPath(path, paint);
-    // Second dataset
     paint.color = AppColors.accent;
     paint.strokeWidth = 2;
     final path2 = Path();
@@ -554,7 +552,7 @@ class _MetricTile extends StatelessWidget {
             ),
           ),
         ],
-      );
+      ),
     );
   }
 }
