@@ -59,9 +59,10 @@ class User {
 
   bool get isStudent => userType == 'student';
   bool get isMentor => userType == 'mentor';
+  bool get isAdmin => userType == 'admin';
 }
 
-/// Port of `auth.js` — login/logout/createUser with two hardcoded demo
+/// Port of `auth.js` — login/logout/createUser with hardcoded demo
 /// users, persisted via shared_preferences instead of localStorage/cookies.
 class AuthService {
   AuthService._();
@@ -77,9 +78,10 @@ class AuthService {
   Future<SharedPreferences> get _store async =>
       _prefs ??= await SharedPreferences.getInstance();
 
-/// Seeds the two demo users (same credentials as the web app):
-/// student  student / student123
-/// mentor   mentor  / mentor123
+  /// Seeds the demo users (student, mentor) and a default admin account.
+  /// student  student / student123
+  /// mentor   mentor  / mentor123
+  /// admin    admin   / Admin123!
   Future<void> initialize() async {
     final prefs = await _store;
     final alreadySet = prefs.getBool(_usersInitializedKey) ?? false;
@@ -92,7 +94,7 @@ class AuthService {
             'user_id': '953625104001',
             'username': 'student',
             'password': 'student123',
-            'email': 'student@student.rit.edu',
+            'email': '9536YYDDDNNN.ritjpm.ac.in',
             'full_name': 'Bhadree',
             'phone': '9876543210',
             'department': 'Computer Science',
@@ -107,7 +109,7 @@ class AuthService {
             'user_id': 'M2024001',
             'username': 'mentor',
             'password': 'mentor123',
-            'email': 'mentor@rit.edu',
+            'email': 'NAME@ritjpm.ac.in',
             'full_name': 'Dr. Maha',
             'phone': '9876543211',
             'department': 'Computer Science',
@@ -115,6 +117,18 @@ class AuthService {
             'qualification': 'Ph.D',
             'experience': '10',
             'user_type': 'mentor',
+          }
+        ],
+        'admins': [
+          {
+            'user_id': 'A0001',
+            'username': 'admin',
+            'password': 'admin123!',
+            'email': 'admin@admin.com',
+            'full_name': 'System Administrator',
+            'phone': '0000000000',
+            'department': 'Administration',
+            'user_type': 'admin',
           }
         ],
       };
@@ -134,13 +148,21 @@ class AuthService {
     await initialize();
     final users = await _loadUsers();
     if (users == null) {
-      return {'students': <dynamic>[], 'mentors': <dynamic>[]};
+      return {
+        'students': <dynamic>[],
+        'mentors': <dynamic>[],
+        'admins': <dynamic>[]
+      };
+    }
+    // Ensure admins key exists
+    if (!users.containsKey('admins')) {
+      users['admins'] = <dynamic>[];
     }
     return users;
   }
 
   /// Returns the logged-in user on success, or null on failure.
-  /// Searches both students and mentors lists.
+  /// Searches students, mentors, and admins lists.
   Future<User?> login(String username, String password) async {
     final users = await _loadUsersOrSeed();
     // search students
@@ -159,6 +181,16 @@ class AuthService {
       final json = raw as Map<String, dynamic>;
       if (json['username'] == username && json['password'] == password) {
         final user = User.fromJson({...json, 'user_type': 'mentor'});
+        await saveCurrentUser(user);
+        return user;
+      }
+    }
+    // search admins
+    final adminsList = (users['admins'] as List?) ?? const [];
+    for (final raw in adminsList) {
+      final json = raw as Map<String, dynamic>;
+      if (json['username'] == username && json['password'] == password) {
+        final user = User.fromJson({...json, 'user_type': 'admin'});
         await saveCurrentUser(user);
         return user;
       }
@@ -187,7 +219,11 @@ class AuthService {
   /// Mirrors `createUser` in auth.js. Returns an error string, or null on success.
   Future<String?> createUser(Map<String, dynamic> userData) async {
     final users = await _loadUsersOrSeed();
-    final listName = userData['user_type'] == 'student' ? 'students' : 'mentors';
+    final listName = userData['user_type'] == 'student'
+        ? 'students'
+        : userData['user_type'] == 'mentor'
+            ? 'mentors'
+            : 'admins';
     final list = (users[listName] as List?) ?? [];
 
     for (final raw in list) {
@@ -208,7 +244,16 @@ class AuthService {
 
   Future<List<User>> getAllUsers(String role) async {
     final users = await _loadUsersOrSeed();
-    final listName = role == 'student' ? 'students' : 'mentors';
+    String listName;
+    if (role == 'student') {
+      listName = 'students';
+    } else if (role == 'mentor') {
+      listName = 'mentors';
+    } else if (role == 'admin') {
+      listName = 'admins';
+    } else {
+      throw ArgumentError('Invalid role: $role');
+    }
     final list = (users[listName] as List?) ?? const [];
     return list
         .map((raw) => User.fromJson({
@@ -216,6 +261,56 @@ class AuthService {
               'user_type': role,
             }))
         .toList();
+  }
+
+  /// Update any user's fields by userId.
+  Future<String?> updateUser(String userId, Map<String, dynamic> fields) async {
+    final users = await _loadUsersOrSeed();
+    bool updated = false;
+    // Determine which list the user belongs to by checking each list for userId
+    for (final role in ['students', 'mentors', 'admins']) {
+      final list = (users[role] as List?) ?? [];
+      for (var i = 0; i < list.length; i++) {
+        final json = list[i] as Map<String, dynamic>;
+        if (json['user_id'] == userId) {
+          json.addAll(fields);
+          // Ensure user_type stays consistent
+          json['user_type'] = role.substring(0, role.length - 1); // e.g., 'students' -> 'student'
+          users[role] = list;
+          updated = true;
+          break;
+        }
+      }
+      if (updated) break;
+    }
+    if (!updated) {
+      return 'User not found';
+    }
+    final prefs = await _store;
+    await prefs.setString(_usersKey, jsonEncode(users));
+    return null;
+  }
+
+  /// Delete a user by userId.
+  Future<String?> deleteUser(String userId) async {
+    final users = await _loadUsersOrSeed();
+    bool deleted = false;
+    for (final role in ['students', 'mentors', 'admins']) {
+      final list = (users[role] as List?) ?? [];
+      final initialLength = list.length;
+      final newList = list.where((json) => (json as Map<String, dynamic>)['user_id'] != userId).toList();
+      if (newList.length != initialLength) {
+        users[role] = newList;
+        deleted = true;
+        break;
+      }
+    }
+    if (!deleted) {
+      return 'User not found';
+    }
+    final prefs = await _store;
+    await prefs.setString(_usersKey, jsonEncode(users));
+    return null;
   }
 
   /// Verifies [currentPassword] for the logged-in user, then updates the
@@ -233,7 +328,11 @@ class AuthService {
     }
 
     final users = await _loadUsersOrSeed();
-    final listName = currentUser.isStudent ? 'students' : 'mentors';
+    final listName = currentUser.isStudent
+        ? 'students'
+        : currentUser.isMentor
+            ? 'mentors'
+            : 'admins';
     final list = (users[listName] as List?) ?? [];
 
     for (var i = 0; i < list.length; i++) {
@@ -268,7 +367,11 @@ class AuthService {
     if (currentUser == null) return;
 
     final users = await _loadUsersOrSeed();
-    final listName = currentUser.isStudent ? 'students' : 'mentors';
+    final listName = currentUser.isStudent
+        ? 'students'
+        : currentUser.isMentor
+            ? 'mentors'
+            : 'admins';
     final list = (users[listName] as List?) ?? [];
 
     for (var i = 0; i < list.length; i++) {
