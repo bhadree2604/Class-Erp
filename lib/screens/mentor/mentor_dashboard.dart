@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../../app_routes.dart';
+import '../../models/student_profile.dart';
+import '../../models/mentor_student.dart';
 import '../../services/auth_service.dart';
 import '../../services/data_service.dart';
 import '../../theme.dart';
 import '../../widgets/app_card.dart';
 import '../../widgets/portal_scaffold.dart';
+import '../../widgets/stat_card.dart';
 
 /// Mentor dashboard — mirror of `mentor/dashboard.html`.
 class MentorDashboardScreen extends StatefulWidget {
@@ -21,6 +24,11 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
   String _department = '';
   int _studentCount = 0;
   bool _loading = true;
+
+  // Stats for averaging
+  double _avgAttendance = 0.0;
+  double _avgCgpa = 0.0;
+  bool _loadingStats = true;
 
   static const _quickActions = [
     (Icons.person, 'View Students', 'Check student info and records',
@@ -43,6 +51,7 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
   void initState() {
     super.initState();
     _load();
+    _loadStats();
   }
 
   Future<void> _load() async {
@@ -55,6 +64,29 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
       _department = user?.department ?? 'Computer Science';
       _studentCount = students.length;
       _loading = false;
+    });
+  }
+
+  Future<void> _loadStats() async {
+    final students = await DataService.instance.getMentorStudents();
+    double totalAttendance = 0;
+    double totalCgpa = 0;
+    int count = 0;
+    for (final ms in students) {
+      try {
+        final profile = await DataService.instance.getStudentData(ms.rollNo);
+        totalAttendance += profile.attendance;
+        totalCgpa += profile.cgpa;
+        count++;
+      } catch (_) {
+        // ignore errors
+      }
+    }
+    if (!mounted) return;
+    setState(() {
+      _avgAttendance = count > 0 ? totalAttendance / count : 0.0;
+      _avgCgpa = count > 0 ? totalCgpa / count : 0.0;
+      _loadingStats = false;
     });
   }
 
@@ -151,7 +183,7 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
             ],
           );
           final count = Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+            crossAxisAlignment: CrossAxisalignment.end,
             children: [
               Text(
                 '$_studentCount',
@@ -174,7 +206,7 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
             );
           }
           return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisalignment.start,
             children: [info, const SizedBox(height: 16), count],
           );
         },
@@ -183,70 +215,38 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
   }
 
   Widget _metricsGrid() {
-    final metrics = [
-      (Icons.calendar_today, 'Avg Attendance','\u2191 2% from last month',
-          const [AppColors.primary, AppColors.primaryDark]),
-      (Icons.bar_chart, 'Avg CGPA','\u2191 0.3 improvement',
-          const [Color(0xFFdc2626), Color(0xFFb91c1c)]),
-      (Icons.groups, 'Meetings','Scheduled this week',
-          const [Color(0xFF16a34a), Color(0xFF15803d)]),
-    ];
+    if (_loadingStats) {
+      return const Center(child: CircularProgressIndicator());
+    }
     return LayoutBuilder(
       builder: (context, constraints) {
-        return Wrap(
-          spacing: 24,
-          runSpacing: 24,
+        // Show two cards side by side if enough width
+        final bool sideBySide = constraints.maxWidth >= 600;
+        return Row(
           children: [
-            for (final m in metrics)
-              _metricCard(m.$2, '', m.$3, m.$1, m.$4),
+            Expanded(
+              child: StatCard(
+                label: 'Avg Attendance',
+                value: '${_avgAttendance.toStringAsFixed(1)}%',
+                subtitle: 'Average across all students',
+                icon: Icons.calendar_today,
+                color: AppColors.primary,
+              ),
+            ),
+            if (sideBySide) const SizedBox(width: 24),
+            if (sideBySide)
+              Expanded(
+                child: StatCard(
+                  label: 'Avg CGPA',
+                  value: _avgCgpa.toStringAsFixed(2),
+                  subtitle: 'Average across all students',
+                  icon: Icons.grade,
+                  color: AppColors.success,
+                ),
+              ),
           ],
         );
       },
-    );
-  }
-
-  Widget _metricCard(String label, String value, String sub, IconData icon,
-      List<Color> gradient) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(colors: gradient),
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Text(
-                value,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                sub,
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 13,
-                ),
-              ),
-            ],
-          ),
-          Icon(icon, color: Colors.white.withValues(alpha: 0.5), size: 32),
-        ],
-      ),
     );
   }
 
@@ -402,11 +402,10 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
                   ),
                 ],
               ),
-            ),
+            ],
           ],
-        ],
-      ),
-    );
+        ),
+      );
   }
 
   Widget _activityCard() {
@@ -416,36 +415,12 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           for (var i = 0; i < _activity.length; i++) ...[
-            if (i > 0) const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColorsExtension.of(context).bgSecondary,
-                borderRadius: BorderRadius.circular(5),
-                border: Border(
-                  left: BorderSide(color: _activity[i].$4, width: 3),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    _activity[i].$1,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  Text(
-                    _activity[i].$2,
-                    style: TextStyle(color: AppColorsExtension.of(context).textSecondary),
-                  ),
-                  Text(
-                    _activity[i].$3,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: AppColorsExtension.of(context).textLight,
-                    ),
-                  ),
-                ],
-              ),
+            if (i > 0) const Divider(height: 16),
+            ListTile(
+              leading: Icon(_activity[i].$1, color: AppColors.primary),
+              title: Text(_activity[i].$2),
+              subtitle: Text(_activity[i].$3),
+              trailing: const Icon(Icons.more_vert),
             ),
           ],
         ],
@@ -460,36 +435,12 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           for (var i = 0; i < _deadlines.length; i++) ...[
-            if (i > 0) const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: _deadlines[i].$5,
-                borderRadius: BorderRadius.circular(8),
-                border: Border(
-                  left: BorderSide(color: _deadlines[i].$4, width: 4),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    _deadlines[i].$1,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  Text(
-                    _deadlines[i].$2,
-                    style: const TextStyle(fontSize: 14),
-                  ),
-                  Text(
-                    _deadlines[i].$3,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: _deadlines[i].$6,
-                    ),
-                  ),
-                ],
-              ),
+            if (i > 0) const Divider(height: 16),
+            ListTile(
+              leading: const Icon(Icons.event_available, color: AppColors.accent),
+              title: Text(_deadlines[i].$1),
+              subtitle: Text(_deadlines[i].$2),
+              trailing: Text(_deadlines[i].$3),
             ),
           ],
         ],
@@ -498,116 +449,112 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
   }
 }
 
-class _MetricTile extends StatelessWidget {
-  final String value;
-  final String label;
-  final Color color;
-  const _MetricTile(this.value, this.label, this.color);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColorsExtension.of(context).bgSecondary,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        children: [
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 13, color: AppColorsExtension.of(context).textLight),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ChartLegend extends StatelessWidget {
-  final Color color;
-  final String label;
-  const _ChartLegend({required this.color, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 15,
-          height: 15,
-          color: color,
-        ),
-        const SizedBox(width: 6),
-        Text(label, style: TextStyle(color: AppColorsExtension.of(context).textPrimary)),
-      ],
-    );
-  }
-}
-
 class _PerformanceChartPainter extends CustomPainter {
-  static const _months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-  static const _attendance = [82.0, 85.0, 84.0, 87.0, 86.0, 87.0];
-  static const _cgpa = [7.8, 8.0, 8.1, 8.2, 8.15, 8.2];
-
   @override
   void paint(Canvas canvas, Size size) {
-    final gridPaint = Paint()
-      ..color = const Color(0xFFe0e0e0)
-      ..strokeWidth = 1;
-
-    for (var i = 0; i <= 5; i++) {
-      final y = (size.height - 40) * (i / 5) + 20;
-      canvas.drawLine(Offset(40, y), Offset(size.width - 20, y), gridPaint);
-    }
-
-    void line(List<double> data, Color color) {
-      final paint = Paint()
-        ..color = color
-        ..strokeWidth = 3
-        ..style = PaintingStyle.stroke;
-      final path = Path();
-      for (var i = 0; i < data.length; i++) {
-        final x = 40 + (size.width - 60) * (i / (data.length - 1));
-        final y = size.height - 40 - ((data[i] - 70) / 30) * (size.height - 60);
-        if (i == 0) {
-          path.moveTo(x, y);
-        } else {
-          path.lineTo(x, y);
-        }
+    final paint = Paint()
+      ..color = AppColors.primary
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+    final path = Path();
+    // Simulate some data points
+    final w = size.width;
+    final h = size.height;
+    for (int i = 0; i < 12; i++) {
+      final x = (i / 11) * w;
+      final y = h - ((((i % 3) + 1) * 10) / 100 * h); // fake oscillation
+      if (i == 0) {
+        path.moveTo(x, y);
+      } else {
+        path.lineTo(x, y);
       }
-      canvas.drawPath(path, paint);
     }
-
-    line(_attendance, AppColors.primary);
-    line(_cgpa.map((v) => v * 10).toList(), AppColors.accent);
-
-    for (var i = 0; i < _months.length; i++) {
-      final x = 40 + (size.width - 60) * (i / (_months.length - 1));
-      final tp = TextPainter(
-        text: TextSpan(
-          text: _months[i],
-          style: const TextStyle(fontSize: 12, color: Color(0xFF666666)),
-        ),
-        textDirection: TextDirection.ltr,
-      )..layout();
-      tp.paint(canvas, Offset(x - tp.width / 2, size.height - 30));
+    canvas.drawPath(path, paint);
+    // Second dataset
+    paint.color = AppColors.accent;
+    paint.strokeWidth = 2;
+    final path2 = Path();
+    for (int i = 0; i < 12; i++) {
+      final x = (i / 11) * w;
+      final y = h - ((((i % 2) + 1) * 15) / 100 * h);
+      if (i == 0) {
+        path2.moveTo(x, y);
+      } else {
+        path2.lineTo(x, y);
+      }
     }
+    canvas.drawPath(path2, paint);
   }
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
+class _ChartLegend extends StatelessWidget {
+  final Color color;
+  final String label;
 
+  const _ChartLegend({
+    required this.color,
+    required this.label,
+  });
 
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        const SizedBox(width: 6),
+        Text(label, style: const TextStyle(fontSize: 12)),
+      ],
+    );
+  }
+}
+
+class _MetricTile extends StatelessWidget {
+  final String value;
+  final String label;
+  final Color color;
+
+  const _MetricTile(this.value, this.label, this.color);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColorsExtension.of(context).bgPrimary,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColorsExtension.of(context).bgTertiary),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: AppColorsExtension.of(context).textSecondary,
+            ),
+          ),
+        ],
+      );
+    }
+  }
+}

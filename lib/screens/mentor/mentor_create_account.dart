@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../app_routes.dart';
 import '../../services/auth_service.dart';
 import '../../theme.dart';
-import '../../widgets/app_card.dart';
 
 class MentorCreateAccountScreen extends StatefulWidget {
   const MentorCreateAccountScreen({super.key});
@@ -129,123 +128,285 @@ class _MentorCreateAccountScreenState extends State<MentorCreateAccountScreen> {
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [AppColors.primaryDark, AppColors.primary, AppColors.primaryLight],
+          image: DecorationImage(
+            image: AssetImage('assets/rit_clg_photo.jpg'),
+            fit: BoxFit.cover,
           ),
         ),
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(32),
-            child: AppCard(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 560),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Image.asset('assets/rit_logo.jpg', height: 80, width: 80, fit: BoxFit.contain),
-                    const SizedBox(height: 24),
-                    Text('Create Mentor Account', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w700, color: AppColorsExtension.of(context).textPrimary)),
-                    const SizedBox(height: 8),
-                    Text('Fill in your details to create a new account', style: TextStyle(color: AppColorsExtension.of(context).textSecondary)),
-                    const SizedBox(height: 32),
-                    _twoCol(
-                      left: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        _label('Full Name *'),
-                        TextField(controller: _nameCtrl, decoration: const InputDecoration(hintText: 'Enter your full name')),
-                      ]),
-                      right: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        _label('Department *'),
-                        DropdownButtonFormField<String>(
-                          initialValue: null,
-                          hint: const Text('Select Department'),
-                          items: _departments.keys.map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
-                          onChanged: (v) { _selectedDepartment = v ?? ''; _generateMentorId(); },
-                        ),
-                      ]),
-                    ),
-                    const SizedBox(height: 16),
-                    _label('Generated Mentor ID'),
-                    TextField(
-                      enabled: false,
-                      decoration: InputDecoration(
-                        hintText: _generatedId.isEmpty ? 'Will be auto-generated' : _generatedId,
-                        filled: true,
-                        fillColor: AppColorsExtension.of(context).bgSecondary,
+        child: Container(
+          color: Colors.black.withValues(alpha: 0.35),
+          child: SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(32),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 560),
+                  child: Container(
+                    padding: const EdgeInsets.all(48),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      borderRadius: BorderRadius.circular(15),
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
                       ),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 40,
+                          offset: Offset(0, 12),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 16),
-                    _twoCol(
-                      left: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        _label('Email Address *'),
-                        TextField(controller: _emailCtrl, keyboardType: TextInputType.emailAddress, decoration: const InputDecoration(hintText: 'your.email@rit.edu')),
-                      ]),
-                      right: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        _label('Phone Number *'),
-                        TextField(controller: _phoneCtrl, keyboardType: TextInputType.phone, decoration: const InputDecoration(hintText: '+91 98765 43210')),
-                      ]),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.asset(
+                            'assets/rit_logo.jpg',
+                            width: 120,
+                            height: 120,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        Text(
+                          'Create Mentor Account',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: AppColorsExtension.of(context).textPrimary,
+                            fontSize: 28,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Fill in your details to create a new account',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: AppColorsExtension.of(context).textSecondary,
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Full Name *',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: AppColorsExtension.of(context).textPrimary,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        TextField(
+                          controller: _nameCtrl,
+                          decoration: const InputDecoration(hintText: 'Enter your full name'),
+                        ),
+                        const SizedBox(height: 16),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Department *',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: AppColorsExtension.of(context).textPrimary,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        DropdownButtonFormField<String>(
+                          value: _selectedDepartment.isEmpty ? null : _selectedDepartment,
+                          decoration: const InputDecoration(hintText: 'Select Department'),
+                          items: _departments.keys.map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
+                          onChanged: (v) {
+                            setState(() => _selectedDepartment = v ?? '');
+                            _generateMentorId();
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Generated Mentor ID',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: AppColorsExtension.of(context).textPrimary,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        TextField(
+                          enabled: false,
+                          decoration: InputDecoration(
+                            hintText: _generatedId.isEmpty ? 'Will be auto-generated' : _generatedId,
+                            filled: true,
+                            fillColor: AppColorsExtension.of(context).bgSecondary,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Email Address *',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: AppColorsExtension.of(context).textPrimary,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        TextField(
+                          controller: _emailCtrl,
+                          keyboardType: TextInputType.emailAddress,
+                          decoration: const InputDecoration(hintText: 'your.email@rit.edu'),
+                        ),
+                        const SizedBox(height: 16),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Phone Number *',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: AppColorsExtension.of(context).textPrimary,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        TextField(
+                          controller: _phoneCtrl,
+                          keyboardType: TextInputType.phone,
+                          decoration: const InputDecoration(hintText: '+91 98765 43210'),
+                        ),
+                        const SizedBox(height: 16),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Designation *',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: AppColorsExtension.of(context).textPrimary,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        TextField(
+                          controller: _designationCtrl,
+                          decoration: const InputDecoration(hintText: 'e.g., Professor'),
+                        ),
+                        const SizedBox(height: 16),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Qualification *',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: AppColorsExtension.of(context).textPrimary,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        TextField(
+                          controller: _qualificationCtrl,
+                          decoration: const InputDecoration(hintText: 'e.g., Ph.D, M.Tech'),
+                        ),
+                        const SizedBox(height: 16),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Experience (years) *',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: AppColorsExtension.of(context).textPrimary,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        TextField(
+                          controller: _experienceCtrl,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(hintText: 'e.g., 5'),
+                        ),
+                        const SizedBox(height: 16),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Password *',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: AppColorsExtension.of(context).textPrimary,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        TextField(
+                          controller: _passwordCtrl,
+                          obscureText: true,
+                          decoration: const InputDecoration(hintText: 'Min 6 characters'),
+                        ),
+                        const SizedBox(height: 16),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Confirm Password *',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: AppColorsExtension.of(context).textPrimary,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        TextField(
+                          controller: _confirmPwdCtrl,
+                          obscureText: true,
+                          decoration: const InputDecoration(hintText: 'Re-enter password'),
+                        ),
+                        const SizedBox(height: 24),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: _handleCreate,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF1d4ed8),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              textStyle: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                                letterSpacing: 1,
+                              ),
+                            ),
+                            child: const Text('Create Account'),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pushReplacementNamed(AppRoutes.login),
+                          child: const Text('Already have an account? Login'),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 16),
-                    _twoCol(
-                      left: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        _label('Designation *'),
-                        TextField(controller: _designationCtrl, decoration: const InputDecoration(hintText: 'e.g., Professor')),
-                      ]),
-                      right: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        _label('Qualification *'),
-                        TextField(controller: _qualificationCtrl, decoration: const InputDecoration(hintText: 'e.g., Ph.D, M.Tech')),
-                      ]),
-                    ),
-                    const SizedBox(height: 16),
-                    _twoCol(
-                      left: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        _label('Experience (years) *'),
-                        TextField(controller: _experienceCtrl, keyboardType: TextInputType.number, decoration: const InputDecoration(hintText: 'e.g., 5')),
-                      ]),
-                      right: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        _label('Password *'),
-                        TextField(controller: _passwordCtrl, obscureText: true, decoration: const InputDecoration(hintText: 'Min 6 characters')),
-                      ]),
-                    ),
-                    const SizedBox(height: 16),
-                    _twoCol(
-                      left: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        _label('Confirm Password *'),
-                        TextField(controller: _confirmPwdCtrl, obscureText: true, decoration: const InputDecoration(hintText: 'Re-enter password')),
-                      ]),
-                      right: Container(), // spacer
-                    ),
-                    const SizedBox(height: 24),
-                    SizedBox(width: double.infinity, child: ElevatedButton(onPressed: _handleCreate, child: const Text('Create Account'))),
-                    const SizedBox(height: 24),
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pushReplacementNamed(AppRoutes.login),
-                      child: const Text('Already have an account? Login'),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
           ),
         ),
       ),
-    );
-  }
-
-  Widget _label(String text) => Padding(
-        padding: const EdgeInsets.only(bottom: 6),
-        child: Text(text, style: TextStyle(fontWeight: FontWeight.w600, color: AppColorsExtension.of(context).textPrimary, fontSize: 14)),
-      );
-
-  static Widget _twoCol({required Widget left, required Widget right}) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        if (constraints.maxWidth >= 480) {
-          return Row(children: [Expanded(child: left), const SizedBox(width: 16), Expanded(child: right)]);
-        }
-        return Column(children: [left, const SizedBox(height: 16), right]);
-      },
     );
   }
 }

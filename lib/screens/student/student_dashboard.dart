@@ -115,7 +115,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
-                                   Text(
+                                  Text(
                                     _schedule[i].$2,
                                     style: TextStyle(
                                       color: AppColorsExtension.of(context).textPrimary,
@@ -191,46 +191,40 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
   }
 
   Widget _statsGrid(StudentProfile? p) {
-    final stats = [
-      StatCard(
-        label: 'Attendance',
-        value: '${p?.attendance ?? 0}%',
-        subtitle: 'Overall attendance',
-        icon: Icons.calendar_today,
-        color: AppColors.primary,
-      ),
-      StatCard(
-        label: 'CGPA',
-        value: '${p?.cgpa ?? 0}',
-        subtitle: 'Current semester',
-        icon: Icons.grade,
-        color: AppColors.success,
-      ),
-      const StatCard(
-        label: 'Fees',
-        value: 'Paid',
-        subtitle: 'Current semester',
-        icon: Icons.payments,
-        color: AppColors.success,
-      ),
-    ];
-
+    // Only show Attendance and CGPA cards side by side
     return LayoutBuilder(
       builder: (context, constraints) {
-        final itemWidth = constraints.maxWidth >= 760
-            ? 160.0
-            : (constraints.maxWidth - 48) / 2;
-        return Wrap(
-          spacing: 24,
-          runSpacing: 24,
+        // Determine if we have enough width for side-by-side
+        final bool sideBySide = constraints.maxWidth >= 600;
+        final double cardWidth = sideBySide
+            ? (constraints.maxWidth - 48) / 2 - 12 // half width minus spacing
+            : constraints.maxWidth - 48; // full width
+
+        return Row(
           children: [
-            for (final s in stats)
-              SizedBox(width: itemWidth, child: s),
+            Expanded(
+              child: StatCard(
+                label: 'Attendance',
+                value: '${p?.attendance ?? 0}%',
+                subtitle: 'Overall attendance',
+                icon: Icons.calendar_today,
+                color: AppColors.primary,
+              ),
+            ),
+            if (sideBySide) const SizedBox(width: 24),
+            if (sideBySide)
+              Expanded(
+                child: StatCard(
+                  label: 'CGPA',
+                  value: '${p?.cgpa ?? 0}',
+                  subtitle: 'Current semester',
+                  icon: Icons.grade,
+                  color: AppColors.success,
+                ),
+              ),
           ],
         );
       },
     );
   }
-
 }
-
