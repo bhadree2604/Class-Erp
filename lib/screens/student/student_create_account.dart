@@ -234,7 +234,7 @@ class _StudentCreateAccountScreenState extends State<StudentCreateAccountScreen>
                         ),
                         const SizedBox(height: 6),
                         DropdownButtonFormField<String>(
-                          value: _selectedDepartment.isEmpty ? null : _selectedDepartment,
+                          initialValue: _selectedDepartment.isEmpty ? null : _selectedDepartment,
                           decoration: const InputDecoration(hintText: 'Select Department'),
                           items: _departments.keys.map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
                           onChanged: (v) {
@@ -275,7 +275,7 @@ class _StudentCreateAccountScreenState extends State<StudentCreateAccountScreen>
                         ),
                         const SizedBox(height: 6),
                         DropdownButtonFormField<String>(
-                          value: _selectedSemester.isEmpty ? null : _selectedSemester,
+                          initialValue: _selectedSemester.isEmpty ? null : _selectedSemester,
                           decoration: const InputDecoration(hintText: 'Select Semester'),
                           items: List.generate(8, (i) => DropdownMenuItem(value: '${i + 1}', child: Text('${_ordinal(i + 1)} Semester'))),
                           onChanged: (v) => setState(() => _selectedSemester = v ?? ''),

@@ -220,7 +220,7 @@ class _MentorCreateAccountScreenState extends State<MentorCreateAccountScreen> {
                         ),
                         const SizedBox(height: 6),
                         DropdownButtonFormField<String>(
-                          value: _selectedDepartment.isEmpty ? null : _selectedDepartment,
+                          initialValue: _selectedDepartment.isEmpty ? null : _selectedDepartment,
                           decoration: const InputDecoration(hintText: 'Select Department'),
                           items: _departments.keys.map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
                           onChanged: (v) {

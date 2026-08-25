@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app_routes.dart';
+import 'screens/admin/admin_create_user.dart';
+import 'screens/admin/admin_dashboard.dart';
+import 'screens/admin/admin_mentors.dart';
+import 'screens/admin/admin_students.dart';
 import 'screens/login_screen.dart';
 import 'screens/mentor/mentor_certificates.dart';
 import 'screens/mentor/mentor_courses.dart';
@@ -145,6 +149,11 @@ class MyClassAppState extends State<MyClassApp> {
         AppRoutes.mentorSettings: (_) => const MentorSettingsScreen(),
         AppRoutes.mentorForgotPassword: (_) => const MentorForgotPasswordScreen(),
         AppRoutes.mentorCreateAccount: (_) => const MentorCreateAccountScreen(),
+        // Admin portal
+        AppRoutes.adminDashboard: (_) => const AdminDashboardScreen(),
+        AppRoutes.adminStudents: (_) => const AdminStudentsScreen(),
+        AppRoutes.adminMentors: (_) => const AdminMentorsScreen(),
+        AppRoutes.adminCreateUser: (_) => const AdminCreateUserScreen(),
       },
       builder: (context, child) {
         final mediaQuery = MediaQuery.of(context);
