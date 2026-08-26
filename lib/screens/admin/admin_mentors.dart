@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../app_routes.dart';
 import '../../services/auth_service.dart';
 import '../../widgets/portal_scaffold.dart';
 
@@ -13,14 +14,12 @@ class AdminMentorsScreen extends StatefulWidget {
 class _AdminMentorsScreenState extends State<AdminMentorsScreen> {
   late Future<List<User>> _mentorsFuture;
   final _searchController = TextEditingController();
-  List<User> _allMentors = [];
-  List<User> _filteredMentors = [];
 
   @override
   void initState() {
     super.initState();
     _loadMentors();
-    _searchController.addListener(_filterMentors);
+    _searchController.addListener(() => mounted ? setState(() {}) : null);
   }
 
   @override
@@ -35,30 +34,20 @@ class _AdminMentorsScreenState extends State<AdminMentorsScreen> {
     });
   }
 
-  void _refresh() => _loadMentors();
+  bool get _hasQuery => _searchController.text.trim().isNotEmpty;
 
-  void _filterMentors() {
-    final query = _searchController.text.toLowerCase().trim();
-    setState(() {
-      if (query.isEmpty) {
-        _filteredMentors = _allMentors;
-      } else {
-        _filteredMentors = _allMentors.where((mentor) {
-          return mentor.userId.toLowerCase().contains(query) ||
-              mentor.fullName.toLowerCase().contains(query);
-        }).toList();
-      }
-    });
-  }
-
-  Future<void> _showMentorDetails(User mentor) async {
-    return showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
+  void _showMentorDetails(BuildContext rowContext, User mentor) {
+    showDialog<void>(
+      context: rowContext,
+      builder: (dialogContext) => AlertDialog(
         title: Row(
           children: [
             CircleAvatar(
-              child: Text(mentor.userId.substring(0, 2).toUpperCase()),
+              child: Text(
+                mentor.userId.isNotEmpty
+                    ? mentor.userId.substring(0, 2).toUpperCase()
+                    : '?',
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(child: Text(mentor.fullName)),
@@ -69,20 +58,25 @@ class _AdminMentorsScreenState extends State<AdminMentorsScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _detailRow('Mentor ID', mentor.userId),
-              _detailRow('Full Name', mentor.fullName),
-              _detailRow('Email', mentor.email),
-              _detailRow('Phone', mentor.phone),
-              _detailRow('Department', mentor.department),
-              _detailRow('Designation', mentor.designation),
-              _detailRow('Qualification', mentor.qualification),
-              _detailRow('Experience', '${mentor.experience} years'),
+              _detailRow(dialogContext, 'Mentor ID', mentor.userId),
+              _detailRow(dialogContext, 'Full Name', mentor.fullName),
+              _detailRow(dialogContext, 'Login Email', mentor.username),
+              _detailRow(dialogContext, 'Email', mentor.email),
+              _detailRow(dialogContext, 'Phone', mentor.phone),
+              _detailRow(dialogContext, 'Department', mentor.department),
+              _detailRow(dialogContext, 'Designation', mentor.designation),
+              _detailRow(dialogContext, 'Qualification', mentor.qualification),
+              _detailRow(
+                dialogContext,
+                'Experience',
+                mentor.experience.isEmpty ? '' : '${mentor.experience} years',
+              ),
             ],
           ),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(dialogContext).pop(),
             child: const Text('Close'),
           ),
         ],
@@ -90,7 +84,7 @@ class _AdminMentorsScreenState extends State<AdminMentorsScreen> {
     );
   }
 
-  Widget _detailRow(String label, String value) {
+  Widget _detailRow(BuildContext context, String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Column(
@@ -114,13 +108,63 @@ class _AdminMentorsScreenState extends State<AdminMentorsScreen> {
     );
   }
 
+  Widget _emptyState({required bool searching}) {
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      children: [
+        SizedBox(
+          height: MediaQuery.of(context).size.height * 0.6,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  searching ? Icons.search_off : Icons.person_outline,
+                  size: 48,
+                  color: Theme.of(context).colorScheme.outline,
+                ),
+                const SizedBox(height: 12),
+                Text(searching
+                    ? 'No mentors match your search.'
+                    : 'No mentors yet.'),
+                const SizedBox(height: 4),
+                Text(
+                  searching
+                      ? 'Try a different mentor ID or name.'
+                      : 'Create one to get started.',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                if (searching)
+                  TextButton.icon(
+                    onPressed: () => _searchController.clear(),
+                    icon: const Icon(Icons.clear),
+                    label: const Text('Clear search'),
+                  )
+                else
+                  ElevatedButton.icon(
+                    onPressed: () => Navigator.of(context)
+                        .pushReplacementNamed(AppRoutes.adminCreateUser),
+                    icon: const Icon(Icons.person_add_outlined),
+                    label: const Text('Create Mentor'),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return PortalScaffold(
       role: 'admin',
       title: 'All Mentors',
       body: RefreshIndicator(
-        onRefresh: () async => _refresh(),
+        onRefresh: () async => _loadMentors(),
         child: FutureBuilder<List<User>>(
           future: _mentorsFuture,
           builder: (context, snapshot) {
@@ -130,35 +174,22 @@ class _AdminMentorsScreenState extends State<AdminMentorsScreen> {
             if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
             }
-            _allMentors = snapshot.data ?? [];
-            if (_filteredMentors.isEmpty && _searchController.text.isEmpty) {
-              _filteredMentors = _allMentors;
+            final allMentors = snapshot.data ?? [];
+            // Pure filter computed per build — always reflects fresh data.
+            final query = _searchController.text.toLowerCase().trim();
+            final visible = query.isEmpty
+                ? allMentors
+                : allMentors
+                    .where((m) =>
+                        m.userId.toLowerCase().contains(query) ||
+                        m.fullName.toLowerCase().contains(query))
+                    .toList();
+
+            if (visible.isEmpty) {
+              // Distinguish genuinely-empty vs no-search-results.
+              return _emptyState(searching: allMentors.isNotEmpty);
             }
-            if (_filteredMentors.isEmpty) {
-              return ListView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                children: [
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.6,
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text('No mentors found.'),
-                          if (_searchController.text.isNotEmpty) ...[
-                            const SizedBox(height: 8),
-                            TextButton(
-                              onPressed: () => _searchController.clear(),
-                              child: const Text('Clear search'),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            }
+
             return Column(
               children: [
                 Padding(
@@ -169,7 +200,7 @@ class _AdminMentorsScreenState extends State<AdminMentorsScreen> {
                       labelText: 'Search by Mentor ID or Name',
                       hintText: 'Enter mentor ID or name',
                       prefixIcon: const Icon(Icons.search),
-                      suffixIcon: _searchController.text.isNotEmpty
+                      suffixIcon: _hasQuery
                           ? IconButton(
                               icon: const Icon(Icons.clear),
                               onPressed: () => _searchController.clear(),
@@ -183,24 +214,33 @@ class _AdminMentorsScreenState extends State<AdminMentorsScreen> {
                 ),
                 Expanded(
                   child: ListView.builder(
-                    itemCount: _filteredMentors.length,
+                    itemCount: visible.length,
                     itemBuilder: (context, index) {
-                      final mentor = _filteredMentors[index];
+                      final mentor = visible[index];
                       return Card(
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
                         child: ListTile(
                           leading: CircleAvatar(
-                            child: Text(mentor.userId.substring(0, 2).toUpperCase()),
+                            child: Text(
+                              mentor.userId.isNotEmpty
+                                  ? mentor.userId
+                                      .substring(0, 2)
+                                      .toUpperCase()
+                                  : '?',
+                            ),
                           ),
                           title: Text(mentor.fullName),
-                          subtitle: Text('ID: ${mentor.userId} | Dept: ${mentor.department}'),
+                          subtitle: Text(
+                              'ID: ${mentor.userId} | Dept: ${mentor.department}'),
                           trailing: IconButton(
                             icon: const Icon(Icons.arrow_forward_ios),
-                            onPressed: () => _showMentorDetails(mentor),
+                            tooltip: 'View Details',
+                            onPressed: () =>
+                                _showMentorDetails(context, mentor),
                           ),
-                          onLongPress: () {
-                            _showMentorOptions(context, mentor);
-                          },
+                          onLongPress: () =>
+                              _showMentorOptions(context, mentor),
                         ),
                       );
                     },
@@ -225,7 +265,7 @@ class _AdminMentorsScreenState extends State<AdminMentorsScreen> {
               title: const Text('View Details'),
               onTap: () {
                 Navigator.of(ctx).pop();
-                _showMentorDetails(mentor);
+                _showMentorDetails(context, mentor);
               },
             ),
             ListTile(
@@ -234,8 +274,10 @@ class _AdminMentorsScreenState extends State<AdminMentorsScreen> {
               onTap: () {
                 Navigator.of(ctx).pop();
                 if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Edit mentor ${mentor.fullName} - coming soon')),
+                ScaffoldMessenger.of(this.context).showSnackBar(
+                  SnackBar(
+                      content:
+                          Text('Edit mentor ${mentor.fullName} - coming soon')),
                 );
               },
             ),
@@ -267,17 +309,16 @@ class _AdminMentorsScreenState extends State<AdminMentorsScreen> {
                   ),
                 );
                 if (confirm == true) {
-                  final error = await AuthService.instance.deleteUser(mentor.userId);
+                  final error =
+                      await AuthService.instance.deleteUser(mentor.userId);
                   if (!mounted) return;
                   if (error == null) {
-                    if (!mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
+                    ScaffoldMessenger.of(this.context).showSnackBar(
                       const SnackBar(content: Text('Mentor deleted')),
                     );
-                    _refresh();
+                    _loadMentors();
                   } else {
-                    if (!mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
+                    ScaffoldMessenger.of(this.context).showSnackBar(
                       SnackBar(content: Text('Error: $error')),
                     );
                   }

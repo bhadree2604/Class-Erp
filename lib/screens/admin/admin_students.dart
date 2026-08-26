@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../app_routes.dart';
+import '../../models/student_profile.dart';
 import '../../services/auth_service.dart';
+import '../../services/data_service.dart';
 import '../../widgets/portal_scaffold.dart';
 
 class AdminStudentsScreen extends StatefulWidget {
@@ -13,14 +16,12 @@ class AdminStudentsScreen extends StatefulWidget {
 class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
   late Future<List<User>> _studentsFuture;
   final _searchController = TextEditingController();
-  List<User> _allStudents = [];
-  List<User> _filteredStudents = [];
 
   @override
   void initState() {
     super.initState();
     _loadStudents();
-    _searchController.addListener(_filterStudents);
+    _searchController.addListener(() => mounted ? setState(() {}) : null);
   }
 
   @override
@@ -35,30 +36,20 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
     });
   }
 
-  void _refresh() => _loadStudents();
+  bool get _hasQuery => _searchController.text.trim().isNotEmpty;
 
-  void _filterStudents() {
-    final query = _searchController.text.toLowerCase().trim();
-    setState(() {
-      if (query.isEmpty) {
-        _filteredStudents = _allStudents;
-      } else {
-        _filteredStudents = _allStudents.where((student) {
-          return student.userId.toLowerCase().contains(query) ||
-              student.fullName.toLowerCase().contains(query);
-        }).toList();
-      }
-    });
-  }
-
-  Future<void> _showStudentDetails(User student) async {
-    return showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
+  void _showStudentDetails(BuildContext rowContext, User student) {
+    showDialog<void>(
+      context: rowContext,
+      builder: (dialogContext) => AlertDialog(
         title: Row(
           children: [
             CircleAvatar(
-              child: Text(student.userId.substring(0, 2).toUpperCase()),
+              child: Text(
+                student.userId.isNotEmpty
+                    ? student.userId.substring(0, 2).toUpperCase()
+                    : '?',
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(child: Text(student.fullName)),
@@ -69,20 +60,58 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _detailRow('Roll Number', student.userId),
-              _detailRow('Full Name', student.fullName),
-              _detailRow('Email', student.email),
-              _detailRow('Phone', student.phone),
-              _detailRow('Department', student.department),
-              _detailRow('Semester', student.semester),
-              _detailRow('Batch', student.batch),
-              _detailRow('Section', student.section),
+              _detailRow(dialogContext, 'Roll Number', student.userId),
+              _detailRow(dialogContext, 'Full Name', student.fullName),
+              _detailRow(dialogContext, 'Login Email', student.username),
+              _detailRow(dialogContext, 'Email', student.email),
+              _detailRow(dialogContext, 'Phone', student.phone),
+              _detailRow(dialogContext, 'Department', student.department),
+              // Academic data lives in DataService (StudentProfile), not the
+              // auth users table — load it for this specific roll number.
+              FutureBuilder<StudentProfile>(
+                future:
+                    DataService.instance.getStudentData(student.userId),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      child: Center(
+                        child: SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      ),
+                    );
+                  }
+                  final profile = snapshot.data;
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _detailRow(
+                          dialogContext, 'Semester', profile?.semester ?? ''),
+                      _detailRow(dialogContext, 'Batch', profile?.batch ?? ''),
+                      _detailRow(
+                          dialogContext, 'Section', profile?.section ?? ''),
+                      _detailRow(dialogContext, 'Attendance',
+                          '${profile?.attendance ?? 0}%'),
+                      _detailRow(dialogContext, 'CGPA',
+                          (profile?.cgpa ?? 0).toStringAsFixed(2)),
+                      _detailRow(dialogContext, 'GPA',
+                          (profile?.gpa ?? 0).toStringAsFixed(2)),
+                      _detailRow(dialogContext, 'Arrears',
+                          '${profile?.arrears ?? 0}'),
+                    ],
+                  );
+                },
+              ),
             ],
           ),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(dialogContext).pop(),
             child: const Text('Close'),
           ),
         ],
@@ -90,7 +119,7 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
     );
   }
 
-  Widget _detailRow(String label, String value) {
+  Widget _detailRow(BuildContext context, String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Column(
@@ -114,13 +143,63 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
     );
   }
 
+  Widget _emptyState({required bool searching}) {
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      children: [
+        SizedBox(
+          height: MediaQuery.of(context).size.height * 0.6,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  searching ? Icons.search_off : Icons.school_outlined,
+                  size: 48,
+                  color: Theme.of(context).colorScheme.outline,
+                ),
+                const SizedBox(height: 12),
+                Text(searching
+                    ? 'No students match your search.'
+                    : 'No students yet.'),
+                const SizedBox(height: 4),
+                Text(
+                  searching
+                      ? 'Try a different roll number or name.'
+                      : 'Create one to get started.',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                if (searching)
+                  TextButton.icon(
+                    onPressed: () => _searchController.clear(),
+                    icon: const Icon(Icons.clear),
+                    label: const Text('Clear search'),
+                  )
+                else
+                  ElevatedButton.icon(
+                    onPressed: () => Navigator.of(context)
+                        .pushReplacementNamed(AppRoutes.adminCreateUser),
+                    icon: const Icon(Icons.person_add_outlined),
+                    label: const Text('Create Student'),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return PortalScaffold(
       role: 'admin',
       title: 'All Students',
       body: RefreshIndicator(
-        onRefresh: () async => _refresh(),
+        onRefresh: () async => _loadStudents(),
         child: FutureBuilder<List<User>>(
           future: _studentsFuture,
           builder: (context, snapshot) {
@@ -130,35 +209,23 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
             if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
             }
-            _allStudents = snapshot.data ?? [];
-            if (_filteredStudents.isEmpty && _searchController.text.isEmpty) {
-              _filteredStudents = _allStudents;
+            final allStudents = snapshot.data ?? [];
+            // Pure filter computed per build — never mutated state, so it
+            // always reflects fresh data after create/delete/refresh.
+            final query = _searchController.text.toLowerCase().trim();
+            final visible = query.isEmpty
+                ? allStudents
+                : allStudents
+                    .where((s) =>
+                        s.userId.toLowerCase().contains(query) ||
+                        s.fullName.toLowerCase().contains(query))
+                    .toList();
+
+            if (visible.isEmpty) {
+              // Distinguish genuinely-empty vs no-search-results.
+              return _emptyState(searching: allStudents.isNotEmpty);
             }
-            if (_filteredStudents.isEmpty) {
-              return ListView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                children: [
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.6,
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text('No students found.'),
-                          if (_searchController.text.isNotEmpty) ...[
-                            const SizedBox(height: 8),
-                            TextButton(
-                              onPressed: () => _searchController.clear(),
-                              child: const Text('Clear search'),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            }
+
             return Column(
               children: [
                 Padding(
@@ -169,7 +236,7 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
                       labelText: 'Search by Roll Number or Name',
                       hintText: 'Enter roll number (e.g., 104001) or name',
                       prefixIcon: const Icon(Icons.search),
-                      suffixIcon: _searchController.text.isNotEmpty
+                      suffixIcon: _hasQuery
                           ? IconButton(
                               icon: const Icon(Icons.clear),
                               onPressed: () => _searchController.clear(),
@@ -183,24 +250,33 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
                 ),
                 Expanded(
                   child: ListView.builder(
-                    itemCount: _filteredStudents.length,
+                    itemCount: visible.length,
                     itemBuilder: (context, index) {
-                      final student = _filteredStudents[index];
+                      final student = visible[index];
                       return Card(
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
                         child: ListTile(
                           leading: CircleAvatar(
-                            child: Text(student.userId.substring(0, 2).toUpperCase()),
+                            child: Text(
+                              student.userId.isNotEmpty
+                                  ? student.userId
+                                      .substring(0, 2)
+                                      .toUpperCase()
+                                  : '?',
+                            ),
                           ),
                           title: Text(student.fullName),
-                          subtitle: Text('Roll: ${student.userId} | Dept: ${student.department}'),
+                          subtitle: Text(
+                              'Roll: ${student.userId} | Dept: ${student.department}'),
                           trailing: IconButton(
                             icon: const Icon(Icons.arrow_forward_ios),
-                            onPressed: () => _showStudentDetails(student),
+                            tooltip: 'View Details',
+                            onPressed: () =>
+                                _showStudentDetails(context, student),
                           ),
-                          onLongPress: () {
-                            _showStudentOptions(context, student);
-                          },
+                          onLongPress: () =>
+                              _showStudentOptions(context, student),
                         ),
                       );
                     },
@@ -225,7 +301,7 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
               title: const Text('View Details'),
               onTap: () {
                 Navigator.of(ctx).pop();
-                _showStudentDetails(student);
+                _showStudentDetails(context, student);
               },
             ),
             ListTile(
@@ -234,8 +310,10 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
               onTap: () {
                 Navigator.of(ctx).pop();
                 if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Edit student ${student.fullName} - coming soon')),
+                ScaffoldMessenger.of(this.context).showSnackBar(
+                  SnackBar(
+                      content:
+                          Text('Edit student ${student.fullName} - coming soon')),
                 );
               },
             ),
@@ -267,17 +345,16 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
                   ),
                 );
                 if (confirm == true) {
-                  final error = await AuthService.instance.deleteUser(student.userId);
+                  final error =
+                      await AuthService.instance.deleteUser(student.userId);
                   if (!mounted) return;
                   if (error == null) {
-                    if (!mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
+                    ScaffoldMessenger.of(this.context).showSnackBar(
                       const SnackBar(content: Text('Student deleted')),
                     );
-                    _refresh();
+                    _loadStudents();
                   } else {
-                    if (!mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
+                    ScaffoldMessenger.of(this.context).showSnackBar(
                       SnackBar(content: Text('Error: $error')),
                     );
                   }
