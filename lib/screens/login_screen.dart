@@ -34,8 +34,8 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    // Validate email format for non-admin
-    if (username != 'admin' && !RegExp(r'^[\w\-]+@ritrjpm\.ac\.in$').hasMatch(username)) {
+    // Validate email format for non-admin (case-insensitive admin check)
+    if (username.toLowerCase() != 'admin' && !RegExp(r'^[\w\-]+@ritrjpm\.ac\.in$').hasMatch(username)) {
       setState(() {
         _loading = false;
         _error = 'Enter a valid college email';
