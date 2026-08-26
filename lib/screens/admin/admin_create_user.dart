@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../services/auth_service.dart';
-import '../../theme.dart';
 import '../../widgets/portal_scaffold.dart';
 
 class AdminCreateUserScreen extends StatefulWidget {
@@ -18,11 +17,19 @@ class _AdminCreateUserScreenState extends State<AdminCreateUserScreen> {
   final _passwordController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
-  final _departmentController = TextEditingController();
-  final _semesterController = TextEditingController(); // only for student
+  String _selectedDepartment = '';
   String _selectedRole = 'student';
   bool _loading = false;
   String? _error;
+
+  static const _departments = [
+    'Computer Science',
+    'Information Technology',
+    'Electronics',
+    'Mechanical',
+    'Civil',
+    'Electrical',
+  ];
 
   @override
   void dispose() {
@@ -31,8 +38,6 @@ class _AdminCreateUserScreenState extends State<AdminCreateUserScreen> {
     _passwordController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
-    _departmentController.dispose();
-    _semesterController.dispose();
     super.dispose();
   }
 
@@ -48,21 +53,11 @@ class _AdminCreateUserScreenState extends State<AdminCreateUserScreen> {
       'email': _emailController.text.trim(),
       'full_name': _nameController.text.trim(),
       'phone': _phoneController.text.trim(),
-      'department': _departmentController.text.trim(),
+      'department': _selectedDepartment,
       'user_type': _selectedRole,
     };
     if (_selectedRole == 'student') {
-      final semester = _semesterController.text.trim();
-      if (semester.isEmpty) {
-        setState(() {
-          _loading = false;
-          _error = 'Semester is required for students';
-        });
-        return;
-      }
-      userData['semester'] = semester;
-      // Validate roll number format (username will be used as roll number?)
-      // We'll treat username as roll number for student
+      // Validate roll number format
       final roll = _usernameController.text.trim();
       if (!RegExp(r'^9536\d{8}$').hasMatch(roll)) {
         setState(() {
@@ -86,6 +81,7 @@ class _AdminCreateUserScreenState extends State<AdminCreateUserScreen> {
       _formKey.currentState!.reset();
       setState(() {
         _selectedRole = 'student';
+        _selectedDepartment = '';
       });
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -120,6 +116,7 @@ class _AdminCreateUserScreenState extends State<AdminCreateUserScreen> {
                 onChanged: (value) {
                   setState(() {
                     _selectedRole = value!;
+                    _selectedDepartment = '';
                   });
                 },
               ),
@@ -190,29 +187,22 @@ class _AdminCreateUserScreenState extends State<AdminCreateUserScreen> {
                 },
               ),
               const SizedBox(height: 16),
-              TextFormField(
-                controller: _departmentController,
+              DropdownButtonFormField<String>(
                 decoration: const InputDecoration(labelText: 'Department'),
+                initialValue: _selectedDepartment.isEmpty ? null : _selectedDepartment,
+                items: _departments.map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedDepartment = value ?? '';
+                  });
+                },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter department';
+                    return 'Please select department';
                   }
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
-              if (_selectedRole == 'student')
-                TextFormField(
-                  controller: _semesterController,
-                  decoration: const InputDecoration(labelText: 'Semester'),
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter semester';
-                    }
-                    return null;
-                  },
-                ),
               const SizedBox(height: 24),
               if (_error != null)
                 Container(

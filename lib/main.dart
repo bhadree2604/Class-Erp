@@ -40,10 +40,20 @@ import 'services/auth_service.dart';
 import 'services/data_service.dart';
 import 'theme.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  AuthService.instance.initialize();
-  DataService.instance.initialize();
+  await AuthService.instance.initialize();
+  
+  // DEBUG: Print users map to verify admin account exists
+  final prefs = await SharedPreferences.getInstance();
+  final raw = prefs.getString('college_erp_users');
+  if (raw != null) {
+    print('=== DEBUG: Users map after initialize ===');
+    print(raw);
+    print('==========================================');
+  }
+  
+  await DataService.instance.initialize();
   runApp(MyClassApp(key: myAppKey));
 }
 
