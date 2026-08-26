@@ -123,7 +123,7 @@ class AuthService {
           {
             'user_id': 'A0001',
             'username': 'admin',
-            'password': 'Admin123!',
+            'password': 'admin123!',
             'email': 'admin@admin.com',
             'full_name': 'System Administrator',
             'phone': '0000000000',
