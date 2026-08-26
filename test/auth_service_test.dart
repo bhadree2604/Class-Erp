@@ -43,7 +43,7 @@ void main() {
         {
           'user_id': 'A0001',
           'username': 'admin',
-          'password': 'Admin123!',
+          'password': 'admin123',
           'email': 'admin@admin.com',
           'full_name': 'System Administrator',
           'phone': '0000000000',
@@ -65,7 +65,7 @@ void main() {
     final auth = AuthService.instance;
 
     // Admin login
-    final adminUser = await auth.login('admin', 'Admin123!');
+    final adminUser = await auth.login('admin', 'admin123');
     expect(adminUser, isNotNull);
     if (adminUser != null) {
       print('Admin login succeeded: ${adminUser.fullName} (${adminUser.email})');
