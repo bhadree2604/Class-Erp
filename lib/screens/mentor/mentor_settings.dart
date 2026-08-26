@@ -19,6 +19,13 @@ class MentorSettingsScreen extends StatefulWidget {
 
 class _MentorSettingsScreenState extends State<MentorSettingsScreen> {
   String _userName = 'Mentor';
+  String _mentorId = '';
+  String _mentorEmail = '';
+  String _mentorPhone = '';
+  String _mentorDepartment = '';
+  String _mentorDesignation = '';
+  String _mentorQualification = '';
+  String _mentorExperience = '';
   bool _loading = true;
   final _currentPwdCtrl = TextEditingController();
   final _newPwdCtrl = TextEditingController();
@@ -49,6 +56,13 @@ class _MentorSettingsScreenState extends State<MentorSettingsScreen> {
     if (!mounted) return;
     setState(() {
       _userName = user?.fullName ?? 'Mentor';
+      _mentorId = user?.userId ?? '';
+      _mentorEmail = user?.email ?? '';
+      _mentorPhone = user?.phone ?? '';
+      _mentorDepartment = user?.department ?? '';
+      _mentorDesignation = user?.designation ?? '';
+      _mentorQualification = user?.qualification ?? '';
+      _mentorExperience = user?.experience ?? '';
       _emailAlerts = prefs.getBool('mentor_notif_emailAlerts') ?? true;
       _emailMeetings = prefs.getBool('mentor_notif_emailMeetings') ?? true;
       _smsUrgent = prefs.getBool('mentor_notif_smsUrgent') ?? false;
@@ -239,12 +253,14 @@ class _MentorSettingsScreenState extends State<MentorSettingsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        _infoRow('Mentor ID', 'M2024001'),
-                        _infoRow('Name', 'Dr. Maha'),
-                        _infoRow('Email', 'Maha@rit.edu'),
-                        _infoRow('Phone', '+91 98765 43210'),
-                        _infoRow('Department', 'Computer Science'),
-                        _infoRow('Office', 'Room 305, CS Block'),
+                        _infoRow('Mentor ID', _mentorId.isEmpty ? '—' : _mentorId),
+                        _infoRow('Name', _userName),
+                        _infoRow('Email', _mentorEmail.isEmpty ? '—' : _mentorEmail),
+                        _infoRow('Phone', _mentorPhone.isEmpty ? '—' : _mentorPhone),
+                        _infoRow('Department', _mentorDepartment.isEmpty ? '—' : _mentorDepartment),
+                        _infoRow('Designation', _mentorDesignation.isEmpty ? '—' : _mentorDesignation),
+                        _infoRow('Qualification', _mentorQualification.isEmpty ? '—' : _mentorQualification),
+                        _infoRow('Experience', _mentorExperience.isEmpty ? '—' : '${_mentorExperience} years'),
                       ],
                     ),
                   ),

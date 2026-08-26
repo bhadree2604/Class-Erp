@@ -64,8 +64,8 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
     if (!mounted) return;
     setState(() {
       _userName = user?.fullName ?? 'Mentor';
-      _mentorId = user?.userId ?? 'M2024001';
-      _department = user?.department ?? 'Computer Science';
+      _mentorId = user?.userId ?? '';
+      _department = user?.department ?? '';
       _studentCount = students.length;
       _loading = false;
     });
