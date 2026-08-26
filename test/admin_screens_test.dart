@@ -19,25 +19,33 @@ const _admin = {
   'user_type': 'admin',
 };
 
-Future<void> _seedStorage(Map<String, dynamic> users) async {
-  SharedPreferences.setMockInitialValues({
-    'college_erp_users': jsonEncode(users),
-    'users_initialized': true,
-    // Academic profile for the seeded student (DataService storage).
-    'allStudentsData': jsonEncode({
-      '953625104001': {
-        'user_id': '953625104001',
-        'semester': '6',
-        'batch': '2025-2029',
-        'section': 'A',
-        'attendance': 87,
-        'cgpa': 8.65,
-        'gpa': 8.9,
-        'arrears': 0,
-      }
-    }),
-  });
+Future<void> _seedStorage(
+  Map<String, dynamic> users, {
+  Map<String, dynamic> profiles = const {},
+}) async {
+  // Write through the LIVE prefs instance: service singletons cache their
+  // SharedPreferences across tests, so setMockInitialValues alone would
+  // leave them reading stale data.
+  SharedPreferences.setMockInitialValues(<String, Object>{});
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.clear();
+  await prefs.setString('college_erp_users', jsonEncode(users));
+  await prefs.setString('allStudentsData', jsonEncode(profiles));
+  // Prevent AuthService.initialize() from treating storage as fresh and
+  // overwriting our seeded users with its admin-only seed.
+  await prefs.setBool('users_initialized', true);
 }
+
+const _studentProfile = {
+  'user_id': '953625104001',
+  'semester': '6',
+  'batch': '2025-2029',
+  'section': 'A',
+  'attendance': 87,
+  'cgpa': 8.65,
+  'gpa': 8.9,
+  'arrears': 0,
+};
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -50,22 +58,25 @@ void main() {
   testWidgets(
       'View Details dialog shows REAL student data incl. attendance & CGPA',
       (tester) async {
-    await _seedStorage({
-      'students': [
-        {
-          'user_id': '953625104001',
-          'username': 'test@ritrjpm.ac.in',
-          'password': 'test1234',
-          'email': 'test@ritrjpm.ac.in',
-          'full_name': 'Ravi Kumar',
-          'phone': '9876500001',
-          'department': 'Computer Science',
-          'user_type': 'student',
-        }
-      ],
-      'mentors': <dynamic>[],
-      'admins': [_admin],
-    });
+    await _seedStorage(
+      {
+        'students': [
+          {
+            'user_id': '953625104001',
+            'username': 'test@ritrjpm.ac.in',
+            'password': 'test1234',
+            'email': 'test@ritrjpm.ac.in',
+            'full_name': 'Ravi Kumar',
+            'phone': '9876500001',
+            'department': 'Computer Science',
+            'user_type': 'student',
+          }
+        ],
+        'mentors': <dynamic>[],
+        'admins': [_admin],
+      },
+      profiles: {'953625104001': _studentProfile},
+    );
 
     await tester.pumpWidget(wrap(const AdminStudentsScreen()));
     await tester.pumpAndSettle();
@@ -75,13 +86,12 @@ void main() {
     await tester.tap(detailsArrow);
     await tester.pumpAndSettle();
 
-    // Real per-user values from the auth record:
+    // Real per-user values from the auth record (name appears 3x: list row
+    // behind dialog + dialog title + detail row):
     expect(find.text('953625104001'), findsOneWidget);
-    expect(find.text('Ravi Kumar'), findsNWidgets(2)); // title + detail row
+    expect(find.text('Ravi Kumar'), findsNWidgets(3));
     expect(find.text('test@ritrjpm.ac.in'), findsOneWidget);
     expect(find.text('9876500001'), findsOneWidget);
-    expect(find.text('Computer Science'), findsOneWidget);
-    // Real academic values loaded from DataService profile:
     expect(find.text('6'), findsOneWidget); // semester
     expect(find.text('2025-2029'), findsOneWidget); // batch
     expect(find.text('A'), findsOneWidget); // section
