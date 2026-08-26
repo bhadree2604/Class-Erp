@@ -30,7 +30,16 @@ class _LoginScreenState extends State<LoginScreen> {
     final password = _passwordController.text;
 
     if (username.isEmpty || password.isEmpty) {
-      setState(() => _error = 'Please enter username and password.');
+      setState(() => _error = 'Please enter college email and password.');
+      return;
+    }
+
+    // Validate email format for non-admin
+    if (username != 'admin' && !RegExp(r'^[\w\-]+@ritrjpm\.ac\.in$').hasMatch(username)) {
+      setState(() {
+        _loading = false;
+        _error = 'Enter a valid college email';
+      });
       return;
     }
 
@@ -175,8 +184,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             ],
                             _buildField(
                               controller: _usernameController,
-                              label: 'Username',
-                              hint: 'Enter your username',
+                              label: 'College Email',
+                              hint: 'Enter your college email',
                               obscure: false,
                             ),
                             const SizedBox(height: 16),
