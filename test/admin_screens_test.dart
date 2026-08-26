@@ -23,19 +23,20 @@ const _admin = {
 
 /// Single live prefs instance shared by every test. AuthService and
 /// DataService cache their SharedPreferences forever (process-wide
-/// singletons), so ALL seeding must go through the exact same instance —
-/// calling setMockInitialValues twice would swap in a fresh backing store
-/// the already-cached services can never see.
-Future<SharedPreferences>? _livePrefs;
+/// singletons), so ALL seeding must go through the exact same instance.
+/// Cache the RESOLVED instance, never the Future: awaiting a Future
+/// created in an earlier testWidgets' FakeAsync zone deadlocks.
+SharedPreferences? _livePrefs;
 
 Future<void> _seedStorage(
   Map<String, dynamic> users, {
   Map<String, dynamic> profiles = const {},
 }) async {
-  final prefs = await (_livePrefs ??= () {
+  var prefs = _livePrefs;
+  if (prefs == null) {
     SharedPreferences.setMockInitialValues(<String, Object>{});
-    return SharedPreferences.getInstance();
-  }());
+    prefs = _livePrefs = await SharedPreferences.getInstance();
+  }
   await prefs.clear();
   await prefs.setString('college_erp_users', jsonEncode(users));
   await prefs.setString('allStudentsData', jsonEncode(profiles));
@@ -138,14 +139,14 @@ void main() {
 
     await tester.pumpWidget(wrap(const AdminMentorsScreen()));
     await tester.pumpAndSettle();
-
     expect(find.text('Dr. Priya'), findsOneWidget);
 
     await tester.tap(detailsArrow);
     await tester.pumpAndSettle();
 
     expect(find.text('M2024002'), findsOneWidget);
-    expect(find.text('mentor@ritrjpm.ac.in'), findsOneWidget);
+    // Login Email + Email rows share the same string (username == email).
+    expect(find.text('mentor@ritrjpm.ac.in'), findsNWidgets(2));
     expect(find.text('9876500002'), findsOneWidget);
     expect(find.text('Electronics'), findsOneWidget);
     expect(find.text('Associate Professor'), findsOneWidget);
@@ -220,7 +221,23 @@ void main() {
       'admins': [_admin],
     });
 
-    await tester.pumpWidget(wrap(const AdminCreateUserScreen()));
+    // Route stack so Navigator.pop(true) after creation lands somewhere.
+    // NOTE: keep everything in ONE tree — after a pop, pumpWidget with a
+    // fresh root fails to replace the tree (flutter_test quirk), so the
+    // list screen is reached via pushNamed below instead.
+    await tester.pumpWidget(MaterialApp(
+      theme: AppTheme.light,
+      initialRoute: '/create',
+      routes: {
+        '/': (context) => const Scaffold(body: Text('admin-home')),
+        '/create': (context) => const AdminCreateUserScreen(),
+        '/students': (context) => const AdminStudentsScreen(),
+        '/mentors': (context) => const AdminMentorsScreen(),
+      },
+    ));
+    // Tall surface so the lazy ListView builds the submit button.
+    await tester.binding.setSurfaceSize(const Size(800, 1800));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
     await tester.pumpAndSettle();
 
     // Student is the default role. Form field order:
@@ -247,7 +264,7 @@ void main() {
     expect(created.single.fullName, 'Anita Rani');
 
     // Now the actual user action: open All Students and tap View Details.
-    await tester.pumpWidget(wrap(const AdminStudentsScreen()));
+    tester.state<NavigatorState>(find.byType(Navigator)).pushNamed('/students');
     await tester.pumpAndSettle();
     expect(find.text('Anita Rani'), findsOneWidget);
 
@@ -279,7 +296,20 @@ void main() {
       'admins': [_admin],
     });
 
-    await tester.pumpWidget(wrap(const AdminCreateUserScreen()));
+    // Route stack so Navigator.pop(true) after creation lands somewhere.
+    await tester.pumpWidget(MaterialApp(
+      theme: AppTheme.light,
+      initialRoute: '/create',
+      routes: {
+        '/': (context) => const Scaffold(body: Text('admin-home')),
+        '/create': (context) => const AdminCreateUserScreen(),
+        '/students': (context) => const AdminStudentsScreen(),
+        '/mentors': (context) => const AdminMentorsScreen(),
+      },
+    ));
+    // Tall surface so the lazy ListView builds the submit button.
+    await tester.binding.setSurfaceSize(const Size(800, 1800));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
     await tester.pumpAndSettle();
 
     // Switch role to Mentor; roll field is replaced by Mentor ID.
@@ -308,7 +338,7 @@ void main() {
     expect(created.length, 1);
     expect(created.single.fullName, 'Suresh Babu');
 
-    await tester.pumpWidget(wrap(const AdminMentorsScreen()));
+    tester.state<NavigatorState>(find.byType(Navigator)).pushNamed('/mentors');
     await tester.pumpAndSettle();
     expect(find.text('Suresh Babu'), findsOneWidget);
 
