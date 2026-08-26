@@ -78,10 +78,8 @@ class AuthService {
   Future<SharedPreferences> get _store async =>
       _prefs ??= await SharedPreferences.getInstance();
 
-  /// Seeds the demo users (student, mentor) and a default admin account.
-  /// student  student / student123
-  /// mentor   mentor  / mentor123
-  /// admin    admin   / Admin123!
+  /// Seeds the default admin account.
+  /// admin    admin   / admin123
   Future<void> initialize() async {
     final prefs = await _store;
     final alreadySet = prefs.getBool(_usersInitializedKey) ?? false;
@@ -89,36 +87,8 @@ class AuthService {
 
     if (!alreadySet || !hasData) {
       final users = {
-        'students': [
-          {
-            'user_id': '953625104001',
-            'username': '953625104029@ritrjpm.ac.in',
-            'password': 'student123',
-            'email': '953625104029@ritrjpm.ac.in',
-            'full_name': 'Bhadree',
-            'phone': '9876543210',
-            'department': 'Computer Science',
-            'semester': '6',
-            'batch': '2025-2029',
-            'section': 'A',
-            'user_type': 'student',
-          }
-        ],
-        'mentors': [
-          {
-            'user_id': 'M2024001',
-            'username': 'maha@ritrjpm.ac.in',
-            'password': 'mentor123',
-            'email': 'maha@ritrjpm.ac.in',
-            'full_name': 'Dr. Maha',
-            'phone': '9876543211',
-            'department': 'Computer Science',
-            'designation': 'Professor',
-            'qualification': 'Ph.D',
-            'experience': '10',
-            'user_type': 'mentor',
-          }
-        ],
+        'students': <dynamic>[],
+        'mentors': <dynamic>[],
         'admins': [
           {
             'user_id': 'A0001',
