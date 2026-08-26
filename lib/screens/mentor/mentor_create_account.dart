@@ -14,7 +14,6 @@ class MentorCreateAccountScreen extends StatefulWidget {
 
 class _MentorCreateAccountScreenState extends State<MentorCreateAccountScreen> {
   final _nameCtrl = TextEditingController();
-  final _emailCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
   final _confirmPwdCtrl = TextEditingController();
@@ -37,7 +36,6 @@ class _MentorCreateAccountScreenState extends State<MentorCreateAccountScreen> {
   @override
   void dispose() {
     _nameCtrl.dispose();
-    _emailCtrl.dispose();
     _phoneCtrl.dispose();
     _passwordCtrl.dispose();
     _confirmPwdCtrl.dispose();
@@ -59,8 +57,8 @@ class _MentorCreateAccountScreenState extends State<MentorCreateAccountScreen> {
   }
 
   Future<void> _handleCreate() async {
-    if (_nameCtrl.text.isEmpty ||
-        _emailCtrl.text.isEmpty ||
+    final name = _nameCtrl.text.trim();
+    if (name.isEmpty ||
         _phoneCtrl.text.isEmpty ||
         _selectedDepartment.isEmpty ||
         _designationCtrl.text.isEmpty ||
@@ -91,12 +89,14 @@ class _MentorCreateAccountScreenState extends State<MentorCreateAccountScreen> {
       return;
     }
 
+    final usernameBase = name.toLowerCase().replaceAll(' ', '');
+    final emailUsername = '$usernameBase@ritrjpm.ac.in';
     final userData = {
       'user_id': _generatedId,
-      'username': _emailCtrl.text.trim(),
+      'username': emailUsername,
       'password': _passwordCtrl.text,
-      'email': _emailCtrl.text.trim(),
-      'full_name': _nameCtrl.text.trim(),
+      'email': emailUsername,
+      'full_name': name,
       'phone': _phoneCtrl.text.trim(),
       'user_type': 'mentor',
       'department': _selectedDepartment,
@@ -250,23 +250,6 @@ class _MentorCreateAccountScreenState extends State<MentorCreateAccountScreen> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            'Email Address *',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: AppColorsExtension.of(context).textPrimary,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        TextField(
-                          controller: _emailCtrl,
-                          keyboardType: TextInputType.emailAddress,
-                          decoration: const InputDecoration(hintText: 'your.email@rit.edu'),
-                        ),
                         const SizedBox(height: 16),
                         Align(
                           alignment: Alignment.centerLeft,

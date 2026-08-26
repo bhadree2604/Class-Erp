@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
 
 import '../../app_routes.dart';
 import '../../models/student_profile.dart';
@@ -30,6 +31,11 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
   double _avgCgpa = 0.0;
   bool _loadingStats = true;
 
+  // Performance bands counts
+  int _excellentCount = 0;
+  int _goodCount = 0;
+  int _needsAttentionCount = 0;
+
   static const _quickActions = [
     (Icons.person, 'View Students', 'Check student info and records',
     AppRoutes.mentorStudents),
@@ -42,9 +48,7 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
   ];
 
   static const _schedule = [];
-
   static const _activity = [];
-
   static const _deadlines = [];
 
   @override
@@ -72,12 +76,23 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
     double totalAttendance = 0;
     double totalCgpa = 0;
     int count = 0;
+    int excellent = 0;
+    int good = 0;
+    int needsAttention = 0;
     for (final ms in students) {
       try {
         final profile = await DataService.instance.getStudentData(ms.rollNo);
         totalAttendance += profile.attendance;
         totalCgpa += profile.cgpa;
         count++;
+        final cgpa = profile.cgpa;
+        if (cgpa > 8.5) {
+          excellent++;
+        } else if (cgpa >= 7.0) {
+          good++;
+        } else {
+          needsAttention++;
+        }
       } catch (_) {
         // ignore errors
       }
@@ -86,6 +101,9 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
     setState(() {
       _avgAttendance = count > 0 ? totalAttendance / count : 0.0;
       _avgCgpa = count > 0 ? totalCgpa / count : 0.0;
+      _excellentCount = excellent;
+      _goodCount = good;
+      _needsAttentionCount = needsAttention;
       _loadingStats = false;
     });
   }
@@ -313,140 +331,220 @@ class _MentorDashboardScreenState extends State<MentorDashboardScreen> {
   }
 
   Widget _performanceCard() {
-    return AppCard(
-      heading: 'Class Performance Overview',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Container(
-            height: 220,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: CustomPaint(
-              painter: _PerformanceChartPainter(),
-              size: Size.infinite,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: const [
-              _ChartLegend(color: AppColors.primary, label: 'Attendance %'),
-              SizedBox(width: 24),
-              _ChartLegend(color: AppColors.accent, label: 'CGPA (x10)'),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _MetricTile('18', 'Excellent (>8.5)', AppColors.success),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _MetricTile('5', 'Good (7-8.5)', AppColors.warning),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child:
-                _MetricTile('2', 'Need Attention (<7)', AppColors.danger),
-              ),
-            ],
-          ),
-        ],
+     if (_studentCount == 0) {
+       return AppCard(
+         heading: 'Class Performance Overview',
+         child: const Center(
+           child: Text('No student data available'),
+         ),
+       );
+     }
+     return AppCard(
+       heading: 'Class Performance Overview',
+       child: Column(
+         crossAxisAlignment: CrossAxisAlignment.stretch,
+         children: [
+           Container(
+             height: 220,
+             padding: const EdgeInsets.symmetric(horizontal: 12),
+             child: CustomPaint(
+               painter: _PerformanceBarChartPainter(
+                 excellentCount: _excellentCount,
+                 goodCount: _goodCount,
+                 needsAttentionCount: _needsAttentionCount,
+               ),
+               size: Size.infinite,
+             ),
+           ),
+           const SizedBox(height: 8),
+           Row(
+             children: const [
+               _ChartLegend(color: AppColors.primary, label: 'Attendance %'),
+               SizedBox(width: 24),
+               _ChartLegend(color: AppColors.accent, label: 'CGPA (x10)'),
+             ],
+           ),
+           const SizedBox(height: 16),
+           Row(
+             children: [
+               Expanded(
+                 child: _MetricTile(_excellentCount.toString(), 'Excellent (>8.5)', AppColors.success),
+               ),
+               const SizedBox(width: 12),
+               Expanded(
+                 child: _MetricTile(_goodCount.toString(), 'Good (7-8.5)', AppColors.warning),
+               ),
+               const SizedBox(width: 12),
+               Expanded(
+                 child: _MetricTile(_needsAttentionCount.toString(), 'Need Attention (<7)', AppColors.danger),
+               ),
+             ],
+           ),
+         ],
+       ),
+     );
+   }
+
+   Widget _scheduleCard() {
+     return AppCard(
+       heading: "Today's Schedule",
+       child: Column(
+         crossAxisAlignment: CrossAxisAlignment.stretch,
+         children: [
+           for (var i = 0; i < _schedule.length; i++) ...[
+             if (i > 0) const SizedBox(height: 12),
+             Container(
+               padding: const EdgeInsets.all(16),
+               decoration: BoxDecoration(
+                 color: AppColorsExtension.of(context).bgSecondary,
+                 borderRadius: BorderRadius.circular(8),
+                 border: Border(
+                   left: BorderSide(color: _schedule[i].$4, width: 4),
+                 ),
+               ),
+               child: Row(
+                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                 children: [
+                   Column(
+                     crossAxisAlignment: CrossAxisAlignment.start,
+                     children: [
+                       Text(
+                         _schedule[i].$1,
+                         style: const TextStyle(fontWeight: FontWeight.w600),
+                       ),
+                       Text(
+                         _schedule[i].$2,
+                         style: TextStyle(
+                           fontSize: 13,
+                           color: AppColorsExtension.of(context).textSecondary,
+                         ),
+                       ),
+                     ],
+                   ),
+                   Text(
+                     _schedule[i].$3,
+                     style: TextStyle(
+                       color: _schedule[i].$4,
+                       fontWeight: FontWeight.w600,
+                     ),
+                   ),
+                 ],
+               ),
+             ),
+           ],
+         ],
+       ),
+     );
+   }
+
+   Widget _activityCard() {
+     return AppCard(
+       heading: 'Recent Activity',
+       child: Column(
+         crossAxisAlignment: CrossAxisAlignment.stretch,
+         children: [
+           for (var i = 0; i < _activity.length; i++) ...[
+             if (i > 0) const Divider(height: 16),
+             ListTile(
+               leading: Icon(_activity[i].$1, color: AppColors.primary),
+               title: Text(_activity[i].$2),
+               subtitle: Text(_activity[i].$3),
+               trailing: const Icon(Icons.more_vert),
+             ),
+           ],
+         ],
+       ),
+     );
+   }
+
+   Widget _deadlinesCard() {
+     return AppCard(
+       heading: 'Upcoming Deadlines',
+       child: Column(
+         crossAxisAlignment: CrossAxisAlignment.stretch,
+         children: [
+           for (var i = 0; i < _deadlines.length; i++) ...[
+             if (i > 0) const Divider(height: 16),
+             ListTile(
+               leading: const Icon(Icons.event_available, color: AppColors.accent),
+               title: Text(_deadlines[i].$1),
+               subtitle: Text(_deadlines[i].$2),
+               trailing: Text(_deadlines[i].$3),
+             ),
+           ],
+         ],
+       ),
+     );
+   }
+}
+
+class _PerformanceBarChartPainter extends CustomPainter {
+  final int excellentCount;
+  final int goodCount;
+  final int needsAttentionCount;
+
+  const _PerformanceBarChartPainter({
+    required this.excellentCount,
+    required this.goodCount,
+    required this.needsAttentionCount,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (excellentCount == 0 && goodCount == 0 && needsAttentionCount == 0) {
+      return;
+    }
+    final double width = size.width;
+    final double height = size.height;
+    final double padding = 20.0;
+    final double barWidth = (width - 2 * padding) / 3;
+    final int maxCount = max(excellentCount, max(goodCount, needsAttentionCount));
+    final double scale = (height - 2 * padding) / maxCount;
+
+    final Paint barPaint = Paint()..style = PaintingStyle.fill;
+
+    // Excellent bar
+    barPaint.color = Colors.green;
+    final double excellentHeight = excellentCount * scale;
+    canvas.drawRect(
+      Rect.fromLTWH(
+        padding,
+        height - padding - excellentHeight,
+        barWidth,
+        excellentHeight,
       ),
+      barPaint,
+    );
+
+    // Good bar
+    barPaint.color = Colors.orange;
+    final double goodHeight = goodCount * scale;
+    canvas.drawRect(
+      Rect.fromLTWH(
+        padding + barWidth,
+        height - padding - goodHeight,
+        barWidth,
+        goodHeight,
+      ),
+      barPaint,
+    );
+
+    // Needs Attention bar
+    barPaint.color = Colors.red;
+    final double needsHeight = needsAttentionCount * scale;
+    canvas.drawRect(
+      Rect.fromLTWH(
+        padding + 2 * barWidth,
+        height - padding - needsHeight,
+        barWidth,
+        needsHeight,
+      ),
+      barPaint,
     );
   }
 
-  Widget _scheduleCard() {
-    return AppCard(
-      heading: "Today's Schedule",
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          for (var i = 0; i < _schedule.length; i++) ...[
-            if (i > 0) const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColorsExtension.of(context).bgSecondary,
-                borderRadius: BorderRadius.circular(8),
-                border: Border(
-                  left: BorderSide(color: _schedule[i].$4, width: 4),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _schedule[i].$1,
-                        style: const TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      Text(
-                        _schedule[i].$2,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: AppColorsExtension.of(context).textSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Text(
-                    _schedule[i].$3,
-                    style: TextStyle(
-                      color: _schedule[i].$4,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _activityCard() {
-    return AppCard(
-      heading: 'Recent Activity',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          for (var i = 0; i < _activity.length; i++) ...[
-            if (i > 0) const Divider(height: 16),
-            ListTile(
-              leading: Icon(_activity[i].$1, color: AppColors.primary),
-              title: Text(_activity[i].$2),
-              subtitle: Text(_activity[i].$3),
-              trailing: const Icon(Icons.more_vert),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _deadlinesCard() {
-    return AppCard(
-      heading: 'Upcoming Deadlines',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          for (var i = 0; i < _deadlines.length; i++) ...[
-            if (i > 0) const Divider(height: 16),
-            ListTile(
-              leading: const Icon(Icons.event_available, color: AppColors.accent),
-              title: Text(_deadlines[i].$1),
-              subtitle: Text(_deadlines[i].$2),
-              trailing: Text(_deadlines[i].$3),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 class _PerformanceChartPainter extends CustomPainter {
