@@ -13,10 +13,11 @@ class AdminCreateUserScreen extends StatefulWidget {
 class _AdminCreateUserScreenState extends State<AdminCreateUserScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _usernameController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   final _emailController = TextEditingController();
-  final _phoneController = TextEditingController();
+  final _rollNumberController = TextEditingController();
+  final _mentorIdController = TextEditingController();
   String _selectedDepartment = '';
   String _selectedRole = 'student';
   bool _loading = false;
@@ -34,7 +35,8 @@ class _AdminCreateUserScreenState extends State<AdminCreateUserScreen> {
   @override
   void dispose() {
     _nameController.dispose();
-    _usernameController.dispose();
+    _rollNumberController.dispose();
+    _mentorIdController.dispose();
     _passwordController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
@@ -47,46 +49,39 @@ class _AdminCreateUserScreenState extends State<AdminCreateUserScreen> {
       _loading = true;
       _error = null;
     });
+    String userId;
+    String username;
+    String email;
+    if (_selectedRole == 'student') {
+      userId = _rollNumberController.text.trim();
+      email = _emailController.text.trim();
+      username = email; // login uses email as username
+    } else {
+      userId = _mentorIdController.text.trim();
+      email = _emailController.text.trim();
+      username = email; // login uses email as username
+    }
     final userData = {
-      'username': _usernameController.text.trim(),
+      'username': username,
       'password': _passwordController.text,
-      'email': _emailController.text.trim(),
+      'email': email,
       'full_name': _nameController.text.trim(),
       'phone': _phoneController.text.trim(),
       'department': _selectedDepartment,
       'user_type': _selectedRole,
+      'user_id': userId,
     };
-    if (_selectedRole == 'student') {
-      // Validate roll number format
-      final roll = _usernameController.text.trim();
-      if (!RegExp(r'^9536\d{8}$').hasMatch(roll)) {
-        setState(() {
-          _loading = false;
-          _error = 'Roll number must be in format 9536YYDDDNNN';
-        });
-        return;
-      }
-      userData['user_id'] = roll;
-    } else {
-      // mentor: use username as user_id
-      userData['user_id'] = _usernameController.text.trim();
-    }
     final error = await AuthService.instance.createUser(userData);
     if (!mounted) return;
     setState(() {
       _loading = false;
     });
     if (error == null) {
-      // clear form
-      _formKey.currentState!.reset();
-      setState(() {
-        _selectedRole = 'student';
-        _selectedDepartment = '';
-      });
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('User created successfully')),
       );
+      Navigator.of(context).pop(true); // return true to signal refresh needed
     } else {
       if (!mounted) return;
       setState(() {
@@ -121,24 +116,69 @@ class _AdminCreateUserScreenState extends State<AdminCreateUserScreen> {
                 },
               ),
               const SizedBox(height: 16),
+              if (_selectedRole == 'student')
+                TextFormField(
+                  controller: _rollNumberController,
+                  decoration: const InputDecoration(
+                    labelText: 'Roll Number',
+                    hintText: 'Enter 9536YYDDDNNN',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter roll number';
+                    }
+                    if (!RegExp(r'^9536\d{8}$').hasMatch(value)) {
+                      return 'Roll number must be in format 9536YYDDDNNN';
+                    }
+                    return null;
+                  },
+                ),
+              if (_selectedRole == 'mentor')
+                TextFormField(
+                  controller: _mentorIdController,
+                  decoration: const InputDecoration(
+                    labelText: 'Mentor ID',
+                    hintText: 'Enter mentor ID',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter mentor ID';
+                    }
+                    return null;
+                  },
+                ),
+              const SizedBox(height: 16),
               TextFormField(
-                controller: _usernameController,
-                decoration: InputDecoration(
-                  labelText: _selectedRole == 'student' ? 'Roll Number' : 'Mentor ID',
-                  hintText: _selectedRole == 'student'
-                      ? 'Enter 9536YYDDDNNN'
-                      : 'Enter mentor ID',
+                controller: _emailController,
+                decoration: const InputDecoration(
+                  labelText: 'Email (used for login)',
+                  hintText: 'e.g., student@ritrjpm.ac.in',
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter ${_selectedRole == 'student' ? 'roll number' : 'mentor ID'}';
+                    return 'Please enter email';
                   }
-                  if (_selectedRole == 'student' &&
-                      !RegExp(r'^9536\d{8}$').hasMatch(value)) {
-                    return 'Roll number must be in format 9536YYDDDNNN';
+                  if (!value.contains('@')) {
+                    return 'Please enter a valid email';
                   }
                   return null;
                 },
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _nameController,
+                decoration: const InputDecoration(labelText: 'Full Name'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter full name';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _phoneController,
+                decoration: const InputDecoration(labelText: 'Phone'),
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -151,37 +191,6 @@ class _AdminCreateUserScreenState extends State<AdminCreateUserScreen> {
                   }
                   if (value.length < 6) {
                     return 'Password must be at least 6 characters';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(labelText: 'Email'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter email';
-                  }
-                  // simple email check
-                  if (!value.contains('@')) {
-                    return 'Please enter a valid email';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _phoneController,
-                decoration: const InputDecoration(labelText: 'Phone'),
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Full Name'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter full name';
                   }
                   return null;
                 },
