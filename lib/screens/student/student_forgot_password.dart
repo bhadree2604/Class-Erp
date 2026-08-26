@@ -13,45 +13,28 @@ class StudentForgotPasswordScreen extends StatefulWidget {
 }
 
 class _StudentForgotPasswordScreenState extends State<StudentForgotPasswordScreen> {
-  final _studentIdCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
 
   @override
   void dispose() {
-    _studentIdCtrl.dispose();
     _emailCtrl.dispose();
     super.dispose();
   }
 
-  String? _validateStudentId(String id) {
-    if (id.isEmpty) {
-      return 'Please enter your Student ID';
-    }
-    // Expected format: 9536 + 2-digit year + 3-digit dept + 3-digit roll = 12 digits
-    final RegExp regExp = RegExp(r'^9536\d{8}$');
-    if (!regExp.hasMatch(id)) {
-      return 'Enter a valid Student ID in the format 9536YYDDDNNN';
-    }
-    return null;
-  }
+  
 
   void _handleReset() {
-    final studentId = _studentIdCtrl.text.trim();
     final email = _emailCtrl.text.trim();
-
-    final idError = _validateStudentId(studentId);
-    if (idError != null) {
+    if (email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(idError), behavior: SnackBarBehavior.floating),
+        const SnackBar(content: Text('Please enter your college email'), behavior: SnackBarBehavior.floating),
       );
       return;
     }
-    if (email.isEmpty) {
+    final emailRegExp = RegExp(r'^[\w\-]+@ritrjpm\.ac\.in$');
+    if (!emailRegExp.hasMatch(email)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter your email'),
-          behavior: SnackBarBehavior.floating,
-        ),
+        const SnackBar(content: Text('Enter a valid college email'), behavior: SnackBarBehavior.floating),
       );
       return;
     }
@@ -131,7 +114,7 @@ class _StudentForgotPasswordScreenState extends State<StudentForgotPasswordScree
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          'Enter your Student ID to receive password reset instructions',
+                          'Enter your college email to receive password reset instructions',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: AppColorsExtension.of(context).textSecondary,
@@ -139,27 +122,11 @@ class _StudentForgotPasswordScreenState extends State<StudentForgotPasswordScree
                           ),
                         ),
                         const SizedBox(height: 24),
+                        
                         Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            'Student ID',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: AppColorsExtension.of(context).textPrimary,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        TextField(
-                          controller: _studentIdCtrl,
-                          decoration: const InputDecoration(hintText: 'Enter your student ID'),
-                        ),
-                        const SizedBox(height: 16),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            'Email Address',
+                            'College Email',
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
                               color: AppColorsExtension.of(context).textPrimary,
@@ -171,7 +138,7 @@ class _StudentForgotPasswordScreenState extends State<StudentForgotPasswordScree
                         TextField(
                           controller: _emailCtrl,
                           keyboardType: TextInputType.emailAddress,
-                          decoration: const InputDecoration(hintText: 'Enter your registered email'),
+                          decoration: const InputDecoration(hintText: 'Enter your college email'),
                         ),
                         const SizedBox(height: 24),
                         SizedBox(

@@ -92,9 +92,9 @@ class AuthService {
         'students': [
           {
             'user_id': '953625104001',
-            'username': 'student',
+            'username': '953625104029@ritrjpm.ac.in',
             'password': 'student123',
-            'email': '9536YYDDDNNN.ritjpm.ac.in',
+            'email': '953625104029@ritrjpm.ac.in',
             'full_name': 'Bhadree',
             'phone': '9876543210',
             'department': 'Computer Science',
@@ -107,9 +107,9 @@ class AuthService {
         'mentors': [
           {
             'user_id': 'M2024001',
-            'username': 'mentor',
+            'username': 'maha@ritrjpm.ac.in',
             'password': 'mentor123',
-            'email': 'NAME@ritjpm.ac.in',
+            'email': 'maha@ritrjpm.ac.in',
             'full_name': 'Dr. Maha',
             'phone': '9876543211',
             'department': 'Computer Science',
@@ -123,7 +123,7 @@ class AuthService {
           {
             'user_id': 'A0001',
             'username': 'admin',
-            'password': 'admin123!',
+            'password': 'Admin123!',
             'email': 'admin@admin.com',
             'full_name': 'System Administrator',
             'phone': '0000000000',
