@@ -121,7 +121,6 @@ class _AdminCreateUserScreenState extends State<AdminCreateUserScreen> {
                   controller: _rollNumberController,
                   decoration: const InputDecoration(
                     labelText: 'Roll Number',
-                    hintText: 'Enter 9536YYDDDNNN',
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -152,7 +151,6 @@ class _AdminCreateUserScreenState extends State<AdminCreateUserScreen> {
                 controller: _emailController,
                 decoration: const InputDecoration(
                   labelText: 'Email (used for login)',
-                  hintText: 'e.g., student@ritrjpm.ac.in',
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {

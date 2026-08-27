@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app_routes.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'screens/admin/admin_create_user.dart';
 import 'screens/admin/admin_dashboard.dart';
 import 'screens/admin/admin_mentors.dart';
@@ -42,6 +44,7 @@ import 'theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await AuthService.instance.initialize();
   
   // DEBUG: Print users map to verify admin account exists
