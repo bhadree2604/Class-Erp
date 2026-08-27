@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:firebase_auth/firebase_auth.dart' as fb;
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class User {
@@ -74,6 +76,11 @@ class AuthService {
   static const _currentUserKey = 'current_user';
 
   SharedPreferences? _prefs;
+
+  /// Test-only overrides. When non-null, these replace the real
+  /// GoogleSignIn / FirebaseAuth calls so tests run without Firebase.
+  Future<dynamic> Function(fb.AuthCredential)? testSignInWithCredential;
+  Future<void> Function()? testSignOut;
 
   Future<SharedPreferences> get _store async =>
       _prefs ??= await SharedPreferences.getInstance();
@@ -281,6 +288,61 @@ class AuthService {
     final prefs = await _store;
     await prefs.setString(_usersKey, jsonEncode(users));
     return null;
+  }
+
+  /// Finds any existing account (student, mentor, or admin) whose stored
+  /// email matches [email] case-insensitively. Used by Google sign-in:
+  /// the Google account's email is matched against locally registered
+  /// accounts instead of creating a new one.
+  Future<User?> findUserByEmail(String email) async {
+    final target = email.trim().toLowerCase();
+    if (target.isEmpty) return null;
+    final users = await _loadUsersOrSeed();
+    for (final role in ['students', 'mentors', 'admins']) {
+      final list = (users[role] as List?) ?? const [];
+      for (final raw in list) {
+        final json = raw as Map<String, dynamic>;
+        if ((json['email'] as String? ?? '').trim().toLowerCase() == target) {
+          return User.fromJson({...json, 'user_type': role.substring(0, role.length - 1)});
+        }
+      }
+    }
+    return null;
+  }
+
+  /// Signs in with Google, then creates a Firebase Auth credential and
+  /// signs in via Firebase. Returns the verified Google email on success.
+  /// The caller must match the email against local accounts and call
+  /// [signOutFirebase] if no match is found.
+  Future<String> signInWithGoogle({
+    GoogleSignIn? googleSignIn,
+  }) async {
+    final gsi = googleSignIn ?? GoogleSignIn(scopes: ['email']);
+
+    final googleUser = await gsi.signIn();
+    if (googleUser == null) throw Exception('Google sign-in was cancelled.');
+
+    final googleAuth = await googleUser.authentication;
+    final credential = fb.GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    if (testSignInWithCredential != null) {
+      await testSignInWithCredential!(credential);
+    } else {
+      await fb.FirebaseAuth.instance.signInWithCredential(credential);
+    }
+    return googleUser.email;
+  }
+
+  /// Signs out the current Firebase Auth user without touching local state.
+  Future<void> signOutFirebase() async {
+    if (testSignOut != null) {
+      await testSignOut!();
+    } else {
+      await fb.FirebaseAuth.instance.signOut();
+    }
   }
 
   /// Verifies [currentPassword] for the logged-in user, then updates the
