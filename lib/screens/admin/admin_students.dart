@@ -234,7 +234,6 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
                     controller: _searchController,
                     decoration: InputDecoration(
                       labelText: 'Search by Roll Number or Name',
-                      hintText: 'Enter roll number (e.g., 104001) or name',
                       prefixIcon: const Icon(Icons.search),
                       suffixIcon: _hasQuery
                           ? IconButton(
