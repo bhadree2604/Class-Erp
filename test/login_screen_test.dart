@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:rit_erp/main.dart';
 import 'package:rit_erp/services/auth_service.dart';
+import 'package:rit_erp/screens/login_screen.dart';
 
 const _admin = {
   'user_id': 'A0001',

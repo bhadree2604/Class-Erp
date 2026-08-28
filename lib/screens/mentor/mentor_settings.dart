@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../app_routes.dart';
-import '../../main.dart';
 import '../../services/auth_service.dart';
 import '../../services/data_service.dart';
+import '../../services/preference_service.dart';
 import '../../theme.dart';
 import '../../widgets/app_card.dart';
 import '../../widgets/portal_scaffold.dart';
@@ -19,24 +18,17 @@ class MentorSettingsScreen extends StatefulWidget {
 
 class _MentorSettingsScreenState extends State<MentorSettingsScreen> {
   String _userName = 'Mentor';
-  String _mentorId = '';
   String _mentorEmail = '';
-  String _mentorPhone = '';
-  String _mentorDepartment = '';
-  String _mentorDesignation = '';
-  String _mentorQualification = '';
-  String _mentorExperience = '';
   bool _loading = true;
   final _currentPwdCtrl = TextEditingController();
   final _newPwdCtrl = TextEditingController();
   final _confirmPwdCtrl = TextEditingController();
 
-  bool _emailAlerts = true;
-  bool _emailMeetings = true;
-  bool _smsUrgent = false;
-  bool _weeklyReports = true;
-  bool _showProfile = true;
-  bool _allowScheduling = true;
+  NotificationPreferences _notifPrefs = NotificationPreferences(
+    emailEnabled: true,
+    pushEnabled: false,
+    newsletter: false,
+  );
 
   @override
   void initState() {
@@ -46,44 +38,43 @@ class _MentorSettingsScreenState extends State<MentorSettingsScreen> {
 
   @override
   void dispose() {
-    _currentPwdCtrl.dispose(); _newPwdCtrl.dispose(); _confirmPwdCtrl.dispose();
+    _currentPwdCtrl.dispose();
+    _newPwdCtrl.dispose();
+    _confirmPwdCtrl.dispose();
     super.dispose();
   }
 
   Future<void> _load() async {
     final user = await AuthService.instance.getCurrentUser();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferenceService.instance.getPreferences();
     if (!mounted) return;
     setState(() {
       _userName = user?.fullName ?? 'Mentor';
-      _mentorId = user?.userId ?? '';
       _mentorEmail = user?.email ?? '';
-      _mentorPhone = user?.phone ?? '';
-      _mentorDepartment = user?.department ?? '';
-      _mentorDesignation = user?.designation ?? '';
-      _mentorQualification = user?.qualification ?? '';
-      _mentorExperience = user?.experience ?? '';
-      _emailAlerts = prefs.getBool('mentor_notif_emailAlerts') ?? true;
-      _emailMeetings = prefs.getBool('mentor_notif_emailMeetings') ?? true;
-      _smsUrgent = prefs.getBool('mentor_notif_smsUrgent') ?? false;
-      _weeklyReports = prefs.getBool('mentor_notif_weeklyReports') ?? true;
-      _showProfile = prefs.getBool('mentor_privacy_showProfile') ?? true;
-      _allowScheduling = prefs.getBool('mentor_privacy_allowScheduling') ?? true;
+      _notifPrefs = prefs;
       _loading = false;
     });
   }
 
   Future<void> _changePassword() async {
-    if (_currentPwdCtrl.text.isEmpty || _newPwdCtrl.text.isEmpty || _confirmPwdCtrl.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please fill in all fields'), behavior: SnackBarBehavior.floating));
+    if (_currentPwdCtrl.text.isEmpty ||
+        _newPwdCtrl.text.isEmpty ||
+        _confirmPwdCtrl.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all fields'), behavior: SnackBarBehavior.floating),
+      );
       return;
     }
     if (_newPwdCtrl.text != _confirmPwdCtrl.text) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('New passwords do not match!'), behavior: SnackBarBehavior.floating));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('New passwords do not match!'), behavior: SnackBarBehavior.floating),
+      );
       return;
     }
     if (_newPwdCtrl.text.length < 6) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('New password must be at least 6 characters!'), behavior: SnackBarBehavior.floating));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('New password must be at least 6 characters!'), behavior: SnackBarBehavior.floating),
+      );
       return;
     }
     final error = await AuthService.instance.changePassword(
@@ -98,15 +89,19 @@ class _MentorSettingsScreenState extends State<MentorSettingsScreen> {
       }
       return;
     }
-    _currentPwdCtrl.clear(); _newPwdCtrl.clear(); _confirmPwdCtrl.clear();
+    _currentPwdCtrl.clear();
+    _newPwdCtrl.clear();
+    _confirmPwdCtrl.clear();
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Password updated successfully! Please login again.'), behavior: SnackBarBehavior.floating));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Password updated successfully! Please login again.'), behavior: SnackBarBehavior.floating),
+      );
     }
   }
 
-  Future<void> _savePref(String key, bool value) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(key, value);
+  Future<void> _updateNotifPrefs(NotificationPreferences updated) async {
+    await PreferenceService.instance.savePreferences(updated);
+    if (mounted) setState(() => _notifPrefs = updated);
   }
 
   Future<void> _exportData() async {
@@ -184,9 +179,6 @@ class _MentorSettingsScreenState extends State<MentorSettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final brightness = Theme.of(context).brightness;
-    final currentMode = brightness == Brightness.dark ? ThemeMode.dark : ThemeMode.light;
-
     return PortalScaffold(
       role: 'mentor',
       title: 'Settings',
@@ -199,194 +191,126 @@ class _MentorSettingsScreenState extends State<MentorSettingsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  AppCard(
-                    heading: 'Settings',
-                    padding: const EdgeInsets.all(24),
-                    child: Text('Manage your account settings and preferences', style: TextStyle(color: AppColorsExtension.of(context).textSecondary, fontSize: 14)),
+                  Text(
+                    'Settings',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: AppColorsExtension.of(context).textPrimary),
                   ),
-                  const SizedBox(height: 24),
-                  AppCard(
-                    heading: 'Backup & Restore',
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      children: [
-                        _actionRow(
-                          'Export All Data',
-                          'Save a complete backup of all app data (profiles, certificates, grades, attendance, etc.)',
-                          Icons.download,
-                          _exportData,
-                        ),
-                        const SizedBox(height: 12),
-                        _actionRow(
-                          'Import Data',
-                          'Restore from a previously exported backup file (OVERWRITES current data)',
-                          Icons.upload,
-                          _importData,
-                          isDestructive: true,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  AppCard(
-                    heading: 'Appearance',
-                    padding: const EdgeInsets.all(24),
-                    child: RadioGroup<ThemeMode>(
-                      groupValue: currentMode,
-                      onChanged: (value) {
-                        if (value != null) {
-                          MyClassApp.setThemeMode(value);
-                        }
-                      },
-                      child: Column(
-                        children: [
-                          _themeOption('Light', ThemeMode.light),
-                          _themeOption('Dark', ThemeMode.dark),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  AppCard(
-                    heading: 'Account Information',
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _infoRow('Mentor ID', _mentorId.isEmpty ? '—' : _mentorId),
-                        _infoRow('Name', _userName),
-                        _infoRow('Email', _mentorEmail.isEmpty ? '—' : _mentorEmail),
-                        _infoRow('Phone', _mentorPhone.isEmpty ? '—' : _mentorPhone),
-                        _infoRow('Department', _mentorDepartment.isEmpty ? '—' : _mentorDepartment),
-                        _infoRow('Designation', _mentorDesignation.isEmpty ? '—' : _mentorDesignation),
-                        _infoRow('Qualification', _mentorQualification.isEmpty ? '—' : _mentorQualification),
-                        _infoRow('Experience', _mentorExperience.isEmpty ? '—' : '${_mentorExperience} years'),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  AppCard(
-                    heading: 'Change Password',
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _label('Current Password'),
-                        TextField(controller: _currentPwdCtrl, obscureText: true, decoration: const InputDecoration(hintText: 'Current Password')),
-                        const SizedBox(height: 12),
-                        _label('New Password'),
-                        TextField(controller: _newPwdCtrl, obscureText: true, decoration: const InputDecoration(hintText: 'New Password')),
-                        const SizedBox(height: 12),
-                        _label('Confirm New Password'),
-                        TextField(controller: _confirmPwdCtrl, obscureText: true, decoration: const InputDecoration(hintText: 'Confirm New Password')),
-                        const SizedBox(height: 24),
-                        ElevatedButton(onPressed: _changePassword, child: const Text('Update Password')),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  AppCard(
-                    heading: 'Notification Preferences',
-                    padding: const EdgeInsets.all(24),
-                    child: Column(children: [
-                      _toggleRow('Email notifications for student alerts', _emailAlerts, (v) {
-                        setState(() => _emailAlerts = v);
-                        _savePref('mentor_notif_emailAlerts', v);
-                      }),
-                      _toggleRow('Email notifications for meeting reminders', _emailMeetings, (v) {
-                        setState(() => _emailMeetings = v);
-                        _savePref('mentor_notif_emailMeetings', v);
-                      }),
-                      _toggleRow('SMS notifications for urgent matters', _smsUrgent, (v) {
-                        setState(() => _smsUrgent = v);
-                        _savePref('mentor_notif_smsUrgent', v);
-                      }),
-                      _toggleRow('Weekly performance summary reports', _weeklyReports, (v) {
-                        setState(() => _weeklyReports = v);
-                        _savePref('mentor_notif_weeklyReports', v);
-                      }),
-                    ]),
-                  ),
-                  const SizedBox(height: 24),
-                  AppCard(
-                    heading: 'Privacy Settings',
-                    padding: const EdgeInsets.all(24),
-                    child: Column(children: [
-                      _toggleRow('Show my profile to students', _showProfile, (v) {
-                        setState(() => _showProfile = v);
-                        _savePref('mentor_privacy_showProfile', v);
-                      }),
-                      _toggleRow('Allow students to schedule meetings', _allowScheduling, (v) {
-                        setState(() => _allowScheduling = v);
-                        _savePref('mentor_privacy_allowScheduling', v);
-                      }),
-                    ]),
-                  ),
-                ],
-              ),
-            ),
-    );
-  }
-
-  Widget _themeOption(String label, ThemeMode mode) {
-    return RadioListTile<ThemeMode>(
-      title: Text(label),
-      value: mode,
-      activeColor: AppColors.primary,
-    );
-  }
-
-  Widget _infoRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(children: [
-        SizedBox(width: 160, child: Text('$label:', style: TextStyle(fontWeight: FontWeight.w600, color: AppColorsExtension.of(context).textPrimary))),
-        Expanded(child: Text(value, style: TextStyle(color: AppColorsExtension.of(context).textSecondary))),
-      ]),
-    );
-  }
-
-  Widget _toggleRow(String label, bool value, ValueChanged<bool> onChanged) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Expanded(child: Text(label, style: TextStyle(color: AppColorsExtension.of(context).textPrimary))),
-        Switch(value: value, onChanged: onChanged, activeThumbColor: AppColors.primary),
-      ]),
-    );
-  }
-
-  Widget _actionRow(String title, String subtitle, IconData icon, VoidCallback onTap, {bool isDestructive = false}) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          border: Border.all(color: isDestructive ? Colors.red.withValues(alpha: 0.3) : AppColorsExtension.of(context).bgTertiary),
-          borderRadius: BorderRadius.circular(12),
-          color: isDestructive ? Colors.red.withValues(alpha: 0.05) : AppColorsExtension.of(context).bgSecondary,
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: isDestructive ? Colors.red : AppColors.primary, size: 28),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: isDestructive ? Colors.red : AppColorsExtension.of(context).textPrimary)),
                   const SizedBox(height: 4),
-                  Text(subtitle, style: TextStyle(fontSize: 13, color: AppColorsExtension.of(context).textSecondary)),
+                  Text('Manage your account and preferences', style: TextStyle(color: AppColorsExtension.of(context).textSecondary)),
+                  const SizedBox(height: 24),
+
+                  AppCard(
+                    heading: 'Account',
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      children: [
+                        _buildSettingRow(Icons.person, 'Profile', () => Navigator.of(context).pushNamed(AppRoutes.mentorProfile)),
+                        const Divider(),
+                        _buildSettingRow(Icons.lock, 'Change Password', _changePassword),
+                        const Divider(),
+                        _buildSettingRow(Icons.email, 'Email: $_mentorEmail', null),
+                      ],
+                    ),
+                  ),
+
+                  AppCard(
+                    heading: 'Notifications',
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      children: [
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: const Text('Email notifications'),
+                          value: _notifPrefs.emailEnabled,
+                          onChanged: (v) => _updateNotifPrefs(_notifPrefs.copyWith(emailEnabled: v)),
+                          activeThumbColor: AppColors.primary,
+                        ),
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: const Text('Push notifications'),
+                          value: _notifPrefs.pushEnabled,
+                          onChanged: (v) => _updateNotifPrefs(_notifPrefs.copyWith(pushEnabled: v)),
+                          activeThumbColor: AppColors.primary,
+                        ),
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: const Text('Newsletter'),
+                          value: _notifPrefs.newsletter,
+                          onChanged: (v) => _updateNotifPrefs(_notifPrefs.copyWith(newsletter: v)),
+                          activeThumbColor: AppColors.primary,
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  AppCard(
+                    heading: 'Data Management',
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      children: [
+                        _buildSettingRow(Icons.download, 'Export Data', _exportData),
+                        const Divider(),
+                        _buildSettingRow(Icons.upload, 'Import Data', _importData),
+                      ],
+                    ),
+                  ),
+
+                  AppCard(
+                    heading: 'About & Support',
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      children: [
+                        _buildSettingRow(Icons.info, 'About', () => showDialog(
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                title: const Text('About'),
+                                content: const Text('RIT ERP App\nVersion 1.0.0+1'),
+                                actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))],
+                              ),
+                            )),
+                        const Divider(),
+                        _buildSettingRow(Icons.help, 'Help & Support', () => showDialog(
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                title: const Text('Help & Support'),
+                                content: const Text('Contact support@rit.edu'),
+                                actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))],
+                              ),
+                            )),
+                        const Divider(),
+                        _buildSettingRow(Icons.description, 'Version 1.0.0+1', null),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () async {
+                      await AuthService.instance.logout();
+                      if (mounted) {
+                        Navigator.of(context).pushReplacementNamed(AppRoutes.login);
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.redAccent,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    child: const Text('Logout'),
+                  ),
                 ],
               ),
             ),
-            Icon(Icons.chevron_right, color: AppColorsExtension.of(context).textLight),
-          ],
-        ),
-      ),
     );
   }
 
-  Widget _label(String t) => Padding(padding: const EdgeInsets.only(bottom: 6), child: Text(t, style: TextStyle(fontWeight: FontWeight.w600, color: AppColorsExtension.of(context).textPrimary)));
+  Widget _buildSettingRow(IconData icon, String title, VoidCallback? onTap) {
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: Icon(icon, color: AppColorsExtension.of(context).textPrimary),
+      title: Text(title, style: TextStyle(color: AppColorsExtension.of(context).textPrimary)),
+      trailing: onTap != null ? Icon(Icons.chevron_right, color: AppColorsExtension.of(context).textLight) : null,
+      onTap: onTap ?? () {},
+    );
+  }
 }

@@ -191,7 +191,7 @@ class MyClassAppState extends State<MyClassApp> {
         return MediaQuery(
           data: mediaQuery.copyWith(
             textScaler: TextScaler.linear(
-              mediaQuery.textScaler.scale(1.0).clamp(0.8, 1.2),
+              mediaQuery.textScaler.scale(1.0).clamp(0.8, 1.2).toDouble(),
             ),
           ),
           child: child ?? const SizedBox.shrink(),

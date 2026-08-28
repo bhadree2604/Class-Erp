@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../app_routes.dart';
-import '../../main.dart';
 import '../../services/auth_service.dart';
 import '../../services/data_service.dart';
+import '../../services/preference_service.dart';
 import '../../theme.dart';
 import '../../widgets/app_card.dart';
 import '../../widgets/portal_scaffold.dart';
 
-/// Student settings — mirror of `student/settings.html`.
 class StudentSettingsScreen extends StatefulWidget {
   const StudentSettingsScreen({super.key});
 
@@ -20,17 +18,17 @@ class StudentSettingsScreen extends StatefulWidget {
 
 class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
   String _userName = 'Student';
+  String _userEmail = '';
   bool _loading = true;
-
   final _currentPwdCtrl = TextEditingController();
   final _newPwdCtrl = TextEditingController();
   final _confirmPwdCtrl = TextEditingController();
 
-  bool _emailGrades = true;
-  bool _smsAttendance = false;
-  bool _announcements = true;
-  bool _showProfile = true;
-  bool _allowContact = false;
+  NotificationPreferences _notifPrefs = NotificationPreferences(
+    emailEnabled: true,
+    pushEnabled: false,
+    newsletter: false,
+  );
 
   @override
   void initState() {
@@ -48,15 +46,12 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
 
   Future<void> _load() async {
     final user = await AuthService.instance.getCurrentUser();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await PreferenceService.instance.getPreferences();
     if (!mounted) return;
     setState(() {
       _userName = user?.fullName ?? 'Student';
-      _emailGrades = prefs.getBool('stud_notif_emailGrades') ?? true;
-      _smsAttendance = prefs.getBool('stud_notif_smsAttendance') ?? false;
-      _announcements = prefs.getBool('stud_notif_announcements') ?? true;
-      _showProfile = prefs.getBool('stud_privacy_showProfile') ?? true;
-      _allowContact = prefs.getBool('stud_privacy_allowContact') ?? false;
+      _userEmail = user?.email ?? '';
+      _notifPrefs = prefs;
       _loading = false;
     });
   }
@@ -104,9 +99,9 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
     }
   }
 
-  Future<void> _saveNotificationPref(String key, bool value) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(key, value);
+  Future<void> _updateNotifPrefs(NotificationPreferences updated) async {
+    await PreferenceService.instance.savePreferences(updated);
+    if (mounted) setState(() => _notifPrefs = updated);
   }
 
   Future<void> _exportData() async {
@@ -128,8 +123,6 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
   }
 
   Future<void> _importData() async {
-    // For now, we'll use a simple text input dialog
-    // In a real app, you'd use file_picker to select a file
     final controller = TextEditingController();
     final confirmed = await showDialog<bool>(
       context: context,
@@ -172,7 +165,6 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Imported $count data keys successfully!'), behavior: SnackBarBehavior.floating),
           );
-          // Reload settings
           _load();
         }
       } catch (e) {
@@ -187,9 +179,6 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final brightness = Theme.of(context).brightness;
-    final currentMode = brightness == Brightness.dark ? ThemeMode.dark : ThemeMode.light;
-
     return PortalScaffold(
       role: 'student',
       title: 'Settings',
@@ -202,180 +191,126 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  AppCard(
-                    heading: 'Settings',
-                    padding: const EdgeInsets.all(24),
-                    child: Text(
-                      'Manage your account settings and preferences',
-                      style: TextStyle(color: AppColorsExtension.of(context).textSecondary, fontSize: 14),
-                    ),
+                  Text(
+                    'Settings',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: AppColorsExtension.of(context).textPrimary),
                   ),
-                  const SizedBox(height: 24),
-                  AppCard(
-                    heading: 'Backup & Restore',
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      children: [
-                        _actionRow(
-                          'Export All Data',
-                          'Save a complete backup of all app data (profiles, certificates, grades, attendance, etc.)',
-                          Icons.download,
-                          _exportData,
-                        ),
-                        const SizedBox(height: 12),
-                        _actionRow(
-                          'Import Data',
-                          'Restore from a previously exported backup file (OVERWRITES current data)',
-                          Icons.upload,
-                          _importData,
-                          isDestructive: true,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  AppCard(
-                    heading: 'Appearance',
-                    padding: const EdgeInsets.all(24),
-                    child: RadioGroup<ThemeMode>(
-                      groupValue: currentMode,
-                      onChanged: (value) {
-                        if (value != null) {
-                          MyClassApp.setThemeMode(value);
-                        }
-                      },
-                      child: Column(
-                        children: [
-                          _themeOption('Light', ThemeMode.light),
-                          _themeOption('Dark', ThemeMode.dark),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  AppCard(
-                    heading: 'Account Settings',
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _fieldLabel('Current Password'),
-                        TextField(controller: _currentPwdCtrl, obscureText: true, decoration: const InputDecoration(hintText: 'Current Password')),
-                        const SizedBox(height: 12),
-                        _fieldLabel('New Password'),
-                        TextField(controller: _newPwdCtrl, obscureText: true, decoration: const InputDecoration(hintText: 'New Password')),
-                        const SizedBox(height: 12),
-                        _fieldLabel('Confirm New Password'),
-                        TextField(controller: _confirmPwdCtrl, obscureText: true, decoration: const InputDecoration(hintText: 'Confirm New Password')),
-                        const SizedBox(height: 24),
-                        ElevatedButton(
-                          onPressed: _changePassword,
-                          child: const Text('Update Password'),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  AppCard(
-                    heading: 'Notification Preferences',
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      children: [
-                        _toggleRow('Email notifications for grades', _emailGrades, (v) {
-                          setState(() => _emailGrades = v);
-                          _saveNotificationPref('stud_notif_emailGrades', v);
-                        }),
-                        _toggleRow('SMS notifications for attendance', _smsAttendance, (v) {
-                          setState(() => _smsAttendance = v);
-                          _saveNotificationPref('stud_notif_smsAttendance', v);
-                        }),
-                        _toggleRow('Announcement notifications', _announcements, (v) {
-                          setState(() => _announcements = v);
-                          _saveNotificationPref('stud_notif_announcements', v);
-                        }),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  AppCard(
-                    heading: 'Privacy Settings',
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      children: [
-                        _toggleRow('Show profile to other students', _showProfile, (v) {
-                          setState(() => _showProfile = v);
-                          _saveNotificationPref('stud_privacy_showProfile', v);
-                        }),
-                        _toggleRow('Allow contact from faculty', _allowContact, (v) {
-                          setState(() => _allowContact = v);
-                          _saveNotificationPref('stud_privacy_allowContact', v);
-                        }),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-    );
-  }
-
-  Widget _themeOption(String label, ThemeMode mode) {
-    return RadioListTile<ThemeMode>(
-      title: Text(label),
-      value: mode,
-      activeColor: AppColors.primary,
-    );
-  }
-
-  Widget _toggleRow(String label, bool value, ValueChanged<bool> onChanged) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(child: Text(label, style: TextStyle(color: AppColorsExtension.of(context).textPrimary))),
-          Switch(value: value, onChanged: onChanged, activeThumbColor: AppColors.primary),
-        ],
-      ),
-    );
-  }
-
-  Widget _actionRow(String title, String subtitle, IconData icon, VoidCallback onTap, {bool isDestructive = false}) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          border: Border.all(color: isDestructive ? Colors.red.withValues(alpha: 0.3) : AppColorsExtension.of(context).bgTertiary),
-          borderRadius: BorderRadius.circular(12),
-          color: isDestructive ? Colors.red.withValues(alpha: 0.05) : AppColorsExtension.of(context).bgSecondary,
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: isDestructive ? Colors.red : AppColors.primary, size: 28),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: isDestructive ? Colors.red : AppColorsExtension.of(context).textPrimary)),
                   const SizedBox(height: 4),
-                  Text(subtitle, style: TextStyle(fontSize: 13, color: AppColorsExtension.of(context).textSecondary)),
+                  Text('Manage your account and preferences', style: TextStyle(color: AppColorsExtension.of(context).textSecondary)),
+                  const SizedBox(height: 24),
+
+                  AppCard(
+                    heading: 'Account',
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      children: [
+                        _buildSettingRow(Icons.person, 'Profile', () => Navigator.of(context).pushNamed(AppRoutes.studentProfile)),
+                        const Divider(),
+                        _buildSettingRow(Icons.lock, 'Change Password', _changePassword),
+                        const Divider(),
+                        _buildSettingRow(Icons.email, 'Email: $_userEmail', null),
+                      ],
+                    ),
+                  ),
+
+                  AppCard(
+                    heading: 'Notifications',
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      children: [
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: const Text('Email notifications for grades'),
+                          value: _notifPrefs.emailEnabled,
+                          onChanged: (v) => _updateNotifPrefs(_notifPrefs.copyWith(emailEnabled: v)),
+                          activeThumbColor: AppColors.primary,
+                        ),
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: const Text('Push notifications'),
+                          value: _notifPrefs.pushEnabled,
+                          onChanged: (v) => _updateNotifPrefs(_notifPrefs.copyWith(pushEnabled: v)),
+                          activeThumbColor: AppColors.primary,
+                        ),
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: const Text('Newsletter'),
+                          value: _notifPrefs.newsletter,
+                          onChanged: (v) => _updateNotifPrefs(_notifPrefs.copyWith(newsletter: v)),
+                          activeThumbColor: AppColors.primary,
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  AppCard(
+                    heading: 'Data Management',
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      children: [
+                        _buildSettingRow(Icons.download, 'Export Data', _exportData),
+                        const Divider(),
+                        _buildSettingRow(Icons.upload, 'Import Data', _importData),
+                      ],
+                    ),
+                  ),
+
+                  AppCard(
+                    heading: 'About & Support',
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      children: [
+                        _buildSettingRow(Icons.info, 'About', () => showDialog(
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                title: const Text('About'),
+                                content: const Text('RIT ERP App\nVersion 1.0.0+1'),
+                                actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))],
+                              ),
+                            )),
+                        const Divider(),
+                        _buildSettingRow(Icons.help, 'Help & Support', () => showDialog(
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                title: const Text('Help & Support'),
+                                content: const Text('Contact support@rit.edu'),
+                                actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))],
+                              ),
+                            )),
+                        const Divider(),
+                        _buildSettingRow(Icons.description, 'Version 1.0.0+1', null),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () async {
+                      await AuthService.instance.logout();
+                      if (mounted) {
+                        Navigator.of(context).pushReplacementNamed(AppRoutes.login);
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.redAccent,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    child: const Text('Logout'),
+                  ),
                 ],
               ),
             ),
-            Icon(Icons.chevron_right, color: AppColorsExtension.of(context).textLight),
-          ],
-        ),
-      ),
     );
   }
 
-  Widget _fieldLabel(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Text(text, style: TextStyle(fontWeight: FontWeight.w600, color: AppColorsExtension.of(context).textPrimary)),
+  Widget _buildSettingRow(IconData icon, String title, VoidCallback? onTap) {
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: Icon(icon, color: AppColorsExtension.of(context).textPrimary),
+      title: Text(title, style: TextStyle(color: AppColorsExtension.of(context).textPrimary)),
+      trailing: onTap != null ? Icon(Icons.chevron_right, color: AppColorsExtension.of(context).textLight) : null,
+      onTap: onTap ?? () {},
     );
   }
 }

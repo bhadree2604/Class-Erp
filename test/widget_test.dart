@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:rit_erp/main.dart';
+import 'package:rit_erp/screens/login_screen.dart';
 
 void main() {
   testWidgets('Landing screen shows login elements', (WidgetTester tester) async {

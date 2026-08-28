@@ -7,6 +7,7 @@ import '../../services/data_service.dart';
 import '../../theme.dart';
 import '../../widgets/app_card.dart';
 import '../../widgets/portal_scaffold.dart';
+import 'package:file_picker/file_picker.dart';
 
 /// Student certificates — view only.
 class StudentCertificatesScreen extends StatefulWidget {
@@ -47,6 +48,79 @@ class _StudentCertificatesScreenState extends State<StudentCertificatesScreen> {
     });
   }
 
+  Future<void> _pickAndUploadCertificate() async {
+    final List<PlatformFile> files = await FilePicker.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+    );
+    if (files.isEmpty) return;
+    // For simplicity, we'll upload placeholder certificate data.
+    // In a real app, you would store the file and extract metadata.
+    final user = await AuthService.instance.getCurrentUser();
+    if (user == null) return;
+    // Prompt for certificate details (simple dialog)
+    String title = '';
+    String description = '';
+    String category = '';
+    await showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Upload Certificate'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              decoration: InputDecoration(labelText: 'Title'),
+              onChanged: (v) => title = v,
+            ),
+            TextField(
+              decoration: InputDecoration(labelText: 'Description'),
+              onChanged: (v) => description = v,
+            ),
+            TextField(
+              decoration: InputDecoration(labelText: 'Category'),
+              onChanged: (v) => category = v,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text('Cancel')),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text('Upload'),
+          ),
+        ],
+      ),
+    );
+    if (title.isEmpty) return;
+    final cert = Certificate(
+      id: DateTime.now().millisecondsSinceEpoch,
+      title: title,
+      description: description,
+      category: category,
+      issuedBy: user.fullName,
+      date: DateTime.now().toIso8601String(),
+      uploadedBy: user.userId,
+      uploadedAt: DateTime.now().toIso8601String(),
+      dateIssued: DateTime.now().toIso8601String(),
+    );
+    try {
+      await DataService.instance.addCertificate(user.userId, cert);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Certificate uploaded successfully!')),
+        );
+        _load(); // refresh list
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to upload: $e')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return PortalScaffold(
@@ -74,7 +148,13 @@ class _StudentCertificatesScreenState extends State<StudentCertificatesScreen> {
                     'View certificates issued by your mentor',
                     style: TextStyle(color: AppColorsExtension.of(context).textSecondary),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 8),
+                   ElevatedButton.icon(
+                     icon: Icon(Icons.upload),
+                     label: Text('Upload Certificate'),
+                     onPressed: _pickAndUploadCertificate,
+                   ),
+                   const SizedBox(height: 24),
                   if (_certificates.isEmpty)
                     AppCard(
                       child: Column(

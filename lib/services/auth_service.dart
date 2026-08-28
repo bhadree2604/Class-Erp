@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:rit_erp/services/preference_service.dart';
 
 class User {
   final String userId;
@@ -110,6 +111,7 @@ class AuthService {
         ],
       };
       await prefs.setString(_usersKey, jsonEncode(users));
+    await PreferenceService.instance.initPreferences();
       await prefs.setBool(_usersInitializedKey, true);
     }
   }
@@ -149,6 +151,7 @@ class AuthService {
       if (json['username'] == username && json['password'] == password) {
         final user = User.fromJson({...json, 'user_type': 'student'});
         await saveCurrentUser(user);
+    await PreferenceService.instance.initPreferences();
         return user;
       }
     }
@@ -159,6 +162,7 @@ class AuthService {
       if (json['username'] == username && json['password'] == password) {
         final user = User.fromJson({...json, 'user_type': 'mentor'});
         await saveCurrentUser(user);
+    await PreferenceService.instance.initPreferences();
         return user;
       }
     }
@@ -169,6 +173,7 @@ class AuthService {
       if (json['username'] == username && json['password'] == password) {
         final user = User.fromJson({...json, 'user_type': 'admin'});
         await saveCurrentUser(user);
+    await PreferenceService.instance.initPreferences();
         return user;
       }
     }
@@ -216,6 +221,7 @@ class AuthService {
     users[listName] = list;
     final prefs = await _store;
     await prefs.setString(_usersKey, jsonEncode(users));
+    await PreferenceService.instance.initPreferences();
     return null;
   }
 
@@ -265,6 +271,7 @@ class AuthService {
     }
     final prefs = await _store;
     await prefs.setString(_usersKey, jsonEncode(users));
+    await PreferenceService.instance.initPreferences();
     return null;
   }
 
@@ -287,6 +294,7 @@ class AuthService {
     }
     final prefs = await _store;
     await prefs.setString(_usersKey, jsonEncode(users));
+    await PreferenceService.instance.initPreferences();
     return null;
   }
 
@@ -341,14 +349,19 @@ class AuthService {
     const adminSpecialEmail = 'bhadree.rs@gmail.com';
     const adminLookupEmail = 'admin@admin.com';
 
-    final gsi = googleSignIn ?? GoogleSignIn(scopes: ['email']);
+    final gsi = googleSignIn ?? GoogleSignIn.instance;
+    if (gsi == GoogleSignIn.instance) {
+      await GoogleSignIn.instance.initialize();
+    }
 
-    final googleUser = await gsi.signIn();
-    if (googleUser == null) throw Exception('Google sign-in was cancelled.');
+    final googleUser = await gsi.authenticate();
 
-    final googleAuth = await googleUser.authentication;
+    final googleAuth = googleUser.authentication;
+    // In google_sign_in v7, accessToken is obtained via the authorization client.
+    final clientAuth =
+        await googleUser.authorizationClient.authorizationForScopes(['email']);
     final credential = fb.GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
+      accessToken: clientAuth?.accessToken,
       idToken: googleAuth.idToken,
     );
 
@@ -458,6 +471,7 @@ class AuthService {
 
     final prefs = await _store;
     await prefs.setString(_usersKey, jsonEncode(users));
+    await PreferenceService.instance.initPreferences();
 
     final updatedUser = User(
       userId: currentUser.userId,
@@ -497,6 +511,7 @@ class AuthService {
 
     final prefs = await _store;
     await prefs.setString(_usersKey, jsonEncode(users));
+    await PreferenceService.instance.initPreferences();
 
     final updatedJson = {...currentUser.toJson(), ...fields};
     await saveCurrentUser(User.fromJson(updatedJson));
