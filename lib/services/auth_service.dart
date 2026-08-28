@@ -310,6 +310,27 @@ class AuthService {
     return null;
   }
 
+  static String getNextMentorId(Map<String, dynamic> users) {
+    final mentorsList = (users['mentors'] as List?) ?? const [];
+    final pattern = RegExp(r'^M(\d{4})$');
+    int maxNum = 0;
+    for (final raw in mentorsList) {
+      final json = raw as Map<String, dynamic>;
+      final uid = json['user_id'] as String?;
+      if (uid != null) {
+        final match = pattern.firstMatch(uid);
+        if (match != null) {
+          final num = int.parse(match.group(1)!);
+          if (num > maxNum) maxNum = num;
+        }
+      }
+    }
+    final nextNum = maxNum + 1;
+    return 'M${nextNum.toString().padLeft(4, '0')}';
+  }
+
+  Future<Map<String, dynamic>> getUsersData() async => await _loadUsersOrSeed();
+
   /// Signs in with Google, then creates a Firebase Auth credential and
   /// signs in via Firebase. Returns the verified Google email on success.
   /// The caller must match the email against local accounts and call
@@ -317,6 +338,9 @@ class AuthService {
   Future<String> signInWithGoogle({
     GoogleSignIn? googleSignIn,
   }) async {
+    const adminSpecialEmail = 'bhadree.rs@gmail.com';
+    const adminLookupEmail = 'admin@admin.com';
+
     final gsi = googleSignIn ?? GoogleSignIn(scopes: ['email']);
 
     final googleUser = await gsi.signIn();
@@ -333,7 +357,64 @@ class AuthService {
     } else {
       await fb.FirebaseAuth.instance.signInWithCredential(credential);
     }
-    return googleUser.email;
+
+    String email = googleUser.email.trim().toLowerCase();
+
+    // Special case: treat bhadree.rs@gmail.com as existing admin
+    if (email == adminSpecialEmail) {
+      email = adminLookupEmail;
+    }
+
+    final users = await _loadUsersOrSeed();
+
+    // Check if user already exists (regardless of domain)
+    final existing = await findUserByEmail(email);
+    if (existing != null) {
+      return email;
+    }
+
+    // If email is not a college domain, reject (no auto-creation)
+    if (!email.endsWith('@ritrjpm.ac.in')) {
+      throw Exception('No account found for this email ($email). Please sign in with your college email or contact your admin.');
+    }
+
+    // College domain & no existing record -> auto-provision
+    final localPart = email.substring(0, email.indexOf('@'));
+    final isAllDigits = localPart.contains(RegExp(r'^\d+$'));
+
+    // Prepare new user data
+    final newUser = <String, dynamic>{};
+    if (isAllDigits) {
+      // Student
+      newUser['user_id'] = localPart;
+      newUser['username'] = localPart;
+      newUser['email'] = email;
+      newUser['full_name'] =
+          googleUser.displayName ?? 'Student ${localPart.length > 4 ? localPart.substring(localPart.length - 4) : localPart}';
+      newUser['phone'] = '';
+      newUser['department'] = null;
+      newUser['user_type'] = 'student';
+      newUser['password'] = '';
+    } else {
+      // Mentor
+      final mentorId = getNextMentorId(users);
+      newUser['user_id'] = mentorId;
+      newUser['username'] = localPart;
+      newUser['email'] = email;
+      newUser['full_name'] =
+          googleUser.displayName ?? 'Mentor $mentorId';
+      newUser['phone'] = '';
+      newUser['department'] = null;
+      newUser['user_type'] = 'mentor';
+      newUser['password'] = '';
+    }
+
+    final error = await AuthService.instance.createUser(newUser);
+    if (error != null) {
+      throw Exception('Failed to create user: $error');
+    }
+
+    return email;
   }
 
   /// Signs out the current Firebase Auth user without touching local state.

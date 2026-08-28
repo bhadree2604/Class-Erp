@@ -241,13 +241,14 @@ void main() {
     await tester.pumpAndSettle();
 
     // Student is the default role. Form field order:
-    // [roll, email, name, phone, password].
+    // [email, name, phone, password].
     final fields = find.byType(TextFormField);
-    await tester.enterText(fields.at(0), '953625104012');
-    await tester.enterText(fields.at(1), 'anita@ritrjpm.ac.in');
-    await tester.enterText(fields.at(2), 'Anita Rani');
-    await tester.enterText(fields.at(3), '9876511111');
-    await tester.enterText(fields.at(4), 'secret123');
+    // Use an email whose local-part is all digits so the auto-generated
+    // student ID matches the digits.
+    await tester.enterText(fields.at(0), '953625104012@ritrjpm.ac.in');
+    await tester.enterText(fields.at(1), 'Anita Rani');
+    await tester.enterText(fields.at(2), '9876511111');
+    await tester.enterText(fields.at(3), 'secret123');
 
     // Department dropdown is the second dropdown on the form.
     await tester.tap(find.byType(DropdownButtonFormField<String>).at(1));
@@ -273,9 +274,10 @@ void main() {
 
     // Real values entered at creation (name 3x: list row + dialog title +
     // detail row; email 2x: login email + email rows).
+    // The student user_id is derived from the email local-part.
     expect(find.text('953625104012'), findsOneWidget);
     expect(find.text('Anita Rani'), findsNWidgets(3));
-    expect(find.text('anita@ritrjpm.ac.in'), findsNWidgets(2));
+    expect(find.text('953625104012@ritrjpm.ac.in'), findsNWidgets(2));
     expect(find.text('9876511111'), findsOneWidget);
     expect(find.text('Computer Science'), findsOneWidget);
     // No academic profile exists yet — dialog honestly shows stored
@@ -312,19 +314,19 @@ void main() {
     addTearDown(() => tester.binding.setSurfaceSize(null));
     await tester.pumpAndSettle();
 
-    // Switch role to Mentor; roll field is replaced by Mentor ID.
+    // Switch role to Mentor; no manual mentor ID field — ID is auto-generated.
     await tester.tap(find.byType(DropdownButtonFormField<String>).at(0));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Mentor').last);
     await tester.pumpAndSettle();
 
-    // Field order now: [mentorId, email, name, phone, password].
+    // Field order now: [email, name, phone, password].
     final fields = find.byType(TextFormField);
-    await tester.enterText(fields.at(0), 'M2026001');
-    await tester.enterText(fields.at(1), 'suresh@ritrjpm.ac.in');
-    await tester.enterText(fields.at(2), 'Suresh Babu');
-    await tester.enterText(fields.at(3), '9876522222');
-    await tester.enterText(fields.at(4), 'mentor123');
+    // Use an email whose local-part contains letters so it's treated as a mentor.
+    await tester.enterText(fields.at(0), 'suresh@ritrjpm.ac.in');
+    await tester.enterText(fields.at(1), 'Suresh Babu');
+    await tester.enterText(fields.at(2), '9876522222');
+    await tester.enterText(fields.at(3), 'mentor123');
 
     await tester.tap(find.byType(DropdownButtonFormField<String>).at(1));
     await tester.pumpAndSettle();
@@ -346,7 +348,8 @@ void main() {
     await tester.pumpAndSettle();
 
     // Real values from the record the create flow wrote.
-    expect(find.text('M2026001'), findsOneWidget);
+    // Mentor user_id is auto-generated; with empty mentors list the first ID is M0001.
+    expect(find.text('M0001'), findsOneWidget);
     expect(find.text('Suresh Babu'), findsNWidgets(3));
     expect(find.text('suresh@ritrjpm.ac.in'), findsNWidgets(2));
     expect(find.text('9876522222'), findsOneWidget);
