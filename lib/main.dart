@@ -44,9 +44,9 @@ import 'theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await AuthService.instance.initialize();
-  
+
   // DEBUG: Print users map to verify admin account exists
   final prefs = await SharedPreferences.getInstance();
   final raw = prefs.getString('college_erp_users');
@@ -55,15 +55,33 @@ void main() async {
     print(raw);
     print('==========================================');
   }
-  
+
   await DataService.instance.initialize();
-  runApp(MyClassApp(key: myAppKey));
+  // Check for existing session
+  final currentUser = await AuthService.instance.getCurrentUser();
+  Widget startPage;
+  if (currentUser != null) {
+    if (currentUser.isStudent) {
+      startPage = const StudentDashboardScreen();
+    } else if (currentUser.isMentor) {
+      startPage = const MentorDashboardScreen();
+    } else if (currentUser.isAdmin) {
+      startPage = const AdminDashboardScreen();
+    } else {
+      startPage = const LoginScreen();
+    }
+  } else {
+    startPage = const LoginScreen();
+  }
+  runApp(MyClassApp(startPage: startPage, key: myAppKey));
 }
 
 final GlobalKey<MyClassAppState> myAppKey = GlobalKey<MyClassAppState>();
 
 class MyClassApp extends StatefulWidget {
-  const MyClassApp({super.key});
+  final Widget startPage;
+
+  const MyClassApp({Key? key, required this.startPage}) : super(key: key);
 
   static void setThemeMode(ThemeMode mode) {
     myAppKey.currentState?.setThemeMode(mode);
@@ -176,7 +194,7 @@ class MyClassAppState extends State<MyClassApp> {
               mediaQuery.textScaler.scale(1.0).clamp(0.8, 1.2),
             ),
           ),
-          child: child!,
+          child: child ?? const SizedBox.shrink(),
         );
       },
     );
