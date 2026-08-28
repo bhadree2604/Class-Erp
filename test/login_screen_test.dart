@@ -75,7 +75,7 @@ void _mockGoogleChannel(WidgetTester tester, {String? email}) {
 }
 
 // Use the real app so all dashboard routes exist for post-login navigation.
-Widget _wrap() => MyClassApp(key: myAppKey);
+Widget _wrap() => MyClassApp(startPage: const LoginScreen(), key: myAppKey);
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

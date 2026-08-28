@@ -4,7 +4,7 @@ import 'package:rit_erp/main.dart';
 
 void main() {
   testWidgets('Landing screen shows login elements', (WidgetTester tester) async {
-    await tester.pumpWidget(MyClassApp(key: myAppKey));
+    await tester.pumpWidget(MyClassApp(startPage: const LoginScreen(), key: myAppKey));
 
     expect(find.text('Login'), findsOneWidget);
     expect(find.text('Please login to continue'), findsOneWidget);
