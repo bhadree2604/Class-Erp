@@ -1,11 +1,11 @@
 {
-    \"name\": \"RIT ERP\",
-    \"short_name\": \"RIT ERP\",
+    "name": "Classify",
+    "short_name": "Classify",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    \"description\": \"RIT ERP - Student and Mentor Portal\",
+    "description": "RIT ERP - Student and Mentor Portal",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

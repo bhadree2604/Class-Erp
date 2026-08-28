@@ -136,202 +136,210 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _bg,
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 420),
-              child: Container(
-                padding: const EdgeInsets.all(28),
-                decoration: BoxDecoration(
-                  color: _card,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: _border),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black45,
-                      blurRadius: 40,
-                      offset: Offset(0, 12),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: Image.asset(
-                        'assets/rit_logo.jpg',
-                        width: 72,
-                        height: 72,
-                        fit: BoxFit.cover,
+      body: Container(
+        decoration: BoxDecoration(
+          color: _bg,
+          image: const DecorationImage(
+            image: AssetImage('assets/rit_clg_photo.jpg'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 420),
+                child: Container(
+                  padding: const EdgeInsets.all(28),
+                  decoration: BoxDecoration(
+                    color: _card,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: _border),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black45,
+                        blurRadius: 40,
+                        offset: Offset(0, 12),
                       ),
-                    ),
-                    const SizedBox(height: 14),
-                    const Text(
-                      'Login',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: _lightText,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    const Text(
-                      'Please login to continue',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: _mutedText, fontSize: 14),
-                    ),
-                    const SizedBox(height: 28),
-
-                    // ---- Continue with Google ----
-                    SizedBox(
-                      height: 52,
-                      child: ElevatedButton.icon(
-                        onPressed:
-                            (_loading || _googleLoading) ? null : _handleGoogleSignIn,
-                        icon: _googleLoading
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2),
-                              )
-                            : const _GoogleGLogo(size: 20),
-                        label: const Text(
-                          'Continue with Google',
-                          style: TextStyle(
-                            color: Color(0xFF1F2937),
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: const Color(0xFF1F2937),
-                          disabledBackgroundColor: Colors.white70,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 20),
-                    _buildDivider(),
-                    const SizedBox(height: 20),
-
-                    if (_error != null) ...[
-                      _buildErrorBox(_error!),
-                      const SizedBox(height: 16),
                     ],
-
-                    // ---- Email / Password ----
-                    _buildField(
-                      controller: _usernameController,
-                      label: 'Email',
-                      hint: 'Enter your college email',
-                      obscure: false,
-                      icon: Icons.mail_outline,
-                    ),
-                    const SizedBox(height: 16),
-                    _buildField(
-                      controller: _passwordController,
-                      label: 'Password',
-                      hint: 'Enter your password',
-                      obscure: _obscurePassword,
-                      icon: Icons.lock_outline,
-                      suffix: IconButton(
-                        tooltip: _obscurePassword
-                            ? 'Show password'
-                            : 'Hide password',
-                        onPressed: () => setState(
-                            () => _obscurePassword = !_obscurePassword),
-                        icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
-                          color: _mutedText,
-                          size: 20,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.asset(
+                          'assets/rit_logo.jpg',
+                          width: 72,
+                          height: 72,
+                          fit: BoxFit.contain,
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 24),
+                      const SizedBox(height: 14),
+                      const Text(
+                        'Login',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: _lightText,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      const Text(
+                        'Please login to continue',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: _mutedText, fontSize: 14),
+                      ),
+                      const SizedBox(height: 28),
 
-                    // ---- Sign in ----
-                    SizedBox(
-                      height: 52,
-                      child: ElevatedButton(
+                      // ---- Continue with Google ----
+                      SizedBox(
+                        height: 52,
+                        child: ElevatedButton.icon(
+                          onPressed:
+                              (_loading || _googleLoading) ? null : _handleGoogleSignIn,
+                          icon: _googleLoading
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              : const _GoogleGLogo(size: 20),
+                          label: const Text(
+                            'Continue with Google',
+                            style: TextStyle(
+                              color: Color(0xFF1F2937),
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: const Color(0xFF1F2937),
+                            disabledBackgroundColor: Colors.white70,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+                      _buildDivider(),
+                      const SizedBox(height: 20),
+
+                      if (_error != null) ...[
+                        _buildErrorBox(_error!),
+                        const SizedBox(height: 16),
+                      ],
+
+                      // ---- Email / Password ----
+                      _buildField(
+                        controller: _usernameController,
+                        label: 'Email',
+                        hint: 'Enter your college email',
+                        obscure: false,
+                        icon: Icons.mail_outline,
+                      ),
+                      const SizedBox(height: 16),
+                      _buildField(
+                        controller: _passwordController,
+                        label: 'Password',
+                        hint: 'Enter your password',
+                        obscure: _obscurePassword,
+                        icon: Icons.lock_outline,
+                        suffix: IconButton(
+                          tooltip: _obscurePassword
+                              ? 'Show password'
+                              : 'Hide password',
+                          onPressed: () => setState(
+                              () => _obscurePassword = !_obscurePassword),
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                            color: _mutedText,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      // ---- Sign in ----
+                      SizedBox(
+                        height: 52,
+                        child: ElevatedButton(
+                          onPressed: (_loading || _googleLoading)
+                              ? null
+                              : _handleLogin,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: const Color(0xFF111827),
+                            disabledBackgroundColor: Colors.white70,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            textStyle: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          child: _loading
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              : const Text('Sign in'),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      TextButton(
                         onPressed: (_loading || _googleLoading)
                             ? null
-                            : _handleLogin,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: const Color(0xFF111827),
-                          disabledBackgroundColor: Colors.white70,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          textStyle: const TextStyle(
+                            : () => _showRoleChoiceDialog(
+                                  context,
+                                  'Forgot Password?',
+                                  'Are you a Student or Mentor?',
+                                  onStudent: () =>
+                                      Navigator.of(context).pushNamed(AppRoutes.studentForgotPassword),
+                                  onMentor: () =>
+                                      Navigator.of(context).pushNamed(AppRoutes.mentorForgotPassword),
+                                ),
+                        child: const Text(
+                          'Forgot Password?',
+                          style: TextStyle(color: _mutedText),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: (_loading || _googleLoading)
+                            ? null
+                            : () => _showRoleChoiceDialog(
+                                  context,
+                                  'Create Account',
+                                  'Are you a Student or Mentor?',
+                                  onStudent: () =>
+                                      Navigator.of(context).pushNamed(AppRoutes.studentCreateAccount),
+                                  onMentor: () =>
+                                      Navigator.of(context).pushNamed(AppRoutes.mentorCreateAccount),
+                                ),
+                        child: const Text(
+                          'Create Account',
+                          style: TextStyle(
+                            color: Color(0xFF60A5FA),
                             fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                            letterSpacing: 0.5,
                           ),
                         ),
-                        child: _loading
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2),
-                              )
-                            : const Text('Sign in'),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    TextButton(
-                      onPressed: (_loading || _googleLoading)
-                          ? null
-                          : () => _showRoleChoiceDialog(
-                                context,
-                                'Forgot Password?',
-                                'Are you a Student or Mentor?',
-                                onStudent: () =>
-                                    Navigator.of(context).pushNamed(AppRoutes.studentForgotPassword),
-                                onMentor: () =>
-                                    Navigator.of(context).pushNamed(AppRoutes.mentorForgotPassword),
-                              ),
-                      child: const Text(
-                        'Forgot Password?',
-                        style: TextStyle(color: _mutedText),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: (_loading || _googleLoading)
-                          ? null
-                          : () => _showRoleChoiceDialog(
-                                context,
-                                'Create Account',
-                                'Are you a Student or Mentor?',
-                                onStudent: () =>
-                                    Navigator.of(context).pushNamed(AppRoutes.studentCreateAccount),
-                                onMentor: () =>
-                                    Navigator.of(context).pushNamed(AppRoutes.mentorCreateAccount),
-                              ),
-                      child: const Text(
-                        'Create Account',
-                        style: TextStyle(
-                          color: Color(0xFF60A5FA),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
