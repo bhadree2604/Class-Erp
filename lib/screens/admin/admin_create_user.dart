@@ -16,8 +16,6 @@ class _AdminCreateUserScreenState extends State<AdminCreateUserScreen> {
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   final _emailController = TextEditingController();
-  final _rollNumberController = TextEditingController();
-  final _mentorIdController = TextEditingController();
   String _selectedDepartment = '';
   String _selectedRole = 'student';
   bool _loading = false;
@@ -35,11 +33,9 @@ class _AdminCreateUserScreenState extends State<AdminCreateUserScreen> {
   @override
   void dispose() {
     _nameController.dispose();
-    _rollNumberController.dispose();
-    _mentorIdController.dispose();
+    _phoneController.dispose();
     _passwordController.dispose();
     _emailController.dispose();
-    _phoneController.dispose();
     super.dispose();
   }
 
@@ -51,16 +47,35 @@ class _AdminCreateUserScreenState extends State<AdminCreateUserScreen> {
     });
     String userId;
     String username;
-    String email;
+    String email = _emailController.text.trim();
+
+    if (email.isEmpty) {
+      setState(() {
+        _loading = false;
+        _error = 'Please enter email';
+      });
+      return;
+    }
+
     if (_selectedRole == 'student') {
-      userId = _rollNumberController.text.trim();
-      email = _emailController.text.trim();
+      final localPart = email.substring(0, email.indexOf('@'));
+      if (!RegExp(r'^\d+$').hasMatch(localPart)) {
+        setState(() {
+          _loading = false;
+          _error = 'Student email must contain only numbers before @';
+        });
+        return;
+      }
+      userId = localPart;
       username = email; // login uses email as username
     } else {
-      userId = _mentorIdController.text.trim();
-      email = _emailController.text.trim();
+      // mentor
+      final users = await AuthService.instance.getUsersData();
+      final mentorId = AuthService.getNextMentorId(users);
+      userId = mentorId;
       username = email; // login uses email as username
     }
+
     final userData = {
       'username': username,
       'password': _passwordController.text,
@@ -115,37 +130,6 @@ class _AdminCreateUserScreenState extends State<AdminCreateUserScreen> {
                   });
                 },
               ),
-              const SizedBox(height: 16),
-              if (_selectedRole == 'student')
-                TextFormField(
-                  controller: _rollNumberController,
-                  decoration: const InputDecoration(
-                    labelText: 'Roll Number',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter roll number';
-                    }
-                    if (!RegExp(r'^9536\d{8}$').hasMatch(value)) {
-                      return 'Roll number must be in format 9536YYDDDNNN';
-                    }
-                    return null;
-                  },
-                ),
-              if (_selectedRole == 'mentor')
-                TextFormField(
-                  controller: _mentorIdController,
-                  decoration: const InputDecoration(
-                    labelText: 'Mentor ID',
-                    hintText: 'Enter mentor ID',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter mentor ID';
-                    }
-                    return null;
-                  },
-                ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _emailController,
