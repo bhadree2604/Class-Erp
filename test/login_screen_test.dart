@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 import 'package:rit_erp/main.dart';
 import 'package:rit_erp/services/auth_service.dart';
@@ -22,7 +23,7 @@ const _admin = {
 
 /// Single live prefs instance shared by every test (services cache their
 /// SharedPreferences forever; cache the RESOLVED instance, never the
-/// Future — awaiting a Future from an earlier FakeAsync zone deadlocks).
+/// Future â€” awaiting a Future from an earlier FakeAsync zone deadlocks).
 SharedPreferences? _livePrefs;
 
 Future<void> _seedStorage(Map<String, dynamic> users) async {
@@ -80,6 +81,7 @@ Widget _wrap() => MyClassApp(startPage: const LoginScreen(), key: myAppKey);
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  Firebase.initializeApp();
 
   tearDown(() {
     TestWidgetsFlutterBinding.instance.defaultBinaryMessenger
