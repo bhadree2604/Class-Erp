@@ -1,0 +1,44 @@
+name: rit_erp
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  shared_preferences: ^2.5.5
+  share_plus: ^13.3.0
+  google_sign_in: ^7.2.0
+  firebase_core: ^4.14.0
+  firebase_auth: ^6.6.1
+  cloud_firestore: ^6.9.0
+  file_picker: ^12.1.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/rit_logo.jpg
+    - assets/rit_logo_padded.jpg
+    - assets/rit_clg_photo.jpg
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/rit_logo_padded.jpg"
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/rit_logo_padded.jpg"
+  min_sdk_android: 21
