@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:rit_erp/services/auth_service.dart';
 
 class PreferenceService {
   PreferenceService._internal();
@@ -8,11 +9,8 @@ class PreferenceService {
   static PreferenceService get instance => _instance;
   factory PreferenceService() => _instance;
 
-  FirebaseFirestore? _firestore;
-  FirebaseAuth? _auth;
-
-  FirebaseFirestore get _fs => _firestore ??= FirebaseFirestore.instance;
-  FirebaseAuth get _authInstance => _auth ??= FirebaseAuth.instance;
+  FirebaseFirestore get _fs => AuthService.firestoreOverride ?? FirebaseFirestore.instance;
+  FirebaseAuth get _authInstance => AuthService.authOverride ?? FirebaseAuth.instance;
 
   NotificationPreferences _defaults() => NotificationPreferences(
         emailEnabled: true,

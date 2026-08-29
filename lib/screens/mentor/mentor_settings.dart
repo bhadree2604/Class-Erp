@@ -177,6 +177,30 @@ class _MentorSettingsScreenState extends State<MentorSettingsScreen> {
     }
   }
 
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(32, 24, 32, 8),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          color: AppColorsExtension.of(context).textPrimary,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSettingRow(IconData icon, String title, VoidCallback? onTap) {
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: Icon(icon, color: AppColorsExtension.of(context).textPrimary),
+      title: Text(title, style: TextStyle(color: AppColorsExtension.of(context).textPrimary)),
+      trailing: onTap != null ? Icon(Icons.chevron_right, color: AppColorsExtension.of(context).textLight) : null,
+      onTap: onTap ?? () {},
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return PortalScaffold(
@@ -186,105 +210,97 @@ class _MentorSettingsScreenState extends State<MentorSettingsScreen> {
       currentRoute: AppRoutes.mentorSettings,
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(32),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    'Settings',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: AppColorsExtension.of(context).textPrimary),
+          : ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                _buildSectionTitle('Account'),
+                AppCard(
+                  heading: '',
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    children: [
+                      _buildSettingRow(Icons.person, 'Profile', () => Navigator.of(context).pushNamed(AppRoutes.mentorProfile)),
+                      const Divider(),
+                      _buildSettingRow(Icons.lock, 'Change Password', _changePassword),
+                      const Divider(),
+                      _buildSettingRow(Icons.email, 'Email: $_mentorEmail', null),
+                    ],
                   ),
-                  const SizedBox(height: 4),
-                  Text('Manage your account and preferences', style: TextStyle(color: AppColorsExtension.of(context).textSecondary)),
-                  const SizedBox(height: 24),
-
-                  AppCard(
-                    heading: 'Account',
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      children: [
-                        _buildSettingRow(Icons.person, 'Profile', () => Navigator.of(context).pushNamed(AppRoutes.mentorProfile)),
-                        const Divider(),
-                        _buildSettingRow(Icons.lock, 'Change Password', _changePassword),
-                        const Divider(),
-                        _buildSettingRow(Icons.email, 'Email: $_mentorEmail', null),
-                      ],
-                    ),
+                ),
+                _buildSectionTitle('Notifications'),
+                AppCard(
+                  heading: '',
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    children: [
+                      SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text('Email notifications'),
+                        value: _notifPrefs.emailEnabled,
+                        onChanged: (v) => _updateNotifPrefs(_notifPrefs.copyWith(emailEnabled: v)),
+                        activeThumbColor: AppColors.primary,
+                      ),
+                      SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text('Push notifications'),
+                        value: _notifPrefs.pushEnabled,
+                        onChanged: (v) => _updateNotifPrefs(_notifPrefs.copyWith(pushEnabled: v)),
+                        activeThumbColor: AppColors.primary,
+                      ),
+                      SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text('Newsletter'),
+                        value: _notifPrefs.newsletter,
+                        onChanged: (v) => _updateNotifPrefs(_notifPrefs.copyWith(newsletter: v)),
+                        activeThumbColor: AppColors.primary,
+                      ),
+                    ],
                   ),
-
-                  AppCard(
-                    heading: 'Notifications',
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      children: [
-                        SwitchListTile(
-                          contentPadding: EdgeInsets.zero,
-                          title: const Text('Email notifications'),
-                          value: _notifPrefs.emailEnabled,
-                          onChanged: (v) => _updateNotifPrefs(_notifPrefs.copyWith(emailEnabled: v)),
-                          activeThumbColor: AppColors.primary,
-                        ),
-                        SwitchListTile(
-                          contentPadding: EdgeInsets.zero,
-                          title: const Text('Push notifications'),
-                          value: _notifPrefs.pushEnabled,
-                          onChanged: (v) => _updateNotifPrefs(_notifPrefs.copyWith(pushEnabled: v)),
-                          activeThumbColor: AppColors.primary,
-                        ),
-                        SwitchListTile(
-                          contentPadding: EdgeInsets.zero,
-                          title: const Text('Newsletter'),
-                          value: _notifPrefs.newsletter,
-                          onChanged: (v) => _updateNotifPrefs(_notifPrefs.copyWith(newsletter: v)),
-                          activeThumbColor: AppColors.primary,
-                        ),
-                      ],
-                    ),
+                ),
+                _buildSectionTitle('Data Management'),
+                AppCard(
+                  heading: '',
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    children: [
+                      _buildSettingRow(Icons.download, 'Export Data', _exportData),
+                      const Divider(),
+                      _buildSettingRow(Icons.upload, 'Import Data', _importData),
+                    ],
                   ),
-
-                  AppCard(
-                    heading: 'Data Management',
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      children: [
-                        _buildSettingRow(Icons.download, 'Export Data', _exportData),
-                        const Divider(),
-                        _buildSettingRow(Icons.upload, 'Import Data', _importData),
-                      ],
-                    ),
+                ),
+                _buildSectionTitle('About & Support'),
+                AppCard(
+                  heading: '',
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    children: [
+                      _buildSettingRow(Icons.info, 'About', () => showDialog(
+                            context: context,
+                            builder: (_) => AlertDialog(
+                              title: const Text('About'),
+                              content: const Text('RIT ERP App\nVersion 1.0.0+1'),
+                              actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))],
+                            ),
+                          )),
+                      const Divider(),
+                      _buildSettingRow(Icons.help, 'Help & Support', () => showDialog(
+                            context: context,
+                            builder: (_) => AlertDialog(
+                              title: const Text('Help & Support'),
+                              content: const Text('Contact support@rit.edu'),
+                              actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))],
+                            ),
+                          )),
+                      const Divider(),
+                      _buildSettingRow(Icons.description, 'Version 1.0.0+1', null),
+                    ],
                   ),
-
-                  AppCard(
-                    heading: 'About & Support',
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      children: [
-                        _buildSettingRow(Icons.info, 'About', () => showDialog(
-                              context: context,
-                              builder: (_) => AlertDialog(
-                                title: const Text('About'),
-                                content: const Text('RIT ERP App\nVersion 1.0.0+1'),
-                                actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))],
-                              ),
-                            )),
-                        const Divider(),
-                        _buildSettingRow(Icons.help, 'Help & Support', () => showDialog(
-                              context: context,
-                              builder: (_) => AlertDialog(
-                                title: const Text('Help & Support'),
-                                content: const Text('Contact support@rit.edu'),
-                                actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))],
-                              ),
-                            )),
-                        const Divider(),
-                        _buildSettingRow(Icons.description, 'Version 1.0.0+1', null),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
-                  ElevatedButton(
+                ),
+                const SizedBox(height: 24),
+                Align(
+                  alignment: Alignment.center,
+                  child: ElevatedButton(
                     onPressed: () async {
                       await AuthService.instance.logout();
                       if (mounted) {
@@ -298,19 +314,10 @@ class _MentorSettingsScreenState extends State<MentorSettingsScreen> {
                     ),
                     child: const Text('Logout'),
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 24),
+              ],
             ),
-    );
-  }
-
-  Widget _buildSettingRow(IconData icon, String title, VoidCallback? onTap) {
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      leading: Icon(icon, color: AppColorsExtension.of(context).textPrimary),
-      title: Text(title, style: TextStyle(color: AppColorsExtension.of(context).textPrimary)),
-      trailing: onTap != null ? Icon(Icons.chevron_right, color: AppColorsExtension.of(context).textLight) : null,
-      onTap: onTap ?? () {},
     );
   }
 }
