@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:rit_erp/services/preference_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class User {
   final String userId;
@@ -76,6 +77,12 @@ class AuthService {
   static const _usersInitializedKey = 'users_initialized';
   static const _currentUserKey = 'current_user';
 
+  // Test overrides
+  static fb.FirebaseAuth? authOverride;
+  static FirebaseFirestore? firestoreOverride;
+
+  static fb.FirebaseAuth get _fbAuth => authOverride ?? fb.FirebaseAuth.instance;
+
   SharedPreferences? _prefs;
 
   /// Test-only overrides. When non-null, these replace the real
@@ -111,7 +118,7 @@ class AuthService {
         ],
       };
       await prefs.setString(_usersKey, jsonEncode(users));
-    await PreferenceService.instance.initPreferences();
+      await PreferenceService.instance.initPreferences();
       await prefs.setBool(_usersInitializedKey, true);
     }
   }
@@ -151,7 +158,7 @@ class AuthService {
       if (json['username'] == username && json['password'] == password) {
         final user = User.fromJson({...json, 'user_type': 'student'});
         await saveCurrentUser(user);
-    await PreferenceService.instance.initPreferences();
+        await PreferenceService.instance.initPreferences();
         return user;
       }
     }
@@ -162,7 +169,7 @@ class AuthService {
       if (json['username'] == username && json['password'] == password) {
         final user = User.fromJson({...json, 'user_type': 'mentor'});
         await saveCurrentUser(user);
-    await PreferenceService.instance.initPreferences();
+        await PreferenceService.instance.initPreferences();
         return user;
       }
     }
@@ -173,7 +180,7 @@ class AuthService {
       if (json['username'] == username && json['password'] == password) {
         final user = User.fromJson({...json, 'user_type': 'admin'});
         await saveCurrentUser(user);
-    await PreferenceService.instance.initPreferences();
+        await PreferenceService.instance.initPreferences();
         return user;
       }
     }
@@ -324,7 +331,7 @@ class AuthService {
     int maxNum = 0;
     for (final raw in mentorsList) {
       final json = raw as Map<String, dynamic>;
-      final uid = json['user_id'] as String?;
+      final String? uid = json['user_id'] as String?;
       if (uid != null) {
         final match = pattern.firstMatch(uid);
         if (match != null) {
@@ -343,9 +350,7 @@ class AuthService {
   /// signs in via Firebase. Returns the verified Google email on success.
   /// The caller must match the email against local accounts and call
   /// [signOutFirebase] if no match is found.
-  Future<String> signInWithGoogle({
-    GoogleSignIn? googleSignIn,
-  }) async {
+  Future<String> signInWithGoogle({GoogleSignIn? googleSignIn}) async {
     const adminSpecialEmail = 'bhadree.rs@gmail.com';
     const adminLookupEmail = 'admin@admin.com';
 
@@ -368,7 +373,7 @@ class AuthService {
     if (testSignInWithCredential != null) {
       await testSignInWithCredential!(credential);
     } else {
-      await fb.FirebaseAuth.instance.signInWithCredential(credential);
+      await _fbAuth.signInWithCredential(credential);
     }
 
     String email = googleUser.email.trim().toLowerCase();
@@ -435,7 +440,7 @@ class AuthService {
     if (testSignOut != null) {
       await testSignOut!();
     } else {
-      await fb.FirebaseAuth.instance.signOut();
+      await _fbAuth.signOut();
     }
   }
 
