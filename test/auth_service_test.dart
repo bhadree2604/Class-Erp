@@ -1,12 +1,21 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
+import 'package:mockito/mockito.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:convert';
-import '../lib/services/auth_service.dart';
+import 'package:rit_erp/services/auth_service.dart';
+
+class MockFirebaseFirestore extends Mock implements FirebaseFirestore {}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() async {
+    // Mock Firebase services
+    AuthService.authOverride = MockFirebaseAuth();
+    AuthService.firestoreOverride = MockFirebaseFirestore();
     // Set up mock users - only admin
     final mockUsers = {
       'students': <dynamic>[],
@@ -31,6 +40,12 @@ void main() {
     // Clear shared preferences before each test
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
+  });
+
+  tearDown(() {
+    // Clear overrides after each test
+    AuthService.authOverride = null;
+    AuthService.firestoreOverride = null;
   });
 
   test('login admin', () async {
