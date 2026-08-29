@@ -76,19 +76,46 @@ class _LoginScreenState extends State<LoginScreen> {
       _error = null;
     });
 
-    final user = await AuthService.instance.login(username, password);
-
-    if (!mounted) return;
-
-    if (user == null) {
+    // Check if email exists in local DB
+    final userExists = await AuthService.instance.findUserByEmail(username);
+    if (userExists == null) {
+      // No local account with this email
+      if (!mounted) return;
       setState(() {
         _loading = false;
-        _error = 'Wrong username or password.';
+        _error = 'No account found for this email.';
       });
       return;
     }
 
-    _navigateAs(user);
+    // Email exists, try login with password
+    final user = await AuthService.instance.login(username, password);
+    if (!mounted) return;
+    if (user == null) {
+      // Password is wrong
+      try {
+        await FirebaseAuth.instance.sendPasswordResetEmail(email: username);
+        setState(() {
+          _loading = false;
+          _error = 'Incorrect password. A password reset link has been sent to your email.';
+        });
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'user-not-found') {
+          setState(() {
+            _loading = false;
+            _error = 'Incorrect password. No Firebase user found for this email.';
+          });
+        } else {
+          setState(() {
+            _loading = false;
+            _error = 'Incorrect password. Failed to send reset email: ${e.message}';
+          });
+        }
+      }
+    } else {
+      // Login successful
+      _navigateAs(user);
+    }
   }
 
   /// Firebase-backed Google sign-in: authenticates via Google + Firebase Auth,
@@ -172,8 +199,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         borderRadius: BorderRadius.circular(10),
                         child: Image.asset(
                           'assets/rit_logo.jpg',
-                          width: 72,
-                          height: 72,
+                          width: 100,
+                          height: 100,
                           fit: BoxFit.contain,
                         ),
                       ),
@@ -318,26 +345,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           style: TextStyle(color: _mutedText),
                         ),
                       ),
-                      TextButton(
-                        onPressed: (_loading || _googleLoading)
-                            ? null
-                            : () => _showRoleChoiceDialog(
-                                  context,
-                                  'Create Account',
-                                  'Are you a Student or Mentor?',
-                                  onStudent: () =>
-                                      Navigator.of(context).pushNamed(AppRoutes.studentCreateAccount),
-                                  onMentor: () =>
-                                      Navigator.of(context).pushNamed(AppRoutes.mentorCreateAccount),
-                                ),
-                        child: const Text(
-                          'Create Account',
-                          style: TextStyle(
-                            color: Color(0xFF60A5FA),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
+                      
                     ],
                   ),
                 ),
