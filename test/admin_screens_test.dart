@@ -3,12 +3,18 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
+import 'package:mockito/mockito.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:rit_erp/screens/admin/admin_create_user.dart';
 import 'package:rit_erp/screens/admin/admin_mentors.dart';
 import 'package:rit_erp/screens/admin/admin_students.dart';
 import 'package:rit_erp/services/auth_service.dart';
 import 'package:rit_erp/theme.dart';
+
+class MockFirebaseFirestore extends Mock implements FirebaseFirestore {}
 
 const _admin = {
   'user_id': 'A0001',
@@ -58,6 +64,9 @@ const _studentProfile = {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  // Mock Firebase services
+  AuthService.authOverride = MockFirebaseAuth();
+  AuthService.firestoreOverride = MockFirebaseFirestore();
 
   Widget wrap(Widget child) =>
       MaterialApp(theme: AppTheme.light, home: child);
@@ -222,7 +231,7 @@ void main() {
     });
 
     // Route stack so Navigator.pop(true) after creation lands somewhere.
-    // NOTE: keep everything in ONE tree — after a pop, pumpWidget with a
+    // NOTE: keep everything in ONE tree â€” after a pop, pumpWidget with a
     // fresh root fails to replace the tree (flutter_test quirk), so the
     // list screen is reached via pushNamed below instead.
     await tester.pumpWidget(MaterialApp(
@@ -280,7 +289,7 @@ void main() {
     expect(find.text('953625104012@ritrjpm.ac.in'), findsNWidgets(2));
     expect(find.text('9876511111'), findsOneWidget);
     expect(find.text('Computer Science'), findsOneWidget);
-    // No academic profile exists yet — dialog honestly shows stored
+    // No academic profile exists yet â€” dialog honestly shows stored
     // defaults (0% attendance / 0.00 CGPA+GPA), not fake numbers.
     expect(find.text('0%'), findsOneWidget);
     expect(find.text('0.00'), findsNWidgets(2));
@@ -314,7 +323,7 @@ void main() {
     addTearDown(() => tester.binding.setSurfaceSize(null));
     await tester.pumpAndSettle();
 
-    // Switch role to Mentor; no manual mentor ID field — ID is auto-generated.
+    // Switch role to Mentor; no manual mentor ID field â€” ID is auto-generated.
     await tester.tap(find.byType(DropdownButtonFormField<String>).at(0));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Mentor').last);
@@ -357,5 +366,11 @@ void main() {
 
     await tester.tap(find.text('Close'));
     await tester.pumpAndSettle();
+  });
+
+  tearDown(() {
+    // Reset overrides with fresh mocks so every test gets a working mock
+    AuthService.authOverride = MockFirebaseAuth();
+    AuthService.firestoreOverride = MockFirebaseFirestore();
   });
 }
