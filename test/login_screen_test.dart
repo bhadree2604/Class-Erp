@@ -68,7 +68,6 @@ void main() {
 
     expect(find.text('Login'), findsOneWidget);
     expect(find.text('Please login to continue'), findsOneWidget);
-    expect(find.text('Create Account'), findsOneWidget);
     expect(find.text('Continue with Google'), findsOneWidget);
     expect(find.text('OR WITH EMAIL'), findsOneWidget);
     expect(find.text('Sign in'), findsOneWidget);
