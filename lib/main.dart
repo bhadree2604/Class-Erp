@@ -11,7 +11,6 @@ import 'screens/admin/admin_students.dart';
 import 'screens/login_screen.dart';
 import 'screens/mentor/mentor_certificates.dart';
 import 'screens/mentor/mentor_courses.dart';
-import 'screens/mentor/mentor_create_account.dart';
 import 'screens/mentor/mentor_dashboard.dart';
 import 'screens/mentor/mentor_events.dart';
 import 'screens/mentor/mentor_grades.dart';
@@ -28,7 +27,6 @@ import 'screens/mentor/mentor_students.dart';
 import 'screens/student/student_attendance.dart';
 import 'screens/student/student_certificates.dart';
 import 'screens/student/student_courses.dart';
-import 'screens/student/student_create_account.dart';
 import 'screens/student/student_dashboard.dart';
 import 'screens/student/student_events.dart';
 import 'screens/student/student_forgot_password.dart';
@@ -162,7 +160,6 @@ class MyClassAppState extends State<MyClassApp> {
         AppRoutes.studentProfileEdit: (_) => const StudentProfileEditScreen(),
         AppRoutes.studentSettings: (_) => const StudentSettingsScreen(),
         AppRoutes.studentForgotPassword: (_) => const StudentForgotPasswordScreen(),
-        AppRoutes.studentCreateAccount: (_) => const StudentCreateAccountScreen(),
         // Mentor portal
         AppRoutes.mentorDashboard: (_) => const MentorDashboardScreen(),
         AppRoutes.mentorStudents: (_) => const MentorStudentsScreen(),
@@ -179,7 +176,6 @@ class MyClassAppState extends State<MyClassApp> {
         AppRoutes.mentorProfileEdit: (_) => const MentorProfileEditScreen(),
         AppRoutes.mentorSettings: (_) => const MentorSettingsScreen(),
         AppRoutes.mentorForgotPassword: (_) => const MentorForgotPasswordScreen(),
-        AppRoutes.mentorCreateAccount: (_) => const MentorCreateAccountScreen(),
         // Admin portal
         AppRoutes.adminDashboard: (_) => const AdminDashboardScreen(),
         AppRoutes.adminStudents: (_) => const AdminStudentsScreen(),

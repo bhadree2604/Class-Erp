@@ -166,15 +166,7 @@ class _MentorForgotPasswordScreenState extends State<MentorForgotPasswordScreen>
                                   Navigator.of(context).pushReplacementNamed(AppRoutes.login),
                               child: const Text('Back to Login'),
                             ),
-                            Text(
-                              ' | ',
-                              style: TextStyle(color: AppColorsExtension.of(context).textSecondary),
-                            ),
-                            TextButton(
-                              onPressed: () =>
-                                  Navigator.of(context).pushReplacementNamed(AppRoutes.mentorCreateAccount),
-                              child: const Text('Create Account'),
-                            ),
+
                           ],
                         ),
                       ],
