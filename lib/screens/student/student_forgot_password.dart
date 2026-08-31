@@ -169,15 +169,7 @@ class _StudentForgotPasswordScreenState extends State<StudentForgotPasswordScree
                                   Navigator.of(context).pushReplacementNamed(AppRoutes.login),
                               child: const Text('Back to Login'),
                             ),
-                            Text(
-                              ' | ',
-                              style: TextStyle(color: AppColorsExtension.of(context).textSecondary),
-                            ),
-                            TextButton(
-                              onPressed: () =>
-                                  Navigator.of(context).pushReplacementNamed(AppRoutes.studentCreateAccount),
-                              child: const Text('Create Account'),
-                            ),
+
                           ],
                         ),
                       ],
