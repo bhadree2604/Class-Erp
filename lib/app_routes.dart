@@ -18,8 +18,6 @@ class AppRoutes {
   static const studentProfileEdit = '/student/profile-edit';
   static const studentSettings = '/student/settings';
   static const studentForgotPassword = '/student/forgot-password';
-  static const studentCreateAccount = '/student/create-account';
-
   // Mentor portal
   static const mentorDashboard = '/mentor/dashboard';
   static const mentorStudents = '/mentor/students';
@@ -37,8 +35,6 @@ class AppRoutes {
   static const mentorProfileEdit = '/mentor/profile-edit';
   static const mentorSettings = '/mentor/settings';
   static const mentorForgotPassword = '/mentor/forgot-password';
-  static const mentorCreateAccount = '/mentor/create-account';
-
   // Admin portal
   static const adminDashboard = '/admin/dashboard';
   static const adminStudents = '/admin/students';
